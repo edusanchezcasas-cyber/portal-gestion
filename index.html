@@ -176,6 +176,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
 /* TABLA */
 .table-wrap{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);overflow-x:auto}
+thead{position:sticky;top:0;z-index:10}
 table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead tr:first-child{background:var(--dark)}
 thead tr.filter-row-th{background:#12122a}
@@ -306,6 +307,40 @@ tbody tr.row-selected.row-alert{outline-color:var(--amber)}
   font-family:'Courier New',monospace;font-size:11px;font-weight:600;
 }
 .id-link:hover{text-decoration:underline}
+
+
+/* ── LAYOUT FIJO ── */
+html,body{height:100%;overflow:hidden}
+.topbar{flex-shrink:0}
+.main{
+  height:calc(100vh - 52px);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  padding:1.25rem 1.5rem 0;
+}
+.tab-content{
+  display:none;
+  flex-direction:column;
+  flex:1;
+  overflow:hidden;
+  min-height:0;
+}
+.tab-content.active{display:flex}
+.table-wrap{
+  flex:1;
+  overflow:auto;
+  min-height:0;
+}
+/* El área sobre la tabla no scrollea */
+.stats{flex-shrink:0}
+.main-filters{flex-shrink:0}
+.filter-bar{flex-shrink:0}
+.active-filters{flex-shrink:0}
+.search-row{flex-shrink:0}
+.pagination{flex-shrink:0;padding-bottom:.75rem}
+/* Tab gestión scrolleable */
+#tab-gestion{overflow-y:auto}
 
 /* ── RESIZE COLUMNAS ── */
 thead tr:first-child th{position:relative}
