@@ -402,7 +402,7 @@ table{table-layout:fixed!important}
 <div class="overlay" id="modalCarga" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="modal">
     <div class="modal-title">Cargar datos desde Excel</div>
-    <div class="modal-sub">Carga el Reporte total y el Reporte de Tareas exportados desde MyBiG. Los datos se procesan en el navegador — ningún archivo se sube a internet.</div>
+    <div class="modal-sub">Carga el Reporte total y el Reporte de Tareas exportados desde MyBiG. Los datos se procesan en el navegador — ningún archivo se sube a internet.<br><span style="color:var(--amber);font-size:11px;display:block;margin-top:6px"><i class="ti ti-info-circle"></i> Para actualizar los datos permanentes del portal, sube el nuevo <strong>data.js</strong> al repositorio GitHub.</span></div>
     <div class="dz-label"><i class="ti ti-file-spreadsheet"></i> Reporte Total</div>
     <div class="drop-zone" id="dz1" onclick="document.getElementById('f1').click()" ondragover="dzOver(event,'dz1')" ondragleave="dzOut('dz1')" ondrop="dzDrop(event,'dz1','rt')">
       <i class="ti ti-table-import"></i>
@@ -1710,8 +1710,11 @@ function selectRow(tr){
   if(!wasSelected) tr.classList.add('row-selected');
 }
 
-// Cargar datos embebidos si están disponibles
-if(typeof PORTAL_DATA !== "undefined") DATA = PORTAL_DATA;
+// Cargar datos del reporte (data.js) si están disponibles
+if(typeof PORTAL_DATA !== 'undefined' && PORTAL_DATA.length > 0){
+  DATA = PORTAL_DATA;
+  console.log('Datos cargados desde data.js:', DATA.length, 'procesos');
+}
 render();
 setTimeout(initResize,50);
 
