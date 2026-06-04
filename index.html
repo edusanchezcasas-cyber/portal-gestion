@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Gestión — Vinatea & Toyama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.7.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="data.js"></script>
+<style>
+:root{
+  --dark:#1a1a2e;
+  --red:#dc2626;--red-l:#fef2f2;--red-b:#fecaca;
+  --blue:#2563eb;--blue-l:#eff6ff;--blue-b:#bfdbfe;
+  --green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;
+  --amber:#d97706;--amber-l:#fffbeb;--amber-b:#fde68a;
+  --purple:#7c3aed;--purple-l:#f5f3ff;--purple-b:#ddd6fe;
+  --gray-b:#e5e7eb;--gray-l:#f9fafb;
+  --text:#111827;--text2:#374151;--text3:#6b7280;--text4:#9ca3af;
+  --bg:#f3f4f6;--white:#fff;
+  --font:'Inter',sans-serif;--r:6px;--r2:8px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 8px 24px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+
+/* TOPBAR */
+.topbar{background:var(--dark);padding:0 1.5rem;display:flex;align-items:stretch;height:52px;position:sticky;top:0;z-index:200}
+.tb-brand{display:flex;align-items:center;gap:10px;padding-right:1.25rem;border-right:1px solid rgba(255,255,255,.1);margin-right:1rem}
+.tb-logo{width:28px;height:28px;background:var(--red);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.tb-title{font-size:13px;font-weight:600;color:#fff}
+.tb-crumb{font-size:11px;color:rgba(255,255,255,.35);margin-left:4px}
+.tb-nav{display:flex;align-items:stretch}
+.tnav{display:flex;align-items:center;gap:5px;padding:0 1rem;font-size:12px;font-weight:500;color:rgba(255,255,255,.5);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;user-select:none}
+.tnav:hover{color:rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.2)}
+.tnav.active{color:#fff;border-bottom-color:var(--red)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.tbtn-upload{display:flex;align-items:center;gap:5px;padding:5px 13px;border-radius:var(--r);background:var(--red);border:none;color:#fff;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;transition:background .15s}
+.tbtn-upload:hover{background:#b91c1c}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--white);border-radius:12px;padding:2rem;width:520px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:1.5rem;line-height:1.6}
+.dz-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.drop-zone{border:2px dashed var(--gray-b);border-radius:var(--r2);padding:1.25rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-l);margin-bottom:5px}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--blue);background:var(--blue-l)}
+.drop-zone i{font-size:26px;color:var(--text4);margin-bottom:6px;display:block}
+.dz-t{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:3px}
+.dz-s{font-size:11px;color:var(--text3)}
+.dz-status{font-size:11.5px;font-weight:500;padding:5px 10px;border-radius:var(--r);margin-bottom:.75rem}
+.dz-ok{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+.dz-err{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--gray-b)}
+.btn{padding:7px 16px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);border:1px solid var(--gray-b);background:var(--white);color:var(--text2);transition:all .15s}
+.btn:hover{background:var(--gray-l)}
+.btn-dark{background:var(--dark);border-color:var(--dark);color:#fff}
+.btn-dark:hover{background:#16213e}
+.btn-dark:disabled{opacity:.45;cursor:default}
+
+/* MAIN */
+.main{padding:1.25rem 1.5rem}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1rem}
+.stat{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);padding:.85rem 1rem;box-shadow:var(--sh);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stat-icon{width:36px;height:36px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.stat-val{font-size:22px;font-weight:600;line-height:1;margin-bottom:2px}
+.stat-lbl{font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.03em}
+
+/* BOTONES PRINCIPALES */
+.main-filters{display:flex;gap:10px;margin-bottom:1rem;align-items:center}
+.mfb{display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:var(--r2);border:1.5px solid var(--gray-b);background:var(--white);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .2s;box-shadow:var(--sh)}
+.mfb:hover{border-color:var(--text3)}
+.mfb i{font-size:18px;flex-shrink:0}
+.mfb-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:20px;padding:0 6px;border-radius:10px;font-size:10.5px;font-weight:600;flex-shrink:0}
+.mfb-s .mfb-cnt{background:var(--red-l);color:var(--red)}
+.mfb-d .mfb-cnt{background:var(--amber-l);color:var(--amber)}
+.mfb-s.active{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.mfb-s.active .mfb-cnt{background:var(--red);color:#fff}
+.mfb-d.active{background:var(--amber-l);border-color:var(--amber);color:var(--amber)}
+.mfb-d.active .mfb-cnt{background:var(--amber);color:#fff}
+.mfb-semana{margin-left:auto;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px}
+
+/* ── DROPDOWN FILTERS (3 píldoras con submenú) ── */
+.filter-bar{
+  display:flex;gap:8px;margin-bottom:.85rem;align-items:center;flex-wrap:wrap;
+}
+.fdd{position:relative;display:inline-block}
+/* Píldora principal */
+.fdd-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--gray-b);
+  font-size:12px;font-weight:500;cursor:pointer;
+  background:var(--white);color:var(--text2);
+  transition:all .18s;user-select:none;
+  font-family:var(--font);white-space:nowrap;
+  box-shadow:var(--sh);
+}
+.fdd-btn:hover,.fdd.open .fdd-btn{border-color:var(--dark);color:var(--dark)}
+.fdd-btn i{font-size:13px;transition:transform .2s}
+.fdd.open .fdd-btn i.chevron{transform:rotate(180deg)}
+/* Contador de activos */
+.fdd-cnt{
+  display:none;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  border-radius:10px;background:var(--dark);color:#fff;
+  font-size:10px;font-weight:600;
+}
+.fdd-cnt.show{display:inline-flex}
+/* Panel desplegable */
+.fdd-panel{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;
+  background:var(--white);border:1px solid var(--gray-b);
+  border-radius:var(--r2);box-shadow:var(--sh2);
+  padding:8px;min-width:200px;z-index:100;
+}
+.fdd.open .fdd-panel{display:block}
+.fdd:hover .fdd-panel{display:block}
+.fdd:hover .fdd-btn{border-color:var(--dark);color:var(--dark)}
+.fdd:hover .fdd-btn i.chevron{transform:rotate(180deg)}
+.fdd-section{margin-bottom:4px}
+.fdd-section:last-child{margin-bottom:0}
+.fdd-sep{height:1px;background:var(--gray-b);margin:6px 0}
+/* Ítems dentro del panel */
+.fdd-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;border-radius:6px;
+  cursor:pointer;font-size:12px;color:var(--text2);
+  transition:background .12s;user-select:none;
+  white-space:nowrap;
+}
+.fdd-item:hover{background:var(--gray-l)}
+.fdd-item.active{background:var(--blue-l);color:var(--blue);font-weight:500}
+.fdd-item.active.c-red{background:var(--red-l);color:var(--red)}
+.fdd-item.active.c-green{background:var(--green-l);color:var(--green)}
+.fdd-item.active.c-blue{background:var(--blue-l);color:var(--blue)}
+.fdd-item.active.c-amber{background:var(--amber-l);color:var(--amber)}
+.fdd-item.active.c-purple{background:var(--purple-l);color:var(--purple)}
+.fdd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fdd-check{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--gray-b);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+.fdd-item.active .fdd-check{background:var(--blue);border-color:var(--blue)}
+.fdd-item.active.c-red .fdd-check{background:var(--red);border-color:var(--red)}
+.fdd-item.active.c-green .fdd-check{background:var(--green);border-color:var(--green)}
+.fdd-item.active.c-blue .fdd-check{background:var(--blue);border-color:var(--blue)}
+.fdd-item.active.c-amber .fdd-check{background:var(--amber);border-color:var(--amber)}
+.fdd-item.active.c-purple .fdd-check{background:var(--purple);border-color:var(--purple)}
+.fdd-check-mark{display:none;width:8px;height:8px}
+.fdd-item.active .fdd-check-mark{display:block;color:#fff}
+.fdd-clear{display:block;text-align:center;padding:5px;font-size:11px;color:var(--text3);cursor:pointer;border-radius:4px;margin-top:4px;border-top:1px solid var(--gray-b);padding-top:8px}
+.fdd-clear:hover{color:var(--red)}
+
+/* Chips filtros activos */
+.active-filters{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:.75rem}
+.af-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 10px;border-radius:20px;background:var(--blue-l);border:1px solid var(--blue-b);color:var(--blue);font-size:11px;font-weight:500}
+.af-chip button{background:none;border:none;cursor:pointer;color:var(--blue);font-size:14px;line-height:1;padding:0;margin-left:1px;opacity:.7;font-family:var(--font)}
+.af-chip button:hover{opacity:1}
+
+/* SEARCH ROW */
+.search-row{display:flex;gap:8px;margin-bottom:.5rem;align-items:center}
+.srch-wrap{flex:1;display:flex;align-items:center;gap:7px;background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:0 10px;box-shadow:var(--sh);transition:border-color .2s}
+.srch-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.srch-wrap i{color:var(--text4);font-size:15px;flex-shrink:0}
+.srch-inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:12px;font-family:var(--font);padding:7px 0}
+.srch-inp::placeholder{color:var(--text4)}
+.sel-inp{padding:7px 10px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);color:var(--text2);font-size:11px;font-family:var(--font);outline:none;cursor:pointer;box-shadow:var(--sh)}
+.sel-inp:focus{border-color:var(--blue)}
+.count-lbl{font-size:11px;color:var(--text3);white-space:nowrap;padding:0 4px}
+.btn-sm{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);color:var(--text3);font-size:11px;font-family:var(--font);cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.btn-sm:hover{border-color:var(--red);color:var(--red)}
+
+/* TABLA */
+.table-wrap{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);overflow-x:auto}
+table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead tr:first-child{background:var(--dark)}
+thead tr.filter-row-th{background:#12122a}
+thead tr.filter-row-th th{padding:4px 6px}
+.col-filter-inp{width:100%;min-width:60px;padding:4px 7px;border-radius:4px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;font-size:10.5px;font-family:var(--font);outline:none;transition:border-color .15s}
+.col-filter-inp::placeholder{color:rgba(255,255,255,.28)}
+.col-filter-inp:focus{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.11)}
+.col-filter-inp.has-value{border-color:var(--amber);background:rgba(217,119,6,.18)}
+thead tr:first-child th{padding:9px 11px;text-align:left;font-weight:500;font-size:10.5px;color:rgba(255,255,255,.65);white-space:nowrap;cursor:default;user-select:none;letter-spacing:.04em;text-transform:uppercase;transition:color .15s}
+thead tr:first-child th:hover,thead tr:first-child th.sorted{color:#fff}
+tbody tr{border-bottom:1px solid var(--gray-b);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#fafafa}
+tbody td{padding:8px 11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.td-p{color:var(--text);font-weight:500}
+.td-d{color:var(--text3)}
+.td-m{font-family:'Courier New',monospace;font-size:11px;color:var(--text3)}
+.row-s{border-left:3px solid var(--red)!important}
+.row-alert{border-left:3px solid var(--amber)!important}
+.row-alert td.td-p{color:var(--text)}
+
+
+
+/* ── DROPDOWN VALORES COLUMNA ── */
+.col-filter-wrap{position:relative}
+.col-val-dropdown{
+  display:none;position:absolute;top:calc(100% + 2px);left:0;
+  background:#1e2140;border:1px solid rgba(255,255,255,.18);
+  border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  z-index:300;min-width:180px;max-width:280px;
+  max-height:220px;overflow-y:auto;padding:4px;
+}
+.col-val-dropdown.open{display:block}
+.col-val-dropdown::-webkit-scrollbar{width:4px}
+.col-val-dropdown::-webkit-scrollbar-track{background:transparent}
+.col-val-dropdown::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.cvd-search{
+  width:100%;padding:5px 8px;margin-bottom:4px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:4px;color:#fff;font-size:11px;font-family:var(--font);outline:none;
+}
+.cvd-search::placeholder{color:rgba(255,255,255,.35)}
+.cvd-item{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 8px;border-radius:4px;cursor:pointer;
+  font-size:11.5px;color:rgba(255,255,255,.8);
+  transition:background .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cvd-item:hover{background:rgba(255,255,255,.1)}
+.cvd-item.selected{background:rgba(37,99,235,.35);color:#93c5fd;font-weight:500}
+.cvd-item.selected::before{content:'✓ ';font-size:10px}
+.cvd-empty{padding:8px;font-size:11px;color:rgba(255,255,255,.4);text-align:center}
+.cvd-clear{
+  display:block;text-align:center;padding:5px;
+  font-size:11px;color:rgba(255,255,255,.4);cursor:pointer;
+  border-top:1px solid rgba(255,255,255,.1);margin-top:2px;
+}
+.cvd-clear:hover{color:var(--red)}
+
+
+/* ── TAB GESTIÓN ── */
+.tg-toolbar{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.btn-primary-red{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--r);background:var(--red);border:none;color:#fff;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;transition:background .15s;box-shadow:var(--sh)}
+.btn-primary-red:hover{background:#b91c1c}
+.tg-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-bottom:1.5rem}
+.tg-card{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);padding:1rem;box-shadow:var(--sh);transition:box-shadow .15s}
+.tg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.tg-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;gap:8px}
+.tg-card-title{font-size:12.5px;font-weight:600;color:var(--text);line-height:1.4}
+.tg-card-meta{display:flex;flex-direction:column;gap:5px;font-size:11.5px}
+.tg-meta-row{display:flex;align-items:center;gap:6px;color:var(--text3)}
+.tg-meta-row i{font-size:13px;flex-shrink:0;color:var(--text4)}
+.tg-meta-row a{color:var(--blue);text-decoration:none;font-weight:500}
+.tg-meta-row a:hover{text-decoration:underline}
+.tg-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--gray-b)}
+.tg-avatar{width:26px;height:26px;border-radius:50%;background:var(--dark);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;border:2px solid var(--white);margin-left:-6px}
+.tg-avatars{display:flex;margin-left:6px}
+.btn-redir{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s}
+.btn-redir:hover{border-color:var(--blue);color:var(--blue)}
+/* Sección paralegal */
+.tg-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem;display:flex;align-items:center;gap:6px}
+.tg-section-title::after{content:'';flex:1;height:1px;background:var(--gray-b)}
+/* Modal nueva tarea */
+.tg-modal{background:var(--white);border-radius:12px;padding:1.75rem;width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.tg-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.tg-form-grid.full{grid-template-columns:1fr}
+.tg-field label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px}
+.tg-field input,.tg-field select,.tg-field textarea{width:100%;padding:7px 10px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);color:var(--text);font-size:12px;font-family:var(--font);outline:none;transition:border-color .2s}
+.tg-field input:focus,.tg-field select:focus,.tg-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.tg-field textarea{resize:vertical;min-height:70px}
+/* Redir modal */
+.redir-modal{background:var(--white);border-radius:10px;padding:1.25rem;width:320px;box-shadow:0 12px 40px rgba(0,0,0,.15)}
+.redir-title{font-size:14px;font-weight:600;margin-bottom:1rem}
+.redir-member{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;transition:background .12s}
+.redir-member:hover{background:var(--gray-l)}
+.redir-member-info{font-size:12px;font-weight:500}
+.redir-member-role{font-size:10.5px;color:var(--text3)}
+.badge-estado-pend{background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber)}
+.badge-estado-done{background:var(--green-l);border:1px solid var(--green-b);color:var(--green)}
+.badge-estado-canc{background:var(--gray-l);border:1px solid var(--gray-b);color:var(--text3)}
+
+
+/* ── FILA SELECCIONADA ── */
+tbody tr.row-selected{
+  background:#e8f0fe!important;
+  outline:2px solid var(--blue);
+  outline-offset:-2px;
+}
+tbody tr.row-selected td{color:var(--text)!important}
+tbody tr.row-selected.row-s{outline-color:var(--red)}
+tbody tr.row-selected.row-alert{outline-color:var(--amber)}
+
+/* ── ALERTA LECTURA — llamativa ── */
+.alert-lectura-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:6px;
+  background:#fff3cd;border:1.5px solid var(--amber);
+  color:#854d0e;font-size:11px;font-weight:600;
+  white-space:nowrap;
+}
+.alert-lectura-badge i{font-size:13px;color:var(--amber)}
+.row-alert{border-left:3px solid var(--amber)!important;background:#fffbeb!important}
+.row-alert:hover{background:#fef9c3!important}
+
+/* ── ID LINK ── */
+.id-link{
+  color:var(--blue);text-decoration:none;
+  font-family:'Courier New',monospace;font-size:11px;font-weight:600;
+}
+.id-link:hover{text-decoration:underline}
+
+/* ── RESIZE COLUMNAS ── */
+thead tr:first-child th{position:relative}
+.resize-handle{
+  position:absolute;right:0;top:0;bottom:0;
+  width:5px;cursor:col-resize;
+  background:transparent;
+  transition:background .15s;
+  z-index:10;
+}
+.resize-handle:hover,
+.resize-handle.resizing{background:rgba(255,255,255,.3)}
+table{table-layout:fixed!important}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:500;white-space:nowrap;font-family:var(--font);border:1px solid transparent}
+.b-r{background:var(--red-l);border-color:var(--red-b);color:var(--red)}
+.b-b{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue)}
+.b-g{background:var(--green-l);border-color:var(--green-b);color:var(--green)}
+.b-a{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber)}
+.b-p{background:var(--purple-l);border-color:var(--purple-b);color:var(--purple)}
+.b-n{background:var(--gray-l);border-color:var(--gray-b);color:var(--text3)}
+.b-d{background:#f1f5f9;border-color:#e2e8f0;color:#475569}
+
+/* PAGINACIÓN */
+.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:11px;color:var(--text3)}
+.pg-btns{display:flex;gap:3px;align-items:center}
+.pg-btn{padding:3px 9px;border:1px solid var(--gray-b);border-radius:var(--r);background:var(--white);cursor:pointer;font-size:11px;color:var(--text2);font-family:var(--font);transition:all .15s}
+.pg-btn:disabled{opacity:.4;cursor:default}
+.pg-btn:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.pg-btn.active{background:var(--dark);border-color:var(--dark);color:#fff;font-weight:600}
+.pg-ell{color:var(--text4);padding:0 3px}
+.empty{text-align:center;padding:3rem;color:var(--text4);font-size:12px}
+.empty i{font-size:36px;display:block;margin-bottom:.5rem;opacity:.3}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">VT</div>
+    <div><div class="tb-title">Portal Gestión <span class="tb-crumb">› Vinatea & Toyama · CID</span></div></div>
+  </div>
+  <nav class="tb-nav">
+    <div class="tnav active" onclick="switchTab('reporte',this)">Reporte total</div>
+    <div class="tnav" onclick="switchTab('audiencias',this)">Próximas audiencias</div>
+    <div class="tnav" onclick="switchTab('sensibles',this)">Sensibles</div>
+    <div class="tnav" onclick="switchTab('gestion',this)">Tareas de Gestión</div>
+  </nav>
+  <div class="tb-right">
+    <button class="tbtn-upload" onclick="document.getElementById('modalCarga').classList.add('show')">
+      <i class="ti ti-upload" style="font-size:13px"></i> Cargar Excel
+    </button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="modalCarga" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <div class="modal-title">Cargar datos desde Excel</div>
+    <div class="modal-sub">Carga el Reporte total y el Reporte de Tareas exportados desde MyBiG. Los datos se procesan en el navegador — ningún archivo se sube a internet.</div>
+    <div class="dz-label"><i class="ti ti-file-spreadsheet"></i> Reporte Total</div>
+    <div class="drop-zone" id="dz1" onclick="document.getElementById('f1').click()" ondragover="dzOver(event,'dz1')" ondragleave="dzOut('dz1')" ondrop="dzDrop(event,'dz1','rt')">
+      <i class="ti ti-table-import"></i>
+      <div class="dz-t">Arrastra aquí o haz clic para seleccionar</div>
+      <div class="dz-s">.xlsx — Reporte total de procesos de MyBiG</div>
+    </div>
+    <div id="st1"></div>
+    <input type="file" id="f1" accept=".xlsx" style="display:none" onchange="loadFile(this,'rt','st1')">
+    <div class="dz-label" style="margin-top:1rem"><i class="ti ti-clipboard-list"></i> Reporte de Tareas</div>
+    <div class="drop-zone" id="dz2" onclick="document.getElementById('f2').click()" ondragover="dzOver(event,'dz2')" ondragleave="dzOut('dz2')" ondrop="dzDrop(event,'dz2','ta')">
+      <i class="ti ti-list-check"></i>
+      <div class="dz-t">Arrastra aquí o haz clic para seleccionar</div>
+      <div class="dz-s">.xlsx — Reporte de tareas de MyBiG</div>
+    </div>
+    <div id="st2"></div>
+    <input type="file" id="f2" accept=".xlsx" style="display:none" onchange="loadFile(this,'ta','st2')">
+    <div class="modal-actions">
+      <button class="btn" onclick="document.getElementById('modalCarga').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-dark" id="btnProcesar" disabled onclick="procesarExcel()">Procesar y actualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- TAB REPORTE TOTAL -->
+<div id="tab-reporte" class="tab-content active">
+
+  <div class="stats">
+    <div class="stat">
+      <div><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Procesos activos</div></div>
+      <div class="stat-icon" style="background:#f1f5f9;color:#64748b"><i class="ti ti-briefcase"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-val" id="st-sent" style="color:var(--red)">—</div><div class="stat-lbl">Por sentenciar</div></div>
+      <div class="stat-icon" style="background:var(--red-l);color:var(--red)"><i class="ti ti-gavel"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-val" id="st-dili" style="color:var(--amber)">—</div><div class="stat-lbl">Con audiencia</div></div>
+      <div class="stat-icon" style="background:var(--amber-l);color:var(--amber)"><i class="ti ti-calendar-event"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-val" id="st-sens" style="color:var(--red)">—</div><div class="stat-lbl">Sensibles</div></div>
+      <div class="stat-icon" style="background:var(--red-l);color:var(--red)"><i class="ti ti-alert-triangle"></i></div>
+    </div>
+    <div class="stat">
+      <div><div class="stat-val" id="st-ej" style="color:var(--green)">—</div><div class="stat-lbl">En ejecución</div></div>
+      <div class="stat-icon" style="background:var(--green-l);color:var(--green)"><i class="ti ti-scale"></i></div>
+    </div>
+  </div>
+
+  <!-- BOTONES PRINCIPALES -->
+  <div class="main-filters">
+    <button class="mfb mfb-s" id="mfb-s" onclick="toggleMF('sent')">
+      <i class="ti ti-gavel"></i>
+      <div style="text-align:left">
+        <div style="font-size:12px;font-weight:600">Procesos por sentenciar</div>
+        <div style="font-size:10.5px;opacity:.65;margin-top:1px">Bitácora: Pendiente de lectura de sentencia</div>
+      </div>
+      <span class="mfb-cnt" id="mfb-s-cnt">—</span>
+    </button>
+    <button class="mfb mfb-d" id="mfb-d" onclick="toggleMF('dili')">
+      <i class="ti ti-calendar-event"></i>
+      <div style="text-align:left">
+        <div style="font-size:12px;font-weight:600">Próximas audiencias</div>
+        <div style="font-size:10.5px;opacity:.65;margin-top:1px">Tareas DILIGENCIA — en MyBiG</div>
+      </div>
+      <span class="mfb-cnt" id="mfb-d-cnt">—</span>
+    </button>
+    <div class="mfb-semana">
+      <i class="ti ti-clock" style="font-size:13px"></i>
+      Semana 23 · <strong id="lbl-sem" style="color:var(--text2)">02/06/2026</strong>
+    </div>
+  </div>
+
+  <!-- 3 PÍLDORAS DROPDOWN -->
+  <div class="filter-bar" id="filter-bar">
+
+    <!-- ESTADO -->
+    <div class="fdd" id="fdd-estado">
+      <div class="fdd-btn">
+        Estado
+        <span class="fdd-cnt" id="cnt-estado"></span>
+        <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
+      </div>
+      <div class="fdd-panel">
+        <div class="fdd-item c-red" data-group="estado" data-key="sensible" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--red)"></span>Solo sensibles
+        </div>
+        <div class="fdd-item c-green" data-group="estado" data-key="ejecucion" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--green)"></span>Solo ejecución
+        </div>
+        <div class="fdd-item c-blue" data-group="estado" data-key="giro" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--blue)"></span>Solo en giro
+        </div>
+        <div class="fdd-item c-blue" data-group="estado" data-key="tarea" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--blue)"></span>Con tarea pendiente
+        </div>
+        <span class="fdd-clear" onclick="clearGroup('estado')">Limpiar</span>
+      </div>
+    </div>
+
+    <!-- INSTANCIA -->
+    <div class="fdd" id="fdd-instancia">
+      <div class="fdd-btn">
+        Instancia
+        <span class="fdd-cnt" id="cnt-instancia"></span>
+        <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
+      </div>
+      <div class="fdd-panel">
+        <div class="fdd-item c-blue" data-group="instancia" data-key="PRIMERA INSTANCIA" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--blue)"></span>1ra instancia
+        </div>
+        <div class="fdd-item c-purple" data-group="instancia" data-key="SEGUNDA INSTANCIA" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--purple)"></span>2da instancia
+        </div>
+        <div class="fdd-item c-amber" data-group="instancia" data-key="TERCERA INSTANCIA" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--amber)"></span>3ra / Suprema
+        </div>
+        <div class="fdd-item c-green" data-group="instancia" data-key="EJECUCIÓN" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--green)"></span>Ejecución
+        </div>
+        <span class="fdd-clear" onclick="clearGroup('instancia')">Limpiar</span>
+      </div>
+    </div>
+
+    <!-- PACTO -->
+    <div class="fdd" id="fdd-pacto">
+      <div class="fdd-btn">
+        Pacto
+        <span class="fdd-cnt" id="cnt-pacto"></span>
+        <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
+      </div>
+      <div class="fdd-panel">
+        <div class="fdd-item" data-group="pacto" data-key="Fijo" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Fijo
+        </div>
+        <div class="fdd-item" data-group="pacto" data-key="Horas" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Horas
+        </div>
+        <div class="fdd-item" data-group="pacto" data-key="Etapas o Hitos" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Etapas o Hitos
+        </div>
+        <div class="fdd-item" data-group="pacto" data-key="Retainer" onclick="toggleFddItem(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Retainer
+        </div>
+        <span class="fdd-clear" onclick="clearGroup('pacto')">Limpiar</span>
+      </div>
+    </div>
+
+    <div style="width:1px;height:20px;background:var(--gray-b);margin:0 2px"></div>
+
+    <button class="btn-sm" onclick="resetAllFilters()">
+      <i class="ti ti-filter-off" style="font-size:13px"></i> Limpiar todo
+    </button>
+  </div>
+
+  <!-- Chips filtros activos -->
+  <div class="active-filters" id="active-filters"></div>
+
+  <div class="search-row">
+    <div class="srch-wrap">
+      <i class="ti ti-search"></i>
+      <input class="srch-inp" type="text" id="searchbox" placeholder="Buscar en todas las columnas..." oninput="onSearch()">
+    </div>
+    <select class="sel-inp" id="sup-filter" onchange="render()">
+      <option value="">Todos los supervisores</option>
+      <option>Carlos Morales</option><option>Cynthia Lagos</option>
+      <option>Elyana Arias</option><option>Katia Jacinto</option>
+      <option>Samuel Paz</option><option>Solanch Estrella</option>
+    </select>
+    <select class="sel-inp" id="dist-filter" onchange="render()">
+      <option value="">Todos los distritos</option>
+    </select>
+    <button class="btn-sm" onclick="clearColFilters()">
+      <i class="ti ti-eraser" style="font-size:13px"></i> Limpiar filtros columna
+    </button>
+    <span class="count-lbl" id="count-txt">— procesos</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="thead-main">
+          <th style="min-width:65px" data-col="id">ID</th>
+          <th style="min-width:160px" data-col="cliente">Cliente</th>
+          <th style="min-width:140px" data-col="contraparte">Contraparte</th>
+          <th style="min-width:130px" data-col="expediente">Expediente</th>
+          <th style="min-width:95px"  data-col="supervisor">Supervisor</th>
+          <th style="min-width:105px" data-col="responsable">Responsable</th>
+          <th style="min-width:72px"  data-col="instancia">Instancia</th>
+          <th style="min-width:70px"  data-col="situacion">Situación</th>
+          <th style="min-width:80px"  data-col="relevancia">Relevancia</th>
+          <th style="min-width:65px"  data-col="pacto">Pacto</th>
+          <th style="min-width:130px" data-col="especialista">CEJ</th>
+          <th style="min-width:185px" data-col="organo">Órgano jurisdiccional</th>
+          <th style="min-width:200px" data-col="bitacora">Bitácora</th>
+          <th style="min-width:160px" data-col="proxTarea">Próxima tarea</th>
+          <th style="min-width:175px" data-col="proxDiligencia">Próxima audiencia</th>
+        </tr>
+        <tr class="filter-row-th">
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" placeholder="Filtrar..." readonly onclick="openCvd(this,'id')"><div class="col-val-dropdown" id="cvd-id"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" placeholder="Filtrar..." readonly onclick="openCvd(this,'cliente')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-cliente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" placeholder="Filtrar..." readonly onclick="openCvd(this,'contraparte')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-contraparte"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" placeholder="Filtrar..." readonly onclick="openCvd(this,'expediente')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-expediente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" placeholder="Filtrar..." readonly onclick="openCvd(this,'supervisor')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-supervisor"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" placeholder="Filtrar..." readonly onclick="openCvd(this,'responsable')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-responsable"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" placeholder="Filtrar..." readonly onclick="openCvd(this,'instancia')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-instancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" placeholder="Filtrar..." readonly onclick="openCvd(this,'situacion')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-situacion"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" placeholder="Filtrar..." readonly onclick="openCvd(this,'relevancia')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-relevancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" placeholder="Filtrar..." readonly onclick="openCvd(this,'pacto')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-pacto"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="especialista" placeholder="Filtrar..." readonly onclick="openCvd(this,'especialista')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-especialista"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" placeholder="Filtrar..." readonly onclick="openCvd(this,'organo')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-organo"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="bitacora" placeholder="Filtrar..." readonly onclick="openCvd(this,'bitacora')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-bitacora"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxTarea" placeholder="Filtrar..." readonly onclick="openCvd(this,'proxTarea')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-proxTarea"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" placeholder="Filtrar..." readonly onclick="openCvd(this,'proxDiligencia')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-proxDiligencia"></div></div></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination"><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
+</div>
+
+<!-- TAB AUDIENCIAS -->
+<div id="tab-audiencias" class="tab-content">
+  <div class="search-row">
+    <div class="srch-wrap"><i class="ti ti-search"></i>
+      <input class="srch-inp" type="text" id="aud-search" placeholder="Buscar cliente, expediente, responsable, órgano..." oninput="renderAud()">
+    </div>
+    <select class="sel-inp" id="aud-sup" onchange="renderAud()">
+      <option value="">Todos los supervisores</option>
+      <option>Carlos Morales</option><option>Cynthia Lagos</option>
+      <option>Elyana Arias</option><option>Katia Jacinto</option>
+      <option>Samuel Paz</option><option>Solanch Estrella</option>
+    </select>
+    <select class="sel-inp" id="aud-tipo" onchange="renderAud()">
+      <option value="">Todos los tipos de audiencia</option>
+    </select>
+    <span class="count-lbl" id="aud-count">— audiencias</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:160px">Cliente</th>
+          <th style="min-width:140px">Contraparte</th>
+          <th style="min-width:130px">Expediente</th>
+          <th style="min-width:95px">Supervisor</th>
+          <th style="min-width:110px">Responsable</th>
+          <th style="min-width:72px">Instancia</th>
+          <th style="min-width:72px">Relevancia</th>
+          <th style="min-width:185px">Órgano jurisdiccional</th>
+          <th style="min-width:220px">Tipo de audiencia</th>
+          <th style="min-width:115px" onclick="sortAud()">Fecha y hora ↕</th>
+        </tr>
+        <tr class="filter-row-th">
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','aud')"><div class="col-val-dropdown" id="cvd-aud-cliente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','aud')"><div class="col-val-dropdown" id="cvd-aud-contraparte"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','aud')"><div class="col-val-dropdown" id="cvd-aud-expediente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','aud')"><div class="col-val-dropdown" id="cvd-aud-supervisor"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','aud')"><div class="col-val-dropdown" id="cvd-aud-responsable"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','aud')"><div class="col-val-dropdown" id="cvd-aud-instancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'relevancia','aud')"><div class="col-val-dropdown" id="cvd-aud-relevancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','aud')"><div class="col-val-dropdown" id="cvd-aud-organo"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiligencia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiliFecha" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiliFecha','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiliFecha"></div></div></th>
+        </tr>
+      </thead>
+      <tbody id="aud-tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
+</div>
+
+<!-- TAB SENSIBLES -->
+<div id="tab-sensibles" class="tab-content">
+  <div class="search-row">
+    <div class="srch-wrap"><i class="ti ti-search"></i>
+      <input class="srch-inp" type="text" id="sens-search" placeholder="Buscar..." oninput="renderSens()">
+    </div>
+    <select class="sel-inp" id="sens-sup" onchange="renderSens()">
+      <option value="">Todos los supervisores</option>
+      <option>Carlos Morales</option><option>Cynthia Lagos</option>
+      <option>Elyana Arias</option><option>Katia Jacinto</option>
+      <option>Samuel Paz</option><option>Solanch Estrella</option>
+    </select>
+    <span class="count-lbl" id="sens-count">— procesos sensibles</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:160px">Cliente</th>
+          <th style="min-width:140px">Contraparte</th>
+          <th style="min-width:130px">Expediente</th>
+          <th style="min-width:95px">Supervisor</th>
+          <th style="min-width:110px">Responsable</th>
+          <th style="min-width:72px">Instancia</th>
+          <th style="min-width:70px">Situación</th>
+          <th style="min-width:65px">Pacto</th>
+          <th style="min-width:185px">Órgano jurisdiccional</th>
+          <th style="min-width:160px">Próxima tarea</th>
+          <th style="min-width:175px">Próxima audiencia</th>
+        </tr>
+        <tr class="filter-row-th">
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" placeholder="Filtrar..." readonly onclick="openCvd(this,'id')"><div class="col-val-dropdown" id="cvd-id"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','sens')"><div class="col-val-dropdown" id="cvd-sens-cliente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','sens')"><div class="col-val-dropdown" id="cvd-sens-contraparte"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','sens')"><div class="col-val-dropdown" id="cvd-sens-expediente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','sens')"><div class="col-val-dropdown" id="cvd-sens-supervisor"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','sens')"><div class="col-val-dropdown" id="cvd-sens-responsable"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','sens')"><div class="col-val-dropdown" id="cvd-sens-instancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'situacion','sens')"><div class="col-val-dropdown" id="cvd-sens-situacion"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'pacto','sens')"><div class="col-val-dropdown" id="cvd-sens-pacto"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','sens')"><div class="col-val-dropdown" id="cvd-sens-organo"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxTarea" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxTarea','sens')"><div class="col-val-dropdown" id="cvd-sens-proxTarea"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','sens')"><div class="col-val-dropdown" id="cvd-sens-proxDiligencia"></div></div></th>
+        </tr>
+      </thead>
+      <tbody id="sens-tbody"></tbody>
+    </table>
+  </div>
+  <div class="pagination"><span id="sens-pg-info"></span><div class="pg-btns" id="sens-pg-btns"></div></div>
+</div>
+
+<!-- TAB TAREAS DE GESTIÓN -->
+<div id="tab-gestion" class="tab-content">
+
+  <div class="tg-toolbar">
+    <button class="btn-primary-red" onclick="document.getElementById('modalNuevaTarea').classList.add('show')">
+      <i class="ti ti-plus" style="font-size:14px"></i> Nueva tarea de gestión
+    </button>
+    <div class="srch-wrap" style="max-width:320px">
+      <i class="ti ti-search"></i>
+      <input class="srch-inp" type="text" id="tg-search" placeholder="Buscar proceso, cliente, responsable..." oninput="renderGestion()">
+    </div>
+    <select class="sel-inp" id="tg-resp" onchange="renderGestion()">
+      <option value="">Todos los responsables</option>
+      <option>Arturo Trelles</option>
+      <option>Carlos Morales</option>
+      <option>Juan Jose Edquen</option>
+      <option>Roberto Matallana</option>
+      <option>Silvia Maldonado</option>
+      <option>Talía León</option>
+    </select>
+    <select class="sel-inp" id="tg-estado" onchange="renderGestion()">
+      <option value="">Todos los estados</option>
+      <option>Pendiente</option>
+      <option>Completada</option>
+      <option>Cancelada</option>
+    </select>
+    <span class="count-lbl" id="tg-count">— tareas</span>
+  </div>
+
+  <!-- Tareas activas -->
+  <div class="tg-section-title"><i class="ti ti-clipboard-list" style="font-size:14px"></i>Tareas activas del equipo Gestión</div>
+  <div id="tg-cards" class="tg-cards"></div>
+
+  <!-- Sección paralegal -->
+  <div class="tg-section-title" style="margin-top:1.5rem"><i class="ti ti-users" style="font-size:14px"></i>Gestión paralegal</div>
+  <div class="table-wrap" style="margin-bottom:1rem">
+    <table style="min-width:900px">
+      <thead><tr>
+        <th style="min-width:60px">ID</th>
+        <th style="min-width:160px">Cliente</th>
+        <th style="min-width:130px">Expediente</th>
+        <th style="min-width:140px">Tarea de gestión</th>
+        <th style="min-width:110px">Asignado a</th>
+        <th style="min-width:90px">Fecha</th>
+        <th style="min-width:80px">Estado</th>
+        <th style="min-width:80px">Acciones</th>
+      </tr></thead>
+      <tbody id="tg-paralegal-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL NUEVA TAREA DE GESTIÓN -->
+<div class="overlay" id="modalNuevaTarea" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="tg-modal">
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Nueva tarea de gestión</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:1.25rem">Registra una tarea para el equipo Gestión sobre un proceso específico.</div>
+
+    <div class="tg-form-grid">
+      <div class="tg-field">
+        <label>ID del proceso</label>
+        <input type="text" id="nt-id" placeholder="Ej: 26880" oninput="autocompleteProceso()">
+      </div>
+      <div class="tg-field">
+        <label>Expediente</label>
+        <input type="text" id="nt-exp" placeholder="Se completa automáticamente" readonly style="background:var(--gray-l)">
+      </div>
+    </div>
+    <div class="tg-form-grid full" style="grid-template-columns:1fr">
+      <div class="tg-field">
+        <label>Cliente</label>
+        <input type="text" id="nt-cliente" placeholder="Se completa automáticamente" readonly style="background:var(--gray-l)">
+      </div>
+    </div>
+    <div class="tg-form-grid">
+      <div class="tg-field">
+        <label>Tipo de tarea de gestión</label>
+        <select id="nt-tipo">
+          <option value="">Seleccionar...</option>
+          <optgroup label="1ra instancia">
+            <option>Gestión - Impulso de demanda/admisorio</option>
+            <option>Gestión - Impulso previo audiencia primera</option>
+            <option>Gestión - Impulso sentencia de primera</option>
+            <option>Gestión - Consignaciones judiciales</option>
+            <option>Gestión - Elevación a segunda</option>
+            <option>Gestión - Impulso trámite primera instancia</option>
+            <option>Gestión - Ejecución de sentencia</option>
+          </optgroup>
+          <optgroup label="2da instancia">
+            <option>Gestión - Programación vista de la causa</option>
+            <option>Gestión - Impulso previo vista de la causa</option>
+            <option>Gestión - Impulso sentencia de segunda</option>
+            <option>Gestión - Elevación a Suprema/TC</option>
+            <option>Gestión - Impulso trámite segunda instancia</option>
+          </optgroup>
+          <optgroup label="3ra instancia / Suprema">
+            <option>Gestión - Confirmación sala y número expediente</option>
+            <option>Gestión - Programación calificación</option>
+            <option>Gestión - Previo a la audiencia calificación/fondo</option>
+            <option>Gestión - Programación vista fondo</option>
+            <option>Gestión - Impulso sentencia en Suprema/TC</option>
+            <option>Gestión - Impulso trámite Suprema/TC</option>
+          </optgroup>
+          <optgroup label="Sin instancia">
+            <option>Gestión - Búsqueda demanda/cautelar</option>
+            <option>Gestión - Impulso cautelar</option>
+            <option>Gestión - Oficios</option>
+            <option>Gestión - Recojo/entrega documentos</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="tg-field">
+        <label>Asignado a</label>
+        <select id="nt-asignado">
+          <option value="">Seleccionar responsable...</option>
+          <option>Arturo Trelles</option>
+          <option>Carlos Morales</option>
+          <option>Juan Jose Edquen</option>
+          <option>Roberto Matallana</option>
+          <option>Silvia Maldonado</option>
+          <option>Talía León</option>
+        </select>
+      </div>
+    </div>
+    <div class="tg-form-grid">
+      <div class="tg-field">
+        <label>Fecha límite</label>
+        <input type="date" id="nt-fecha">
+      </div>
+      <div class="tg-field">
+        <label>Agendado por</label>
+        <input type="text" id="nt-agendadopor" placeholder="Tu nombre">
+      </div>
+    </div>
+    <div class="tg-form-grid full" style="grid-template-columns:1fr">
+      <div class="tg-field">
+        <label>Observaciones</label>
+        <textarea id="nt-obs" placeholder="Indicaciones, contexto o acción requerida..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="document.getElementById('modalNuevaTarea').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-dark" onclick="crearTareaGestion()">Crear tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REDIRIGIR TAREA -->
+<div class="overlay" id="modalRedirigir" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="redir-modal">
+    <div class="redir-title">Redirigir tarea</div>
+    <div style="font-size:11.5px;color:var(--text3);margin-bottom:1rem" id="redir-tarea-info"></div>
+    <div id="redir-members"></div>
+    <div class="modal-actions" style="margin-top:1rem;padding-top:.75rem">
+      <button class="btn" onclick="document.getElementById('modalRedirigir').classList.remove('show')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+let DATA = [];
+const PAGE=100;
+// Estado independiente por tab
+const TAB_STATE = {
+  reporte:   { mf:'', colFilters:{}, fdd:{estado:new Set(),instancia:new Set(),pacto:new Set()}, page:1, q:'', sup:'', dist:'' },
+  audiencias:{ colFilters:{}, page:1, q:'', sup:'', tipo:'', sortAsc:true },
+  sensibles: { colFilters:{}, page:1, q:'', sup:'' },
+};
+// Aliases para compatibilidad con código existente (apuntan al tab activo)
+let mf='', colFilters={};
+let fddState={estado:new Set(),instancia:new Set(),pacto:new Set()};
+let page=1,audPage=1,sensPage=1,audSortAsc=true;
+let activeTab='reporte';
+
+// Cerrar dropdowns al hacer clic fuera
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.fdd'))
+    document.querySelectorAll('.fdd.open').forEach(d=>d.classList.remove('open'));
+});
+
+function toggleFdd(id){
+  const el=document.getElementById(id);
+  const wasOpen=el.classList.contains('open');
+  document.querySelectorAll('.fdd.open').forEach(d=>d.classList.remove('open'));
+  if(!wasOpen)el.classList.add('open');
+}
+
+function toggleFddItem(el){
+  el.classList.toggle('active');
+  const group=el.dataset.group, key=el.dataset.key;
+  if(fddState[group].has(key))fddState[group].delete(key);
+  else fddState[group].add(key);
+  updateFddCounts();
+  page=1;render();updateActiveChips();
+}
+
+function clearGroup(group){
+  fddState[group].clear();
+  document.querySelectorAll(`.fdd-item[data-group="${group}"]`).forEach(el=>el.classList.remove('active'));
+  updateFddCounts();page=1;render();updateActiveChips();
+}
+
+function updateFddCounts(){
+  ['estado','instancia','pacto'].forEach(g=>{
+    const n=fddState[g].size;
+    const cnt=document.getElementById('cnt-'+g);
+    cnt.textContent=n;
+    cnt.classList.toggle('show',n>0);
+    const btn=document.querySelector(`#fdd-${g} .fdd-btn`);
+    if(n>0){btn.style.borderColor='var(--dark)';btn.style.color='var(--dark)';}
+    else{btn.style.borderColor='';btn.style.color='';}
+  });
+}
+
+function updateActiveChips(){
+  const container=document.getElementById('active-filters');
+  const chips=[];
+  const labels={
+    sensible:'Sensibles',ejecucion:'Solo ejecución',giro:'Solo en giro',tarea:'Con tarea',
+    'PRIMERA INSTANCIA':'1ra instancia','SEGUNDA INSTANCIA':'2da instancia',
+    'TERCERA INSTANCIA':'3ra/Suprema','EJECUCIÓN':'Ejecución',
+    'Fijo':'Fijo','Horas':'Horas','Etapas o Hitos':'Etapas','Retainer':'Retainer'
+  };
+  ['estado','instancia','pacto'].forEach(g=>{
+    fddState[g].forEach(k=>{
+      chips.push(`<div class="af-chip">${labels[k]||k}
+        <button onclick="removeFddItem('${g}','${k}')">×</button></div>`);
+    });
+  });
+  // Col filters
+  const colLabels={cliente:'Cliente',contraparte:'Contraparte',expediente:'Expediente',
+    supervisor:'Supervisor',responsable:'Responsable',instancia:'Instancia',
+    situacion:'Situación',relevancia:'Relevancia',pacto:'Pacto',
+    especialista:'CEJ',organo:'Órgano',bitacora:'Bitácora',
+    proxTarea:'Tarea',proxDiligencia:'Audiencia'};
+  Object.entries(colFilters).forEach(([c,v])=>{
+    chips.push(`<div class="af-chip">${colLabels[c]||c}: <strong>${v}</strong>
+      <button onclick="removeColFilter('${c}')">×</button></div>`);
+  });
+  container.innerHTML=chips.join('');
+}
+
+function removeFddItem(group,key){
+  fddState[group].delete(key);
+  const el=document.querySelector(`.fdd-item[data-group="${group}"][data-key="${key}"]`);
+  if(el)el.classList.remove('active');
+  updateFddCounts();page=1;render();updateActiveChips();
+}
+
+// Filtros columna
+function onColFilter(inp){
+  const col=inp.dataset.col,val=inp.value.trim().toLowerCase();
+  inp.classList.toggle('has-value',val!=='');
+  if(val==='')delete colFilters[col];else colFilters[col]=val;
+  page=1;render();updateActiveChips();
+}
+function removeColFilter(col){
+  delete colFilters[col];
+  const inp=document.querySelector(`.col-filter-inp[data-col="${col}"]`);
+  if(inp){inp.value='';inp.classList.remove('has-value');}
+  page=1;render();updateActiveChips();
+}
+function clearColFilters(){
+  colFilters={};
+  document.querySelectorAll('.col-filter-inp').forEach(inp=>{inp.value='';inp.classList.remove('has-value');});
+  page=1;render();updateActiveChips();
+}
+function resetAllFilters(){
+  ['estado','instancia','pacto'].forEach(g=>clearGroup(g));
+  clearColFilters();
+  document.getElementById('searchbox').value='';
+  document.getElementById('sup-filter').value='';
+  document.getElementById('dist-filter').value='';
+  mf='';
+  document.getElementById('mfb-s').className='mfb mfb-s';
+  document.getElementById('mfb-d').className='mfb mfb-d';
+  page=1;render();updateActiveChips();
+}
+
+// Filtrado
+function getFiltered(){
+  const q=(document.getElementById('searchbox').value||'').toLowerCase();
+  const sup=document.getElementById('sup-filter').value;
+  const dist=document.getElementById('dist-filter').value;
+  const est=fddState.estado,inst=fddState.instancia,pact=fddState.pacto;
+  return DATA.filter(r=>{
+    if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable+r.organo+r.especialista+r.bitacora+r.proxTarea).toLowerCase().includes(q))return false;
+    if(sup&&r.supervisor!==sup)return false;
+    if(dist&&r.distrito!==dist)return false;
+    if(mf==='sent'&&!r.porSentenciar)return false;
+    if(mf==='dili'&&!r.proxDiligencia)return false;
+    if(est.has('sensible')&&!r.sensible)return false;
+    if(est.has('ejecucion')&&r.situacion!=='EJECUCION')return false;
+    if(est.has('giro')&&r.situacion!=='EN GIRO')return false;
+    if(est.has('tarea')&&!r.proxTarea)return false;
+    if(inst.size>0&&!inst.has(r.instancia))return false;
+    if(pact.size>0&&!pact.has(r.pacto))return false;
+    for(const[col,val]of Object.entries(colFilters)){
+      if(!String(r[col]||'').toLowerCase().includes(val))return false;
+    }
+    return true;
+  });
+}
+
+// Helpers render
+function instBadge(i){
+  const m={'PRIMERA INSTANCIA':['b-b','1ra'],'SEGUNDA INSTANCIA':['b-p','2da'],'TERCERA INSTANCIA':['b-a','3ra'],'EJECUCIÓN':['b-g','Ejec.']};
+  const[c,t]=m[i]||['b-n',i||'—'];return'<span class="badge '+c+'">'+t+'</span>';
+}
+function sitBadge(s){return s==='EJECUCION'?'<span class="badge b-g">Ejec.</span>':'<span class="badge b-b">En giro</span>';}
+function relBadge(r){return r==='SENSIBLE'?'<span class="badge b-r">Sensible</span>':'<span style="color:var(--text4)">—</span>';}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function tdT(v,w,c){return'<td'+(c?' class="'+c+'"':'')+' title="'+esc(v)+'">'+esc(v)+'</td>';}
+
+// Poblar distritos
+(function(){
+  const ds=[...new Set(DATA.map(r=>r.distrito).filter(Boolean))].sort();
+  const sel=document.getElementById('dist-filter');
+  ds.forEach(d=>{const o=document.createElement('option');o.value=o.textContent=d;sel.appendChild(o);});
+  rebuildTipos();
+})();
+function rebuildTipos(){
+  const sel=document.getElementById('aud-tipo');
+  sel.innerHTML='<option value="">Todos los tipos de audiencia</option>';
+  [...new Set(DATA.map(r=>r.proxDiligencia).filter(Boolean))].sort().forEach(t=>{
+    const o=document.createElement('option');o.value=o.textContent=t;sel.appendChild(o);
+  });
+}
+
+// Render
+function render(){
+  let rows=getFiltered();
+  const total=rows.length,tp=Math.ceil(total/PAGE)||1;
+  if(page>tp)page=1;
+  const slice=rows.slice((page-1)*PAGE,page*PAGE);
+  const body=document.getElementById('tbody');
+  if(!slice.length){
+    body.innerHTML='<tr><td colspan="15"><div class="empty"><i class="ti ti-mood-empty"></i>Sin resultados</div></td></tr>';
+  }else{
+    body.innerHTML=slice.map(r=>{
+      const sc=r.sensible?'class="row-s"':r.alertLectura?'class="row-alert"':'';
+      const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
+      const dili=r.proxDiligencia?'<span class="badge b-a">'+esc(r.proxDiligencia)+'</span><br><strong style="color:var(--amber);font-size:10.5px">'+r.proxDiliFecha+(r.proxDiliHora?' <span style="font-weight:400;color:var(--text3)">'+r.proxDiliHora+'</span>':'')+'</strong>':'<span style="color:var(--text4)">—</span>';
+      return'<tr '+sc+' onclick="selectRow(this)">'
+        +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank" title="Ver en MyBiG #'+r.id+'">'+r.id+'</a></td>'
+        +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,105)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td>'+relBadge(r.relevancia)+'</td><td class="td-d" style="font-size:10.5px;white-space:nowrap" title="'+esc(r.pacto)+'">'+esc(r.pacto)+'</td>'+tdT(r.especialista,130,'td-d')+tdT(r.organo,185,'td-d')+(r.alertLectura
+  ? '<td><div class="alert-lectura-badge"><i class="ti ti-alert-triangle"></i>INCONSISTENCIA</div><div style="font-size:10.5px;color:var(--text3);margin-top:3px" title="'+esc(r.bitacora)+'">'+esc(r.bitacora.length>28?r.bitacora.slice(0,28)+'…':r.bitacora)+'</div></td>'
+  : tdT(r.bitacora,200,'td-d'))+'<td style="line-height:1.7">'+tarea+'</td><td style="max-width:175px;line-height:1.7">'+dili+'</td></tr>';
+    }).join('');
+  }
+  document.getElementById('count-txt').textContent=total.toLocaleString()+' proceso'+(total!==1?'s':'');
+  buildPag('pg-info','pg-btns',page,tp,p=>{page=p;render();});
+  updateStats();
+  setTimeout(initResize,0);
+}
+
+function renderAud(){
+  const q=(document.getElementById('aud-search').value||'').toLowerCase();
+  const sup=document.getElementById('aud-sup').value;
+  const tipo=document.getElementById('aud-tipo').value;
+  let rows=DATA.filter(r=>{
+    if(!r.proxDiligencia)return false;
+    if(sup&&r.supervisor!==sup)return false;
+    if(tipo&&r.proxDiligencia!==tipo)return false;
+    if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable+r.organo).toLowerCase().includes(q))return false;
+    for(const[col,val]of Object.entries(colFiltersAud)){
+      if(!String(r[col]||'').toLowerCase().includes(val))return false;
+    }
+    return true;
+  });
+  rows.sort((a,b)=>{const va=a.proxDiliFecha.split('/').reverse().join(''),vb=b.proxDiliFecha.split('/').reverse().join('');return audSortAsc?va.localeCompare(vb):vb.localeCompare(va);});
+  const total=rows.length,tp=Math.ceil(total/PAGE)||1;
+  if(audPage>tp)audPage=1;
+  const slice=rows.slice((audPage-1)*PAGE,audPage*PAGE);
+  const body=document.getElementById('aud-tbody');
+  if(!slice.length){body.innerHTML='<tr><td colspan="10"><div class="empty"><i class="ti ti-calendar-off"></i>Sin audiencias</div></td></tr>';}
+  else{body.innerHTML=slice.map(r=>{const sc=r.sensible?'class="row-s"':'';return'<tr '+sc+' onclick="selectRow(this)">'+tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,110)+'<td>'+instBadge(r.instancia)+'</td><td>'+relBadge(r.relevancia)+'</td>'+tdT(r.organo,185,'td-d')+'<td><span class="badge b-a">'+esc(r.proxDiligencia)+'</span></td><td><strong style="color:var(--amber)">'+r.proxDiliFecha+'</strong>'+(r.proxDiliHora?' <span style="color:var(--text3);font-size:11px">'+r.proxDiliHora+'</span>':'')+'</td></tr>';}).join('');}
+  document.getElementById('aud-count').textContent=total.toLocaleString()+' audiencia'+(total!==1?'s':'');
+  buildPag('aud-pg-info','aud-pg-btns',audPage,tp,p=>{audPage=p;renderAud();});
+  setTimeout(initResize,0);
+}
+function sortAud(){audSortAsc=!audSortAsc;audPage=1;renderAud();}
+
+function renderSens(){
+  const q=(document.getElementById('sens-search').value||'').toLowerCase();
+  const sup=document.getElementById('sens-sup').value;
+  let rows=DATA.filter(r=>{
+    if(!r.sensible)return false;
+    if(sup&&r.supervisor!==sup)return false;
+    if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable).toLowerCase().includes(q))return false;
+    for(const[col,val]of Object.entries(colFiltersSens)){
+      if(!String(r[col]||'').toLowerCase().includes(val))return false;
+    }
+    return true;
+  });
+  const total=rows.length,tp=Math.ceil(total/PAGE)||1;
+  if(sensPage>tp)sensPage=1;
+  const slice=rows.slice((sensPage-1)*PAGE,sensPage*PAGE);
+  const body=document.getElementById('sens-tbody');
+  if(!slice.length){body.innerHTML='<tr><td colspan="11"><div class="empty"><i class="ti ti-shield-check"></i>Sin procesos sensibles</div></td></tr>';}
+  else{body.innerHTML=slice.map(r=>{
+    const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
+    const dili=r.proxDiligencia?'<span class="badge b-a">'+esc(r.proxDiligencia)+'</span><br><strong style="color:var(--amber);font-size:10.5px">'+r.proxDiliFecha+(r.proxDiliHora?' <span style="font-weight:400;color:var(--text3)">'+r.proxDiliHora+'</span>':'')+'</strong>':'<span style="color:var(--text4)">—</span>';
+    return'<tr class="row-s">'+tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,110)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td class="td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'+tdT(r.organo,185,'td-d')+'<td style="line-height:1.7">'+tarea+'</td><td style="max-width:175px;line-height:1.7">'+dili+'</td></tr>';
+  }).join('');}
+  document.getElementById('sens-count').textContent=total.toLocaleString()+' proceso'+(total!==1?'s':'');
+  buildPag('sens-pg-info','sens-pg-btns',sensPage,tp,p=>{sensPage=p;renderSens();});
+  setTimeout(initResize,0);
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent=DATA.length.toLocaleString();
+  document.getElementById('st-sent').textContent=DATA.filter(r=>r.porSentenciar).length.toLocaleString();
+  document.getElementById('st-dili').textContent=DATA.filter(r=>r.proxDiligencia).length.toLocaleString();
+  document.getElementById('st-sens').textContent=DATA.filter(r=>r.sensible).length.toLocaleString();
+  document.getElementById('st-ej').textContent=DATA.filter(r=>r.situacion==='EJECUCION').length.toLocaleString();
+  document.getElementById('mfb-s-cnt').textContent=DATA.filter(r=>r.porSentenciar).length.toLocaleString();
+  document.getElementById('mfb-d-cnt').textContent=DATA.filter(r=>r.proxDiligencia).length.toLocaleString();
+}
+
+function buildPag(infoId,btnsId,cur,total,cb){
+  document.getElementById(infoId).textContent='Página '+cur+' de '+total+' · '+PAGE+' por página';
+  const el=document.getElementById(btnsId);
+  const pages=new Set([1]);
+  for(let i=Math.max(2,cur-2);i<=Math.min(total-1,cur+2);i++)pages.add(i);
+  if(total>1)pages.add(total);
+  const arr=[...pages].sort((a,b)=>a-b);
+  let html='<button class="pg-btn" '+(cur<=1?'disabled':'')+' onclick="('+cb.toString()+')('+Math.max(1,cur-1)+')">‹</button>';
+  let last=0;
+  for(const p of arr){if(last&&p-last>1)html+='<span class="pg-ell">…</span>';html+='<button class="pg-btn'+(p===cur?' active':'')+'" onclick="('+cb.toString()+')('+p+')">'+p+'</button>';last=p;}
+  html+='<button class="pg-btn" '+(cur>=total?'disabled':'')+' onclick="('+cb.toString()+')('+Math.min(total,cur+1)+')">›</button>';
+  el.innerHTML=html;
+}
+
+function toggleMF(f){
+  mf=mf===f?'':f;page=1;
+  document.getElementById('mfb-s').className='mfb mfb-s'+(mf==='sent'?' active':'');
+  document.getElementById('mfb-d').className='mfb mfb-d'+(mf==='dili'?' active':'');
+  render();
+}
+
+  document.querySelectorAll('#thead-main th').forEach(t=>{t.classList.remove('sorted','asc','desc');});
+
+function onSearch(){page=1;render();}
+function switchTab(name,el){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tnav').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  el.classList.add('active');
+  activeTab = name;
+  if(name==='reporte')    render();
+  if(name==='audiencias') renderAud();
+  if(name==='sensibles')  renderSens();
+  if(name==='gestion')    renderGestion();
+}
+
+// Carga Excel
+let rawRT=null,rawTA=null;
+function dzOver(e,id){e.preventDefault();document.getElementById(id).classList.add('dragover');}
+function dzOut(id){document.getElementById(id).classList.remove('dragover');}
+function dzDrop(e,id,tipo){e.preventDefault();dzOut(id);const f=e.dataTransfer.files[0];if(f)loadFile({files:[f]},tipo,tipo==='rt'?'st1':'st2');}
+function loadFile(inp,tipo,stId){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      const json=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      if(tipo==='rt')rawRT=json;else rawTA=json;
+      showSt(stId,'✓ '+file.name+' — '+json.length.toLocaleString()+' filas cargadas','ok');
+      document.getElementById('btnProcesar').disabled=!(rawRT&&rawTA);
+    }catch(err){showSt(stId,'✗ Error: '+err.message,'err');}
+  };
+  reader.readAsArrayBuffer(file);
+}
+function showSt(id,msg,tipo){document.getElementById(id).innerHTML='<div class="dz-status '+(tipo==='ok'?'dz-ok':'dz-err')+'">'+msg+'</div>';}
+function procesarExcel(){
+  if(!rawRT||!rawTA)return;
+  try{
+    const cl=v=>{const s=String(v||'').trim();return['-','nan','None',''].includes(s)?'':s;};
+    const fmtF=v=>{if(!v)return '';if(v instanceof Date)return v.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'});return String(v).slice(0,10);};
+    const fmtH=v=>{if(!v)return '';const s=String(v);return s.includes(':')?s.slice(0,5):s;};
+    const activos=rawRT.filter(r=>cl(r['Estado carpeta']||r['Estado Carpeta']||'').toLowerCase()==='activo');
+    const taPend=rawTA.filter(r=>r['estadotarea']==='Pendiente');
+    const taNoDili={},taDili={};
+    taPend.forEach(r=>{const np=Number(r['nroproceso']),tipo=String(r['tipo']||''),fd=fmtF(r['fecha']);if(tipo.startsWith('DILIGENCIA')){if(!taDili[np]||fd<fmtF(taDili[np].fecha))taDili[np]=r;}else{if(!taNoDili[np]||fd<fmtF(taNoDili[np].fecha))taNoDili[np]=r;}});
+    DATA=activos.map(r=>{
+      const id=Number(r['Nro. ID']||0),tn=taNoDili[id],td=taDili[id];
+      let dT=cl(td?td['tipo']:''),dF=td?fmtF(td['fecha']):'',dH=td?fmtH(td['hora']):'';
+      if(!dT){dT=cl(r['Diligencia']);dF=fmtF(r['Fecha']);dH=fmtH(r['Hora']);}
+      const bit=cl(r['Bitácora']||r['Bitacora']||'');
+      return{id,cliente:cl(r['Cliente Facturable']),contraparte:cl(r['Contraparte']),expediente:cl(r['Nro. Expediente']),supervisor:cl(r['Supervisor']),responsable:cl(r['Responsable']),instancia:cl(r['Estado Interno']),distrito:cl(r['Distrito Actual']),organo:cl(r['Órgano Jurisdiccional']||r['Organo Jurisdiccional']||''),especialista:cl(r['Especialista legal']||''),relevancia:cl(r['Relevancia']),pacto:cl(r['Pacto']),bitacora:bit,situacion:cl(r['Situación']||r['Situacion']||''),sensible:cl(r['Relevancia'])==='SENSIBLE',porSentenciar:pendLectura,proxTarea:tn?cl(tn['tipo']):'',proxTareaFecha:tn?fmtF(tn['fecha']):'',proxTareaHora:tn?fmtH(tn['hora']):'',proxTareaNota:tn?cl(tn['notas']):'',proxDiligencia:dT.replace('DILIGENCIA - ',''),proxDiliTipo:dT,proxDiliFecha:dF,proxDiliHora:dH};
+    });
+    colFilters={};['estado','instancia','pacto'].forEach(g=>clearGroup(g));
+    page=1;audPage=1;sensPage=1;
+    const sel=document.getElementById('dist-filter');
+    sel.innerHTML='<option value="">Todos los distritos</option>';
+    [...new Set(DATA.map(r=>r.distrito).filter(Boolean))].sort().forEach(d=>{const o=document.createElement('option');o.value=o.textContent=d;sel.appendChild(o);});
+    rebuildTipos();
+    document.getElementById('modalCarga').classList.remove('show');
+    document.getElementById('lbl-sem').textContent='Actualizado · '+DATA.length.toLocaleString()+' procesos';
+    render();
+  }catch(err){alert('Error: '+err.message);console.error(err);}
+}
+
+// ── DROPDOWN VALORES DE COLUMNA ─────────────────────────────
+const COL_LABELS = {
+  cliente:'Cliente',contraparte:'Contraparte',expediente:'Expediente',
+  supervisor:'Supervisor',responsable:'Responsable',instancia:'Instancia',
+  situacion:'Situación',relevancia:'Relevancia',pacto:'Pacto',
+  especialista:'CEJ',organo:'Órgano jurisdiccional',
+  bitacora:'Bitácora',proxTarea:'Próxima tarea',proxDiligencia:'Próxima audiencia'
+};
+
+let activeCvd = null;
+
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.col-filter-wrap')){
+    document.querySelectorAll('.col-val-dropdown.open').forEach(d=>d.classList.remove('open'));
+    activeCvd = null;
+  }
+});
+
+function openCvd(inp, col){
+  const dd = document.getElementById('cvd-' + col);
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.col-val-dropdown.open').forEach(d=>d.classList.remove('open'));
+  if(wasOpen){ activeCvd=null; return; }
+
+  // Filtrar excluyendo el filtro de esta columna (para poder cambiar/deseleccionar)
+  const savedVal = colFilters[col];
+  delete colFilters[col];
+  const filteredForCvd = getFiltered();
+  if(savedVal !== undefined) colFilters[col] = savedVal;
+  const vals = [...new Set(filteredForCvd.map(r => String(r[col]||'')).filter(v=>v && v!=='-'))].sort((a,b)=>a.localeCompare(b));
+  const current = (colFilters[col] || '').toLowerCase();
+
+  // Construir con DOM para evitar problemas de comillas
+  dd.innerHTML = '';
+
+  // Buscador interno
+  const srch = document.createElement('input');
+  srch.className = 'cvd-search';
+  srch.placeholder = 'Buscar valor...';
+  srch.addEventListener('click', e=>e.stopPropagation());
+  srch.addEventListener('input', ()=>{
+    const q = srch.value.toLowerCase();
+    dd.querySelectorAll('.cvd-item').forEach(item=>{
+      item.style.display = item.dataset.val.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+  dd.appendChild(srch);
+
+  // Lista de valores
+  const list = document.createElement('div');
+  list.className = 'cvd-list';
+  if(!vals.length){
+    const empty = document.createElement('div');
+    empty.className = 'cvd-empty';
+    empty.textContent = 'Sin valores';
+    list.appendChild(empty);
+  } else {
+    vals.forEach(v => {
+      const item = document.createElement('div');
+      item.className = 'cvd-item' + (current === v.toLowerCase() ? ' selected' : '');
+      item.dataset.val = v;
+      item.title = v;
+      item.textContent = v.length > 38 ? v.slice(0,38)+'…' : v;
+      item.addEventListener('click', ()=>selectCvdVal(col, v));
+      list.appendChild(item);
+    });
+  }
+  dd.appendChild(list);
+
+  // Limpiar
+  const clr = document.createElement('span');
+  clr.className = 'cvd-clear';
+  clr.textContent = 'Limpiar filtro';
+  clr.addEventListener('click', ()=>clearCvdCol(col));
+  dd.appendChild(clr);
+
+  dd.classList.add('open');
+  activeCvd = col;
+  setTimeout(()=>srch.focus(), 50);
+}
+
+function filterCvdList(searchInp, col){}
+
+function selectCvdVal(col, val){
+  // Toggle: si ya está seleccionado, deseleccionar
+  if(colFilters[col] === val.toLowerCase()){
+    delete colFilters[col];
+    const inp = document.querySelector('.col-filter-inp[data-col="'+col+'"]');
+    if(inp){ inp.value=''; inp.classList.remove('has-value'); }
+  } else {
+    colFilters[col] = val.toLowerCase();
+    const inp = document.querySelector('.col-filter-inp[data-col="'+col+'"]');
+    if(inp){ inp.value=val; inp.classList.add('has-value'); }
+  }
+  document.querySelectorAll('.col-val-dropdown.open').forEach(d=>d.classList.remove('open'));
+  activeCvd = null;
+  page=1; render(); updateActiveChips();
+}
+
+function clearCvdCol(col){
+  delete colFilters[col];
+  const inp = document.querySelector('.col-filter-inp[data-col="'+col+'"]');
+  if(inp){ inp.value=''; inp.classList.remove('has-value'); }
+  document.querySelectorAll('.col-val-dropdown.open').forEach(d=>d.classList.remove('open'));
+  activeCvd = null;
+  page=1; render(); updateActiveChips();
+}
+
+// ── TAREAS DE GESTIÓN ─────────────────────────────────────────
+const TEAM_GESTION = [
+  {nombre:'Arturo Trelles',   rol:'Team Gestión', iniciales:'AT', color:'#1a1a2e'},
+  {nombre:'Carlos Morales',   rol:'Team Gestión', iniciales:'CM', color:'#2563eb'},
+  {nombre:'Juan Jose Edquen', rol:'Team Gestión', iniciales:'JJ', color:'#7c3aed'},
+  {nombre:'Roberto Matallana',rol:'Team Gestión', iniciales:'RM', color:'#dc2626'},
+  {nombre:'Silvia Maldonado', rol:'Team Gestión', iniciales:'SM', color:'#16a34a'},
+  {nombre:'Talía León',       rol:'Team Gestión', iniciales:'TL', color:'#d97706'},
+];
+
+// Storage de tareas creadas manualmente (localStorage)
+function loadTareasGestion(){
+  try{ return JSON.parse(localStorage.getItem('tareasGestion')||'[]'); }
+  catch(e){ return []; }
+}
+function saveTareasGestion(arr){
+  localStorage.setItem('tareasGestion', JSON.stringify(arr));
+}
+
+// Combinar tareas del Excel + manuales
+function getAllTareasGestion(){
+  const deExcel = DATA.filter(r=>r.tareaGestion).map(r=>({
+    id: 'ex_'+r.id,
+    nroId: r.id,
+    cliente: r.cliente,
+    expediente: r.expediente,
+    tipo: r.tareaGestion,
+    asignado: r.tareaGestionAsigPor || '—',
+    agendadoPor: '—',
+    fecha: r.tareaGestionFecha,
+    estado: 'Pendiente',
+    obs: r.tareaGestionNota || '',
+    origen: 'excel'
+  }));
+  const manuales = loadTareasGestion();
+  return [...deExcel, ...manuales];
+}
+
+function renderGestion(){
+  const q = (document.getElementById('tg-search').value||'').toLowerCase();
+  const resp = document.getElementById('tg-resp').value;
+  const estado = document.getElementById('tg-estado').value;
+
+  let tareas = getAllTareasGestion().filter(t=>{
+    if(q && !(t.cliente+t.expediente+t.tipo+t.asignado).toLowerCase().includes(q)) return false;
+    if(resp && t.asignado !== resp) return false;
+    if(estado && t.estado !== estado) return false;
+    return true;
+  });
+
+  document.getElementById('tg-count').textContent = tareas.length + ' tarea' + (tareas.length!==1?'s':'');
+
+  // Cards
+  const container = document.getElementById('tg-cards');
+  if(!tareas.length){
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text4);font-size:12px"><i class="ti ti-clipboard-off" style="font-size:32px;display:block;margin-bottom:.5rem;opacity:.3"></i>Sin tareas de gestión</div>';
+  } else {
+    container.innerHTML = tareas.map(t => {
+      const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
+      const initials = member ? member.iniciales : (t.asignado||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      const color = member ? member.color : '#888';
+      const estadoBadge = t.estado==='Pendiente'
+        ? '<span class="badge badge-estado-pend">Pendiente</span>'
+        : t.estado==='Completada'
+        ? '<span class="badge badge-estado-done">Completada</span>'
+        : '<span class="badge badge-estado-canc">Cancelada</span>';
+      const mbUrl = 'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
+      return `<div class="tg-card">
+        <div class="tg-card-header">
+          <div class="tg-card-title">${esc(t.tipo)}</div>
+          ${estadoBadge}
+        </div>
+        <div class="tg-card-meta">
+          <div class="tg-meta-row">
+            <i class="ti ti-building"></i>
+            <span>${esc(t.cliente||'—')}</span>
+          </div>
+          <div class="tg-meta-row">
+            <i class="ti ti-file-text"></i>
+            <a href="${mbUrl}" target="_blank" title="Ver en MyBiG">#${t.nroId} — ${esc(t.expediente||'—')}</a>
+          </div>
+          <div class="tg-meta-row">
+            <i class="ti ti-user-check"></i>
+            <span>Asignado a <strong>${esc(t.asignado||'—')}</strong></span>
+          </div>
+          <div class="tg-meta-row">
+            <i class="ti ti-user"></i>
+            <span>Agendado por <strong>${esc(t.agendadoPor||'—')}</strong></span>
+          </div>
+          ${t.fecha?`<div class="tg-meta-row"><i class="ti ti-calendar"></i><span>Fecha: <strong>${esc(t.fecha)}</strong></span></div>`:''}
+          ${t.obs?`<div class="tg-meta-row"><i class="ti ti-notes"></i><span style="color:var(--text2)">${esc(t.obs)}</span></div>`:''}
+        </div>
+        <div class="tg-card-footer">
+          <div class="tg-avatars">
+            <div class="tg-avatar" style="background:${color};margin-left:0" title="${esc(t.asignado||'')}">${initials}</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-redir" onclick="openRedirigir('${t.id}','${esc(t.tipo)}','${esc(t.asignado||'')}')">
+              <i class="ti ti-arrows-exchange" style="font-size:12px"></i> Redirigir
+            </button>
+            ${t.estado==='Pendiente'?`<button class="btn-redir" style="border-color:var(--green-b);color:var(--green)" onclick="marcarCompletada('${t.id}')"><i class="ti ti-check" style="font-size:12px"></i> Completar</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Tabla paralegal
+  const tbody = document.getElementById('tg-paralegal-tbody');
+  if(!tareas.length){
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><i class="ti ti-mood-empty"></i>Sin tareas</div></td></tr>';
+  } else {
+    tbody.innerHTML = tareas.map(t => {
+      const mbUrl = 'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
+      const estadoBadge = t.estado==='Pendiente'
+        ? '<span class="badge badge-estado-pend">Pendiente</span>'
+        : t.estado==='Completada'
+        ? '<span class="badge badge-estado-done">Completada</span>'
+        : '<span class="badge badge-estado-canc">Cancelada</span>';
+      return `<tr>
+        <td><a href="${mbUrl}" target="_blank" class="td-link" title="Ver en MyBiG">${t.nroId}</a></td>
+        <td title="${esc(t.cliente)}" class="td-p">${esc(t.cliente||'—')}</td>
+        <td class="td-m" title="${esc(t.expediente)}">${esc(t.expediente||'—')}</td>
+        <td title="${esc(t.tipo)}">${esc(t.tipo)}</td>
+        <td>${esc(t.asignado||'—')}</td>
+        <td class="td-d">${t.fecha||'—'}</td>
+        <td>${estadoBadge}</td>
+        <td>
+          <div style="display:flex;gap:5px">
+            <button class="btn-redir" onclick="openRedirigir('${t.id}','${esc(t.tipo)}','${esc(t.asignado||'')}')">
+              <i class="ti ti-arrows-exchange" style="font-size:11px"></i>
+            </button>
+            ${t.estado==='Pendiente'?`<button class="btn-redir" style="border-color:var(--green-b);color:var(--green)" onclick="marcarCompletada('${t.id}')"><i class="ti ti-check" style="font-size:11px"></i></button>`:''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+// CSS extra para link en tabla
+document.head.insertAdjacentHTML('beforeend','<style>.td-link{color:var(--blue);text-decoration:none;font-weight:600;font-family:var(--mono);font-size:11px}.td-link:hover{text-decoration:underline}</style>');
+
+// Autocompletar proceso al ingresar ID
+function autocompleteProceso(){
+  const id = parseInt(document.getElementById('nt-id').value);
+  const proc = DATA.find(r=>r.id===id);
+  document.getElementById('nt-exp').value    = proc ? proc.expediente : '';
+  document.getElementById('nt-cliente').value = proc ? proc.cliente   : '';
+}
+
+// Crear tarea manual
+function crearTareaGestion(){
+  const id     = document.getElementById('nt-id').value.trim();
+  const tipo   = document.getElementById('nt-tipo').value;
+  const asign  = document.getElementById('nt-asignado').value;
+  const fecha  = document.getElementById('nt-fecha').value;
+  const agend  = document.getElementById('nt-agendadopor').value.trim();
+  const obs    = document.getElementById('nt-obs').value.trim();
+
+  if(!id||!tipo||!asign){
+    alert('Completa al menos: ID del proceso, tipo de tarea y responsable.');
+    return;
+  }
+
+  const proc = DATA.find(r=>r.id===parseInt(id));
+  const nueva = {
+    id: 'man_'+Date.now(),
+    nroId: parseInt(id),
+    cliente: proc ? proc.cliente : '—',
+    expediente: proc ? proc.expediente : '—',
+    tipo, asignado:asign, agendadoPor:agend||'—',
+    fecha: fecha ? fecha.split('-').reverse().join('/') : '',
+    estado: 'Pendiente', obs, origen:'manual'
+  };
+
+  const arr = loadTareasGestion();
+  arr.unshift(nueva);
+  saveTareasGestion(arr);
+
+  // Limpiar form
+  ['nt-id','nt-exp','nt-cliente','nt-tipo','nt-asignado','nt-fecha','nt-agendadopor','nt-obs'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  document.getElementById('modalNuevaTarea').classList.remove('show');
+  renderGestion();
+}
+
+// Redirigir tarea
+let redirTargetId = null;
+function openRedirigir(tareaId, tipo, actual){
+  redirTargetId = tareaId;
+  document.getElementById('redir-tarea-info').textContent = tipo;
+  const container = document.getElementById('redir-members');
+  container.innerHTML = TEAM_GESTION.map(m=>`
+    <div class="redir-member ${m.nombre===actual?'selected':''}" onclick="confirmarRedirigir('${m.nombre}')">
+      <div class="tg-avatar" style="background:${m.color};margin-left:0;width:32px;height:32px;font-size:12px">${m.iniciales}</div>
+      <div>
+        <div class="redir-member-info">${m.nombre} ${m.nombre===actual?'<span style="color:var(--text4);font-weight:400">(actual)</span>':''}</div>
+        <div class="redir-member-role">${m.rol}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('modalRedirigir').classList.add('show');
+}
+
+function confirmarRedirigir(nuevoAsignado){
+  if(!redirTargetId) return;
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===redirTargetId);
+  if(idx>=0){ arr[idx].asignado = nuevoAsignado; saveTareasGestion(arr); }
+  document.getElementById('modalRedirigir').classList.remove('show');
+  redirTargetId = null;
+  renderGestion();
+}
+
+function marcarCompletada(tareaId){
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===tareaId);
+  if(idx>=0){ arr[idx].estado='Completada'; saveTareasGestion(arr); renderGestion(); }
+}
+
+// ── FILTROS POR COLUMNA — TABS ADICIONALES ───────────────────
+const colFiltersAud  = {};
+const colFiltersSens = {};
+
+function openCvdTab(inp, col, tab){
+  const ddId = 'cvd-' + tab + '-' + col;
+  const dd = document.getElementById(ddId);
+  if(!dd) return;
+  const wasOpen = dd.classList.contains('open');
+  document.querySelectorAll('.col-val-dropdown.open').forEach(d=>d.classList.remove('open'));
+  if(wasOpen) return;
+
+  const filtersObj = tab==='aud' ? colFiltersAud : colFiltersSens;
+  const renderFn   = tab==='aud' ? renderAud     : renderSens;
+
+  // Valores únicos según tab — usar DATA base sin filtros del reporte total
+  const savedColAud  = {...colFiltersAud};
+  const savedColSens = {...colFiltersSens};
+  if(tab==='aud')  delete colFiltersAud[col];
+  else             delete colFiltersSens[col];
+
+  let baseRows;
+  if(tab==='aud'){
+    const q2=(document.getElementById('aud-search').value||'').toLowerCase();
+    const sup2=document.getElementById('aud-sup').value;
+    const tipo2=document.getElementById('aud-tipo').value;
+    baseRows=DATA.filter(r=>{
+      if(!r.proxDiligencia)return false;
+      if(sup2&&r.supervisor!==sup2)return false;
+      if(tipo2&&r.proxDiligencia!==tipo2)return false;
+      if(q2&&!(r.cliente+r.contraparte+r.expediente+r.responsable+r.organo).toLowerCase().includes(q2))return false;
+      for(const[c,v]of Object.entries(colFiltersAud)){if(!String(r[c]||'').toLowerCase().includes(v))return false;}
+      return true;
+    });
+  } else {
+    const q2=(document.getElementById('sens-search').value||'').toLowerCase();
+    const sup2=document.getElementById('sens-sup').value;
+    baseRows=DATA.filter(r=>{
+      if(!r.sensible)return false;
+      if(sup2&&r.supervisor!==sup2)return false;
+      if(q2&&!(r.cliente+r.contraparte+r.expediente+r.responsable).toLowerCase().includes(q2))return false;
+      for(const[c,v]of Object.entries(colFiltersSens)){if(!String(r[c]||'').toLowerCase().includes(v))return false;}
+      return true;
+    });
+  }
+
+  // Restaurar
+  if(tab==='aud')  Object.assign(colFiltersAud,  savedColAud);
+  else             Object.assign(colFiltersSens, savedColSens);
+
+  const vals = [...new Set(baseRows.map(r=>String(r[col]||'')).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+
+  const current = (filtersObj[col]||'').toLowerCase();
+  dd.innerHTML = '';
+
+  const srch = document.createElement('input');
+  srch.className = 'cvd-search';
+  srch.placeholder = 'Buscar valor...';
+  srch.addEventListener('click', e=>e.stopPropagation());
+  srch.addEventListener('input', ()=>{
+    const q=srch.value.toLowerCase();
+    dd.querySelectorAll('.cvd-item').forEach(item=>{
+      item.style.display=item.dataset.val.toLowerCase().includes(q)?'':'none';
+    });
+  });
+  dd.appendChild(srch);
+
+  const list = document.createElement('div');
+  if(!vals.length){
+    const empty=document.createElement('div');
+    empty.className='cvd-empty';
+    empty.textContent='Sin valores';
+    list.appendChild(empty);
+  } else {
+    vals.forEach(v=>{
+      const item=document.createElement('div');
+      item.className='cvd-item'+(current===v.toLowerCase()?' selected':'');
+      item.dataset.val=v;
+      item.title=v;
+      item.textContent=v.length>38?v.slice(0,38)+'…':v;
+      item.addEventListener('click',()=>{
+        if(filtersObj[col]===v.toLowerCase()){
+          delete filtersObj[col];
+          inp.value=''; inp.classList.remove('has-value');
+        } else {
+          filtersObj[col]=v.toLowerCase();
+          inp.value=v; inp.classList.add('has-value');
+        }
+        dd.classList.remove('open');
+        if(tab==='aud'){audPage=1;renderAud();}
+        else{sensPage=1;renderSens();}
+      });
+      list.appendChild(item);
+    });
+  }
+  dd.appendChild(list);
+
+  const clr=document.createElement('span');
+  clr.className='cvd-clear';
+  clr.textContent='Limpiar filtro';
+  clr.addEventListener('click',()=>{
+    delete filtersObj[col];
+    inp.value=''; inp.classList.remove('has-value');
+    dd.classList.remove('open');
+    if(tab==='aud'){audPage=1;renderAud();}
+    else{sensPage=1;renderSens();}
+  });
+  dd.appendChild(clr);
+  dd.classList.add('open');
+  setTimeout(()=>srch.focus(),50);
+}
+
+// ── SELECCIÓN DE FILA ────────────────────────────────────────
+function selectRow(tr){
+  const wasSelected = tr.classList.contains('row-selected');
+  // Deseleccionar todas en la misma tabla
+  tr.closest('table').querySelectorAll('tbody tr.row-selected')
+    .forEach(r=>r.classList.remove('row-selected'));
+  if(!wasSelected) tr.classList.add('row-selected');
+}
+
+// Cargar datos embebidos si están disponibles
+if(typeof PORTAL_DATA !== "undefined") DATA = PORTAL_DATA;
+render();
+setTimeout(initResize,50);
+
+// ── RESIZE DE COLUMNAS ──────────────────────────────────────
+function initResize(){
+  const tables = document.querySelectorAll('.table-wrap table');
+  tables.forEach(table => {
+    const ths = Array.from(table.querySelectorAll('thead tr:first-child th'));
+
+    // 1. Fijar TODOS los anchos en px de una vez (snapshot)
+    const widths = ths.map(th => th.getBoundingClientRect().width);
+    ths.forEach((th, i) => {
+      th.style.width    = widths[i] + 'px';
+      th.style.minWidth = '50px';
+      th.style.maxWidth = 'none';
+    });
+    // 2. Fijar ancho total de la tabla
+    const totalW = widths.reduce((a,b)=>a+b, 0);
+    table.style.width    = totalW + 'px';
+    table.style.minWidth = 'unset';
+
+    ths.forEach((th, colIdx) => {
+      if(th.querySelector('.resize-handle')) return;
+      const handle = document.createElement('div');
+      handle.className = 'resize-handle';
+      th.appendChild(handle);
+
+      let startX, startW;
+      handle.addEventListener('mousedown', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        startX = e.clientX;
+        startW = th.getBoundingClientRect().width;
+        handle.classList.add('resizing');
+        document.body.style.cursor    = 'col-resize';
+        document.body.style.userSelect = 'none';
+
+        function onMove(e){
+          const diff = e.clientX - startX;
+          const newW = Math.max(50, startW + diff);
+          const delta = newW - startW;
+          // Solo cambiar esta columna + el ancho total de la tabla
+          th.style.width = newW + 'px';
+          const curTableW = parseFloat(table.style.width) || table.getBoundingClientRect().width;
+          table.style.width = (curTableW + delta) + 'px';
+        }
+        function onUp(){
+          // Actualizar startW para el próximo drag
+          startW = th.getBoundingClientRect().width;
+          handle.classList.remove('resizing');
+          document.body.style.cursor    = '';
+          document.body.style.userSelect = '';
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  });
+}
+
+
+
+</script>
+</body>
+</html>
