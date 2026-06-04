@@ -123,9 +123,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
   padding:8px;min-width:200px;z-index:100;
 }
 .fdd.open .fdd-panel{display:block}
-.fdd:hover .fdd-panel{display:block}
-.fdd:hover .fdd-btn{border-color:var(--dark);color:var(--dark)}
-.fdd:hover .fdd-btn i.chevron{transform:rotate(180deg)}
+
 .fdd-section{margin-bottom:4px}
 .fdd-section:last-child{margin-bottom:0}
 .fdd-sep{height:1px;background:var(--gray-b);margin:6px 0}
@@ -451,7 +449,7 @@ table{table-layout:fixed!important}
 
     <!-- ESTADO -->
     <div class="fdd" id="fdd-estado">
-      <div class="fdd-btn">
+      <div class="fdd-btn" onclick="toggleFdd('fdd-estado')">
         Estado
         <span class="fdd-cnt" id="cnt-estado"></span>
         <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
@@ -479,7 +477,7 @@ table{table-layout:fixed!important}
 
     <!-- INSTANCIA -->
     <div class="fdd" id="fdd-instancia">
-      <div class="fdd-btn">
+      <div class="fdd-btn" onclick="toggleFdd('fdd-instancia')">
         Instancia
         <span class="fdd-cnt" id="cnt-instancia"></span>
         <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
@@ -507,7 +505,7 @@ table{table-layout:fixed!important}
 
     <!-- PACTO -->
     <div class="fdd" id="fdd-pacto">
-      <div class="fdd-btn">
+      <div class="fdd-btn" onclick="toggleFdd('fdd-pacto')">
         Pacto
         <span class="fdd-cnt" id="cnt-pacto"></span>
         <i class="ti ti-chevron-down chevron" style="font-size:12px"></i>
@@ -1204,7 +1202,15 @@ function procesarExcel(){
       let dT=cl(td?td['tipo']:''),dF=td?fmtF(td['fecha']):'',dH=td?fmtH(td['hora']):'';
       if(!dT){dT=cl(r['Diligencia']);dF=fmtF(r['Fecha']);dH=fmtH(r['Hora']);}
       const bit=cl(r['Bitácora']||r['Bitacora']||'');
-      return{id,cliente:cl(r['Cliente Facturable']),contraparte:cl(r['Contraparte']),expediente:cl(r['Nro. Expediente']),supervisor:cl(r['Supervisor']),responsable:cl(r['Responsable']),instancia:cl(r['Estado Interno']),distrito:cl(r['Distrito Actual']),organo:cl(r['Órgano Jurisdiccional']||r['Organo Jurisdiccional']||''),especialista:cl(r['Especialista legal']||''),relevancia:cl(r['Relevancia']),pacto:cl(r['Pacto']),bitacora:bit,situacion:cl(r['Situación']||r['Situacion']||''),sensible:cl(r['Relevancia'])==='SENSIBLE',porSentenciar:pendLectura,proxTarea:tn?cl(tn['tipo']):'',proxTareaFecha:tn?fmtF(tn['fecha']):'',proxTareaHora:tn?fmtH(tn['hora']):'',proxTareaNota:tn?cl(tn['notas']):'',proxDiligencia:dT.replace('DILIGENCIA - ',''),proxDiliTipo:dT,proxDiliFecha:dF,proxDiliHora:dH};
+      const ptv=tn?cl(tn['tipo']):'', ptfv=tn?fmtF(tn['fecha']):'', pthv=tn?fmtH(tn['hora']):'';
+      const bu=bit.toUpperCase(), pu=ptv.toUpperCase();
+      const pL=bu.includes('PENDIENTE')&&bu.includes('LECTURA')&&bu.includes('SENTENCIA');
+      const tL=pu.includes('LECTURA')&&pu.includes('SENTENCIA');
+      let fd2=dT.replace('DILIGENCIA - ',''),ff2=dF,fh2=dH;
+      if(pL&&tL&&!fd2){fd2=ptv;ff2=ptfv;fh2=pthv;}
+      const aL=pL&&!!ptv&&!tL;
+      const ec=cl(r['Estado carpeta']||r['Estado Carpeta']||'');
+      return{id,cliente:cl(r['Cliente Facturable']),contraparte:cl(r['Contraparte']),expediente:cl(r['Nro. Expediente']),supervisor:cl(r['Supervisor']),responsable:cl(r['Responsable']),instancia:cl(r['Estado Interno']),distrito:cl(r['Distrito Actual']),organo:cl(r['Órgano Jurisdiccional']||r['Organo Jurisdiccional']||''),especialista:cl(r['Especialista legal']||''),relevancia:cl(r['Relevancia']),pacto:cl(r['Pacto']),bitacora:bit,situacion:cl(r['Situación']||r['Situacion']||''),estadoCarpeta:ec,sensible:cl(r['Relevancia'])==='SENSIBLE',porSentenciar:pL,proxTarea:ptv,proxTareaFecha:ptfv,proxTareaHora:pthv,proxTareaNota:tn?cl(tn['notas']):'',proxDiligencia:fd2,proxDiliTipo:dT,proxDiliFecha:ff2,proxDiliHora:fh2,alertLectura:aL,tareaGestion:'',tareaGestionFecha:'',tareaGestionAsigPor:'',tareaGestionNota:''};
     });
     colFilters={};['estado','instancia','pacto'].forEach(g=>clearGroup(g));
     page=1;audPage=1;sensPage=1;
