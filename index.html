@@ -365,6 +365,86 @@ thead tr:first-child th{position:relative}
 .ag-field textarea{resize:vertical;min-height:65px}
 
 .tg-card-sensible{border-left:3px solid var(--red)!important}
+
+/* ── CHECKBOXES SELECCIÓN MASIVA ── */
+.cb-th{width:36px;padding:0 8px!important;text-align:center}
+.cb-td{width:36px;padding:0 8px!important;text-align:center;cursor:pointer}
+input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:var(--blue)}
+/* Barra acciones masivas */
+.bulk-bar{
+  display:none;position:sticky;bottom:0;left:0;right:0;z-index:50;
+  background:var(--dark);color:#fff;padding:8px 16px;
+  border-radius:var(--r2) var(--r2) 0 0;margin:0 -1px;
+  align-items:center;gap:10px;font-size:12px;
+  box-shadow:0 -4px 16px rgba(0,0,0,.18);
+}
+.bulk-bar.show{display:flex}
+.bulk-bar-cnt{font-weight:600;background:var(--red);padding:2px 10px;border-radius:10px;font-size:11px}
+.bulk-btn{padding:5px 13px;border-radius:var(--r);border:1px solid rgba(255,255,255,.25);
+  background:transparent;color:#fff;font-size:11.5px;font-family:var(--font);cursor:pointer;transition:all .15s}
+.bulk-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.5)}
+.bulk-btn-cancel{margin-left:auto;opacity:.6}
+.bulk-btn-cancel:hover{opacity:1}
+
+/* ── VISTA LISTA TAREAS GESTIÓN ── */
+.tg-list-wrap{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);overflow-x:auto}
+.tg-list-wrap table{width:100%;border-collapse:collapse;font-size:12px}
+.tg-list-wrap thead tr{background:var(--dark)}
+.tg-list-wrap thead th{padding:9px 11px;text-align:left;font-weight:500;font-size:10.5px;color:rgba(255,255,255,.65);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.tg-list-wrap tbody tr{border-bottom:1px solid var(--gray-b);transition:background .1s}
+.tg-list-wrap tbody tr:hover{background:#fafafa}
+.tg-list-wrap tbody td{padding:8px 11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg-origen-ext{background:#eff6ff;border-left:3px solid var(--blue)}
+.tg-origen-int{background:#f0fdf4;border-left:3px solid var(--green)}
+
+/* Separadores de sección en lista */
+.tg-section-sep{background:var(--bg)!important;pointer-events:none}
+.tg-section-sep td{padding:6px 12px!important;font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--gray-b)!important}
+
+/* ── CALENDARIO GESTIÓN ── */
+.gcal-wrap{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh)}
+.gcal-header{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--gray-b);background:var(--gray-l);flex-wrap:wrap}
+.gcal-nav-btn{padding:4px 10px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);font-size:11.5px;cursor:pointer;font-family:var(--font);transition:all .15s}
+.gcal-nav-btn:hover{border-color:var(--dark);color:var(--dark)}
+.gcal-nav-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+.gcal-date-lbl{font-size:13px;font-weight:600;color:var(--text);min-width:180px;text-align:center}
+.gcal-legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-left:auto}
+.gcal-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3)}
+.gcal-legend-dot{width:10px;height:10px;border-radius:50%}
+
+.gcal-table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 380px)}
+.gcal-table{width:100%;border-collapse:collapse;min-width:700px}
+.gcal-table th{background:var(--dark);color:rgba(255,255,255,.75);font-size:11px;font-weight:500;padding:8px 10px;text-align:center;white-space:nowrap;border-right:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:5}
+.gcal-table th.hora-col{width:60px;min-width:60px;background:#0f1124}
+.gcal-table td.hora-cell{width:60px;font-size:10.5px;color:var(--text4);text-align:right;padding:0 8px 0 0;border-right:1px solid var(--gray-b);vertical-align:top;padding-top:3px;white-space:nowrap}
+.gcal-table tr{border-bottom:1px solid var(--gray-b)}
+.gcal-table tr.half-hour{border-bottom:1px dashed #e5e7eb}
+.gcal-table td.gcal-slot{vertical-align:top;padding:2px;min-height:28px;border-right:1px solid var(--gray-b);transition:background .1s}
+.gcal-table td.gcal-slot:hover{background:#f8fafc}
+.gcal-event{border-radius:4px;padding:3px 6px;margin-bottom:2px;font-size:10.5px;line-height:1.4;cursor:default;border-left:3px solid transparent}
+.gcal-event-title{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gcal-event-sub{color:rgba(0,0,0,.5);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gcal-slot-occ{background:#fff8f0}
+.gcal-slot-conf{background:#fff1f1}
+
+/* Colores por miembro Gestión */
+.gcal-AT{background:#e0e7ff;border-left-color:#4f46e5;color:#1e1b4b}
+.gcal-CM{background:#dbeafe;border-left-color:#2563eb;color:#1e3a5f}
+.gcal-JJ{background:#ede9fe;border-left-color:#7c3aed;color:#2e1065}
+.gcal-RM{background:#fee2e2;border-left-color:#dc2626;color:#7f1d1d}
+.gcal-SM{background:#dcfce7;border-left-color:#16a34a;color:#14532d}
+.gcal-TL{background:#fef9c3;border-left-color:#ca8a04;color:#713f12}
+
+/* Tab sub-selector Gestión */
+.tg-view-tabs{display:flex;gap:0;border:1px solid var(--gray-b);border-radius:var(--r);overflow:hidden;margin-right:auto}
+.tg-view-tab{padding:5px 14px;font-size:11.5px;font-weight:500;cursor:pointer;background:var(--white);color:var(--text3);border:none;font-family:var(--font);transition:all .15s;border-right:1px solid var(--gray-b)}
+.tg-view-tab:last-child{border-right:none}
+.tg-view-tab.active{background:var(--dark);color:#fff}
+
+/* Filtro fecha gestión */
+.tg-date-filter{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text3)}
+.tg-date-filter input[type=date]{padding:5px 8px;border-radius:var(--r);border:1px solid var(--gray-b);font-size:11.5px;font-family:var(--font);outline:none;background:var(--white)}
+.tg-date-filter input[type=date]:focus{border-color:var(--blue)}
 </style>
 </head>
 <body>
@@ -378,7 +458,6 @@ thead tr:first-child th{position:relative}
   <nav class="tb-nav">
     <div class="tnav active" onclick="switchTab('reporte',this)">Reporte total</div>
     <div class="tnav" onclick="switchTab('audiencias',this)">Próximas audiencias</div>
-    <div class="tnav" onclick="switchTab('sensibles',this)">Sensibles</div>
     <div class="tnav" onclick="switchTab('gestion',this)">Tareas de Gestión</div>
     <div class="tnav" onclick="switchTab('paralegal',this)">Panel Paralegal</div>
   </nav>
@@ -634,6 +713,7 @@ thead tr:first-child th{position:relative}
     <table>
       <thead>
         <tr id="thead-main">
+          <th class="cb-th"><input type="checkbox" class="row-cb" id="cb-all" onclick="toggleAllRows(this)"></th>
           <th style="min-width:65px" data-col="id">ID</th>
           <th style="min-width:160px" data-col="cliente">Cliente</th>
           <th style="min-width:140px" data-col="contraparte">Contraparte</th>
@@ -645,6 +725,7 @@ thead tr:first-child th{position:relative}
           <th style="min-width:80px"  data-col="relevancia">Relevancia</th>
           <th style="min-width:65px"  data-col="pacto">Pacto</th>
           <th style="min-width:130px" data-col="especialista">CEJ</th>
+          <th style="min-width:140px" data-col="distrito">Distrito Actual</th>
           <th style="min-width:185px" data-col="organo">Órgano jurisdiccional</th>
           <th style="min-width:200px" data-col="bitacora">Bitácora</th>
           <th style="min-width:160px" data-col="proxTarea">Próxima tarea</th>
@@ -652,6 +733,7 @@ thead tr:first-child th{position:relative}
           <th style="min-width:90px">Gestión</th>
         </tr>
         <tr class="filter-row-th">
+          <th></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" placeholder="Filtrar..." readonly onclick="openCvd(this,'id')"><div class="col-val-dropdown" id="cvd-id"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" placeholder="Filtrar..." readonly onclick="openCvd(this,'cliente')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-cliente"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" placeholder="Filtrar..." readonly onclick="openCvd(this,'contraparte')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-contraparte"></div></div></th>
@@ -663,14 +745,23 @@ thead tr:first-child th{position:relative}
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" placeholder="Filtrar..." readonly onclick="openCvd(this,'relevancia')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-relevancia"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" placeholder="Filtrar..." readonly onclick="openCvd(this,'pacto')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-pacto"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="especialista" placeholder="Filtrar..." readonly onclick="openCvd(this,'especialista')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-especialista"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="distrito" placeholder="Filtrar..." readonly onclick="openCvd(this,'distrito')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-distrito"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" placeholder="Filtrar..." readonly onclick="openCvd(this,'organo')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-organo"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="bitacora" placeholder="Filtrar..." readonly onclick="openCvd(this,'bitacora')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-bitacora"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxTarea" placeholder="Filtrar..." readonly onclick="openCvd(this,'proxTarea')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-proxTarea"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" placeholder="Filtrar..." readonly onclick="openCvd(this,'proxDiligencia')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-proxDiligencia"></div></div></th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
+  </div>
+  <!-- Barra acciones masivas Reporte Total -->
+  <div class="bulk-bar" id="bulk-bar-rep">
+    <span class="bulk-bar-cnt" id="bulk-cnt-rep">0</span> proceso(s) seleccionado(s)
+    <button class="bulk-btn" onclick="bulkAgendar('rep')">+ Agendar gestión</button>
+    <button class="bulk-btn" onclick="bulkExportar('rep')">↓ Exportar selección</button>
+    <button class="bulk-btn bulk-btn-cancel" onclick="clearBulk('rep')">✕ Cancelar</button>
   </div>
   <div class="pagination"><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
 </div>
@@ -696,54 +787,8 @@ thead tr:first-child th{position:relative}
     <table>
       <thead>
         <tr>
-          <th style="min-width:160px">Cliente</th>
-          <th style="min-width:140px">Contraparte</th>
-          <th style="min-width:130px">Expediente</th>
-          <th style="min-width:95px">Supervisor</th>
-          <th style="min-width:110px">Responsable</th>
-          <th style="min-width:72px">Instancia</th>
-          <th style="min-width:72px">Relevancia</th>
-          <th style="min-width:185px">Órgano jurisdiccional</th>
-          <th style="min-width:220px">Tipo de audiencia</th>
-          <th style="min-width:115px" onclick="sortAud()">Fecha y hora ↕</th>
-        </tr>
-        <tr class="filter-row-th">
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','aud')"><div class="col-val-dropdown" id="cvd-aud-cliente"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','aud')"><div class="col-val-dropdown" id="cvd-aud-contraparte"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','aud')"><div class="col-val-dropdown" id="cvd-aud-expediente"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','aud')"><div class="col-val-dropdown" id="cvd-aud-supervisor"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','aud')"><div class="col-val-dropdown" id="cvd-aud-responsable"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','aud')"><div class="col-val-dropdown" id="cvd-aud-instancia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'relevancia','aud')"><div class="col-val-dropdown" id="cvd-aud-relevancia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','aud')"><div class="col-val-dropdown" id="cvd-aud-organo"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiligencia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiliFecha" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiliFecha','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiliFecha"></div></div></th>
-        </tr>
-      </thead>
-      <tbody id="aud-tbody"></tbody>
-    </table>
-  </div>
-  <div class="pagination"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
-</div>
-
-<!-- TAB SENSIBLES -->
-<div id="tab-sensibles" class="tab-content">
-  <div class="search-row">
-    <div class="srch-wrap"><span>🔍</span>
-      <input class="srch-inp" type="text" id="sens-search" placeholder="Buscar..." oninput="renderSens()">
-    </div>
-    <select class="sel-inp" id="sens-sup" onchange="renderSens()">
-      <option value="">Todos los supervisores</option>
-      <option>Carlos Morales</option><option>Cynthia Lagos</option>
-      <option>Elyana Arias</option><option>Katia Jacinto</option>
-      <option>Samuel Paz</option><option>Solanch Estrella</option>
-    </select>
-    <span class="count-lbl" id="sens-count">— procesos sensibles</span>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
+          <th class="cb-th"><input type="checkbox" class="row-cb" id="cb-all-aud" onclick="toggleAllRows(this,'aud')"></th>
+          <th style="min-width:65px">ID</th>
           <th style="min-width:160px">Cliente</th>
           <th style="min-width:140px">Contraparte</th>
           <th style="min-width:130px">Expediente</th>
@@ -751,32 +796,50 @@ thead tr:first-child th{position:relative}
           <th style="min-width:110px">Responsable</th>
           <th style="min-width:72px">Instancia</th>
           <th style="min-width:70px">Situación</th>
+          <th style="min-width:72px">Relevancia</th>
           <th style="min-width:65px">Pacto</th>
+          <th style="min-width:130px">CEJ</th>
+          <th style="min-width:140px">Distrito</th>
           <th style="min-width:185px">Órgano jurisdiccional</th>
-          <th style="min-width:160px">Próxima tarea</th>
-          <th style="min-width:175px">Próxima audiencia</th>
+          <th style="min-width:200px">Bitácora</th>
+          <th style="min-width:220px">Tipo de audiencia</th>
+          <th style="min-width:115px" onclick="sortAud()" style="cursor:pointer">Fecha y hora ↕</th>
+          <th style="min-width:90px">Gestión</th>
         </tr>
         <tr class="filter-row-th">
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" placeholder="Filtrar..." readonly onclick="openCvd(this,'id')"><div class="col-val-dropdown" id="cvd-id"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','sens')"><div class="col-val-dropdown" id="cvd-sens-cliente"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','sens')"><div class="col-val-dropdown" id="cvd-sens-contraparte"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','sens')"><div class="col-val-dropdown" id="cvd-sens-expediente"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','sens')"><div class="col-val-dropdown" id="cvd-sens-supervisor"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','sens')"><div class="col-val-dropdown" id="cvd-sens-responsable"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','sens')"><div class="col-val-dropdown" id="cvd-sens-instancia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'situacion','sens')"><div class="col-val-dropdown" id="cvd-sens-situacion"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'pacto','sens')"><div class="col-val-dropdown" id="cvd-sens-pacto"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','sens')"><div class="col-val-dropdown" id="cvd-sens-organo"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxTarea" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxTarea','sens')"><div class="col-val-dropdown" id="cvd-sens-proxTarea"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="sens" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','sens')"><div class="col-val-dropdown" id="cvd-sens-proxDiligencia"></div></div></th>
+          <th></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'id','aud')"><div class="col-val-dropdown" id="cvd-aud-id"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','aud')"><div class="col-val-dropdown" id="cvd-aud-cliente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','aud')"><div class="col-val-dropdown" id="cvd-aud-contraparte"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','aud')"><div class="col-val-dropdown" id="cvd-aud-expediente"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','aud')"><div class="col-val-dropdown" id="cvd-aud-supervisor"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','aud')"><div class="col-val-dropdown" id="cvd-aud-responsable"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','aud')"><div class="col-val-dropdown" id="cvd-aud-instancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'situacion','aud')"><div class="col-val-dropdown" id="cvd-aud-situacion"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'relevancia','aud')"><div class="col-val-dropdown" id="cvd-aud-relevancia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'pacto','aud')"><div class="col-val-dropdown" id="cvd-aud-pacto"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="especialista" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'especialista','aud')"><div class="col-val-dropdown" id="cvd-aud-especialista"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="distrito" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'distrito','aud')"><div class="col-val-dropdown" id="cvd-aud-distrito"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','aud')"><div class="col-val-dropdown" id="cvd-aud-organo"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="bitacora" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'bitacora','aud')"><div class="col-val-dropdown" id="cvd-aud-bitacora"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiligencia"></div></div></th>
+          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiliFecha" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiliFecha','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiliFecha"></div></div></th>
+          <th></th>
         </tr>
       </thead>
-      <tbody id="sens-tbody"></tbody>
+      <tbody id="aud-tbody"></tbody>
     </table>
   </div>
-  <div class="pagination"><span id="sens-pg-info"></span><div class="pg-btns" id="sens-pg-btns"></div></div>
+  <div class="bulk-bar" id="bulk-bar-aud">
+    <span class="bulk-bar-cnt" id="bulk-cnt-aud">0</span> proceso(s) seleccionado(s)
+    <button class="bulk-btn" onclick="bulkAgendar('aud')">+ Agendar gestión</button>
+    <button class="bulk-btn" onclick="bulkExportar('aud')">↓ Exportar selección</button>
+    <button class="bulk-btn bulk-btn-cancel" onclick="clearBulk('aud')">✕ Cancelar</button>
+  </div>
+  <div class="pagination"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
 </div>
 
+<!-- TAB SENSIBLES -->
 <!-- TAB TAREAS DE GESTIÓN -->
 <div id="tab-gestion" class="tab-content">
 
@@ -784,34 +847,99 @@ thead tr:first-child th{position:relative}
     <button class="btn-primary-red" onclick="abrirModalAgendar()">
       <span style="font-size:14px">+</span> Nueva tarea de gestión
     </button>
-    <div class="srch-wrap" style="max-width:320px">
-      <span>🔍</span>
-      <input class="srch-inp" type="text" id="tg-search" placeholder="Buscar proceso, cliente, responsable..." oninput="renderGestion()">
+    <!-- Sub-tabs -->
+    <div class="tg-view-tabs">
+      <button class="tg-view-tab active" id="tgv-lista" onclick="switchGestionView('lista')">📋 Lista</button>
+      <button class="tg-view-tab" id="tgv-cal" onclick="switchGestionView('cal')">📅 Calendario</button>
     </div>
-    <select class="sel-inp" id="tg-resp" onchange="renderGestion()">
-      <option value="">Todos los responsables</option>
-      <option>Arturo Trelles</option>
-      <option>Carlos Morales</option>
-      <option>Juan Jose Edquen</option>
-      <option>Roberto Matallana</option>
-      <option>Silvia Maldonado</option>
-      <option>Talía León</option>
-    </select>
-    <select class="sel-inp" id="tg-estado" onchange="renderGestion()">
-      <option value="">Todos los estados</option>
-      <option>Pendiente</option>
-      <option>Completada</option>
-      <option>Cancelada</option>
-    </select>
-    <span class="count-lbl" id="tg-count">— tareas</span>
+    <!-- Filtros (solo en vista lista) -->
+    <div id="tg-filters" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div class="srch-wrap" style="max-width:300px">
+        <span>🔍</span>
+        <input class="srch-inp" type="text" id="tg-search" placeholder="Buscar proceso, cliente, responsable..." oninput="renderGestion()">
+      </div>
+      <select class="sel-inp" id="tg-resp" onchange="renderGestion()">
+        <option value="">Todos los responsables</option>
+        <option>Arturo Trelles</option><option>Carlos Morales</option>
+        <option>Juan Jose Edquen</option><option>Roberto Matallana</option>
+        <option>Silvia Maldonado</option><option>Talía León</option>
+      </select>
+      <select class="sel-inp" id="tg-estado" onchange="renderGestion()">
+        <option value="">Todos los estados</option>
+        <option>Pendiente</option><option>Completada</option><option>Cancelada</option>
+      </select>
+      <select class="sel-inp" id="tg-origen" onchange="renderGestion()">
+        <option value="">Todos los orígenes</option>
+        <option value="ext">Externas (de equipos)</option>
+        <option value="int">Internas (propias)</option>
+      </select>
+      <div class="tg-date-filter">
+        <span>Fecha:</span>
+        <input type="date" id="tg-fecha-desde" onchange="renderGestion()" title="Desde">
+        <span>—</span>
+        <input type="date" id="tg-fecha-hasta" onchange="renderGestion()" title="Hasta">
+        <button class="btn-sm" onclick="limpiarFiltroFecha()" title="Limpiar fechas">✕</button>
+      </div>
+      <span class="count-lbl" id="tg-count">— tareas</span>
+    </div>
   </div>
 
-  <!-- Tareas activas -->
-  <div class="tg-section-title"><span style="font-size:14px">📋</span>Tareas activas del equipo Gestión</div>
-  <div id="tg-cards" class="tg-cards"></div>
-
-  <!-- Sección paralegal -->
+  <!-- Vista Lista -->
+  <div id="tg-view-lista">
+    <!-- Leyenda origen -->
+    <div style="display:flex;gap:14px;margin-bottom:.6rem;font-size:11px;color:var(--text3);align-items:center">
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#eff6ff;border-left:3px solid var(--blue);display:inline-block"></span> Agendada por equipo (externa)</span>
+      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#f0fdf4;border-left:3px solid var(--green);display:inline-block"></span> Autoagendada por Gestión (interna)</span>
     </div>
+    <div class="tg-list-wrap">
+      <table>
+        <thead><tr>
+          <th style="min-width:65px">ID Proc.</th>
+          <th style="min-width:155px">Cliente</th>
+          <th style="min-width:130px">Expediente</th>
+          <th style="min-width:90px">Supervisor</th>
+          <th style="min-width:85px">Instancia</th>
+          <th style="min-width:210px">Tipo de tarea</th>
+          <th style="min-width:115px">Asignado a</th>
+          <th style="min-width:100px">Agendado por</th>
+          <th style="min-width:90px">Fecha límite</th>
+          <th style="min-width:70px">Estado</th>
+          <th style="min-width:180px">Observaciones</th>
+          <th style="min-width:80px">Cambios</th>
+          <th style="min-width:90px">Acciones</th>
+        </tr></thead>
+        <tbody id="tg-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination"><span id="tg-pg-info"></span><div class="pg-btns" id="tg-pg-btns"></div></div>
+  </div>
+
+  <!-- Vista Calendario Comparativo -->
+  <div id="tg-view-cal" style="display:none">
+    <div class="gcal-wrap">
+      <div class="gcal-header">
+        <button class="gcal-nav-btn active" id="gcal-btn-dia" onclick="gcalSetView('dia')">Día</button>
+        <button class="gcal-nav-btn" id="gcal-btn-sem" onclick="gcalSetView('sem')">Semana</button>
+        <input type="date" id="gcal-date" style="padding:4px 8px;border-radius:var(--r);border:1px solid var(--gray-b);font-size:12px;font-family:var(--font)" onchange="renderGCal()">
+        <button class="gcal-nav-btn" onclick="gcalNav(-1)">‹</button>
+        <button class="gcal-nav-btn" onclick="gcalToday()">Hoy</button>
+        <button class="gcal-nav-btn" onclick="gcalNav(1)">›</button>
+        <span class="gcal-date-lbl" id="gcal-lbl"></span>
+        <div class="gcal-legend">
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#4f46e5"></span> A. Trelles</span>
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#2563eb"></span> C. Morales</span>
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#7c3aed"></span> JJ. Edquen</span>
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#dc2626"></span> R. Matallana</span>
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#16a34a"></span> S. Maldonado</span>
+          <span class="gcal-legend-item"><span class="gcal-legend-dot" style="background:#ca8a04"></span> T. León</span>
+        </div>
+      </div>
+      <div class="gcal-table-wrap">
+        <table class="gcal-table" id="gcal-table"></table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL REDIRIGIR TAREA -->
@@ -909,6 +1037,12 @@ thead tr:first-child th{position:relative}
         <label>Fecha límite</label>
         <input type="date" id="ag-fecha">
       </div>
+      <div class="ag-field">
+        <label>Hora <span style="color:var(--text4);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <input type="time" id="ag-hora" placeholder="HH:MM">
+      </div>
+    </div>
+    <div class="ag-form-row">
       <div class="ag-field">
         <label>Agendado por</label>
         <input type="text" id="ag-agendadopor" placeholder="Tu nombre">
@@ -1166,6 +1300,8 @@ function rebuildTipos(){
 }
 
 // Render
+let selectedRows = {rep: new Set(), aud: new Set()};
+
 function render(){
   let rows=getFiltered();
   const total=rows.length,tp=Math.ceil(total/PAGE)||1;
@@ -1173,15 +1309,17 @@ function render(){
   const slice=rows.slice((page-1)*PAGE,page*PAGE);
   const body=document.getElementById('tbody');
   if(!slice.length){
-    body.innerHTML='<tr><td colspan="16"><div class="empty"><span>—</span>Sin resultados</div></td></tr>';
+    body.innerHTML='<tr><td colspan="18"><div class="empty"><span>—</span>Sin resultados</div></td></tr>';
   }else{
     body.innerHTML=slice.map(r=>{
       const sc=r.sensible?'class="row-s"':r.alertLectura?'class="row-alert"':'';
       const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
       const dili=r.proxDiligencia?'<span class="badge b-a">'+esc(r.proxDiligencia)+'</span><br><strong style="color:var(--amber);font-size:10.5px">'+r.proxDiliFecha+(r.proxDiliHora?' <span style="font-weight:400;color:var(--text3)">'+r.proxDiliHora+'</span>':'')+'</strong>':'<span style="color:var(--text4)">—</span>';
+      const checked = selectedRows.rep.has(r.id) ? 'checked' : '';
       return'<tr '+sc+' onclick="selectRow(this)">'
+        +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="rep" '+checked+' onchange="onRowCheck(this,\'rep\')"></td>'
         +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank" title="Ver en MyBiG #'+r.id+'">'+r.id+'</a></td>'
-        +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,105)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td>'+relBadge(r.relevancia)+'</td><td class="td-d" style="font-size:10.5px;white-space:nowrap" title="'+esc(r.pacto)+'">'+esc(r.pacto)+'</td>'+tdT(r.especialista,130,'td-d')+tdT(r.organo,185,'td-d')+(r.alertLectura
+        +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,105)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td>'+relBadge(r.relevancia)+'</td><td class="td-d" style="font-size:10.5px;white-space:nowrap" title="'+esc(r.pacto)+'">'+esc(r.pacto)+'</td>'+tdT(r.especialista,130,'td-d')+tdT(r.distrito,140,'td-d')+tdT(r.organo,185,'td-d')+(r.alertLectura
   ? '<td><div class="alert-lectura-badge"><span>⚠</span>INCONSISTENCIA</div><div style="font-size:10.5px;color:var(--text3);margin-top:3px" title="'+esc(r.bitacora)+'">'+esc(r.bitacora.length>28?r.bitacora.slice(0,28)+'…':r.bitacora)+'</div></td>'
   : tdT(r.bitacora,200,'td-d'))+'<td style="line-height:1.7">'+tarea+'</td><td style="max-width:175px;line-height:1.7">'+dili+'</td>'
         +'<td><button class="btn-agendar btn-agendar-fila" data-row-id="'+r.id+'" onclick="event.stopPropagation();abrirModalAgendar('+r.id+')">+ Gestión</button></td>'
@@ -1191,7 +1329,8 @@ function render(){
   document.getElementById('count-txt').textContent=total.toLocaleString()+' proceso'+(total!==1?'s':'');
   buildPag('pg-info','pg-btns',page,tp,p=>{page=p;render();});
   updateStats();
-  
+  updateBulkBar('rep');
+  setTimeout(addResizeHandles, 0);
 }
 
 function renderAud(){
@@ -1208,16 +1347,39 @@ function renderAud(){
     }
     return true;
   });
-  rows.sort((a,b)=>{const va=a.proxDiliFecha.split('/').reverse().join(''),vb=b.proxDiliFecha.split('/').reverse().join('');return audSortAsc?va.localeCompare(vb):vb.localeCompare(va);});
+  rows.sort((a,b)=>{const va=(a.proxDiliFecha||'').split('/').reverse().join(''),vb=(b.proxDiliFecha||'').split('/').reverse().join('');return audSortAsc?va.localeCompare(vb):vb.localeCompare(va);});
   const total=rows.length,tp=Math.ceil(total/PAGE)||1;
   if(audPage>tp)audPage=1;
   const slice=rows.slice((audPage-1)*PAGE,audPage*PAGE);
   const body=document.getElementById('aud-tbody');
-  if(!slice.length){body.innerHTML='<tr><td colspan="10"><div class="empty"><span>—</span>Sin audiencias</div></td></tr>';}
-  else{body.innerHTML=slice.map(r=>{const sc=r.sensible?'class="row-s"':'';return'<tr '+sc+' onclick="selectRow(this)">'+tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,110)+'<td>'+instBadge(r.instancia)+'</td><td>'+relBadge(r.relevancia)+'</td>'+tdT(r.organo,185,'td-d')+'<td><span class="badge b-a">'+esc(r.proxDiligencia)+'</span></td><td><strong style="color:var(--amber)">'+r.proxDiliFecha+'</strong>'+(r.proxDiliHora?' <span style="color:var(--text3);font-size:11px">'+r.proxDiliHora+'</span>':'')+'</td></tr>';}).join('');}
+  if(!slice.length){body.innerHTML='<tr><td colspan="18"><div class="empty"><span>—</span>Sin audiencias</div></td></tr>';}
+  else{body.innerHTML=slice.map(r=>{
+    const sc=r.sensible?'class="row-s"':'';
+    const checked=selectedRows.aud.has(r.id)?'checked':'';
+    const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
+    return'<tr '+sc+' onclick="selectRow(this)">'
+      +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="aud" '+checked+' onchange="onRowCheck(this,\'aud\')"></td>'
+      +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank">'+r.id+'</a></td>'
+      +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')
+      +'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'
+      +tdT(r.supervisor,95)+tdT(r.responsable,110)
+      +'<td>'+instBadge(r.instancia)+'</td>'
+      +'<td>'+sitBadge(r.situacion)+'</td>'
+      +'<td>'+relBadge(r.relevancia)+'</td>'
+      +'<td class="td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'
+      +tdT(r.especialista,130,'td-d')
+      +tdT(r.distrito,140,'td-d')
+      +tdT(r.organo,185,'td-d')
+      +tdT(r.bitacora,200,'td-d')
+      +'<td><span class="badge b-a">'+esc(r.proxDiligencia)+'</span></td>'
+      +'<td><strong style="color:var(--amber)">'+esc(r.proxDiliFecha)+'</strong>'+(r.proxDiliHora?' <span style="color:var(--text3);font-size:11px">'+esc(r.proxDiliHora)+'</span>':'')+'</td>'
+      +'<td><button class="btn-agendar" onclick="event.stopPropagation();abrirModalAgendar('+r.id+')">+ Gestión</button></td>'
+      +'</tr>';
+  }).join('');}
   document.getElementById('aud-count').textContent=total.toLocaleString()+' audiencia'+(total!==1?'s':'');
   buildPag('aud-pg-info','aud-pg-btns',audPage,tp,p=>{audPage=p;renderAud();});
-  
+  updateBulkBar('aud');
+  setTimeout(addResizeHandles, 0);
 }
 function sortAud(){audSortAsc=!audSortAsc;audPage=1;renderAud();}
 
@@ -1227,7 +1389,7 @@ function renderSens(){
   let rows=DATA.filter(r=>{
     if(!r.sensible)return false;
     if(sup&&r.supervisor!==sup)return false;
-    if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable).toLowerCase().includes(q))return false;
+    if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable+r.organo+r.bitacora).toLowerCase().includes(q))return false;
     for(const[col,val]of Object.entries(colFiltersSens)){
       if(!String(r[col]||'').toLowerCase().includes(val))return false;
     }
@@ -1237,15 +1399,31 @@ function renderSens(){
   if(sensPage>tp)sensPage=1;
   const slice=rows.slice((sensPage-1)*PAGE,sensPage*PAGE);
   const body=document.getElementById('sens-tbody');
-  if(!slice.length){body.innerHTML='<tr><td colspan="11"><div class="empty"><span>✓</span>Sin procesos sensibles</div></td></tr>';}
+  if(!slice.length){body.innerHTML='<tr><td colspan="17"><div class="empty"><span>✓</span>Sin procesos sensibles</div></td></tr>';}
   else{body.innerHTML=slice.map(r=>{
     const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
-    const dili=r.proxDiligencia?'<span class="badge b-a">'+esc(r.proxDiligencia)+'</span><br><strong style="color:var(--amber);font-size:10.5px">'+r.proxDiliFecha+(r.proxDiliHora?' <span style="font-weight:400;color:var(--text3)">'+r.proxDiliHora+'</span>':'')+'</strong>':'<span style="color:var(--text4)">—</span>';
-    return'<tr class="row-s">'+tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,110)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td class="td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'+tdT(r.organo,185,'td-d')+'<td style="line-height:1.7">'+tarea+'</td><td style="max-width:175px;line-height:1.7">'+dili+'</td></tr>';
+    const dili=r.proxDiligencia?'<span class="badge b-a">'+esc(r.proxDiligencia)+'</span><br><strong style="color:var(--amber);font-size:10.5px">'+esc(r.proxDiliFecha)+(r.proxDiliHora?' <span style="font-weight:400;color:var(--text3)">'+esc(r.proxDiliHora)+'</span>':'')+'</strong>':'<span style="color:var(--text4)">—</span>';
+    return'<tr class="row-s">'
+      +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank">'+r.id+'</a></td>'
+      +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')
+      +'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'
+      +tdT(r.supervisor,95)+tdT(r.responsable,110)
+      +'<td>'+instBadge(r.instancia)+'</td>'
+      +'<td>'+sitBadge(r.situacion)+'</td>'
+      +'<td>'+relBadge(r.relevancia)+'</td>'
+      +'<td class="td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'
+      +tdT(r.especialista,130,'td-d')
+      +tdT(r.distrito,140,'td-d')
+      +tdT(r.organo,185,'td-d')
+      +tdT(r.bitacora,200,'td-d')
+      +'<td style="line-height:1.7">'+tarea+'</td>'
+      +'<td style="max-width:175px;line-height:1.7">'+dili+'</td>'
+      +'<td><button class="btn-agendar" onclick="abrirModalAgendar('+r.id+')">+ Gestión</button></td>'
+      +'</tr>';
   }).join('');}
   document.getElementById('sens-count').textContent=total.toLocaleString()+' proceso'+(total!==1?'s':'');
   buildPag('sens-pg-info','sens-pg-btns',sensPage,tp,p=>{sensPage=p;renderSens();});
-  
+  setTimeout(addResizeHandles, 0);
 }
 
 function updateStats(){
@@ -1537,103 +1715,138 @@ function getAllTareasGestion(){
   return [...deExcel, ...manuales];
 }
 
+// ── VISTA GESTIÓN ────────────────────────────────────────────
+let tgPage = 1;
+const TG_PAGE = 50;
+let gestionView = 'lista';
+
+function switchGestionView(v){
+  gestionView = v;
+  document.getElementById('tgv-lista').classList.toggle('active', v==='lista');
+  document.getElementById('tgv-cal').classList.toggle('active', v==='cal');
+  document.getElementById('tg-view-lista').style.display = v==='lista' ? '' : 'none';
+  document.getElementById('tg-view-cal').style.display  = v==='cal'  ? '' : 'none';
+  document.getElementById('tg-filters').style.display   = v==='lista' ? 'flex' : 'none';
+  if(v==='cal') renderGCal();
+}
+
+function limpiarFiltroFecha(){
+  document.getElementById('tg-fecha-desde').value='';
+  document.getElementById('tg-fecha-hasta').value='';
+  renderGestion();
+}
+
+function parseFechaTarea(f){
+  if(!f) return null;
+  // Formato DD/MM/YYYY o YYYY-MM-DD
+  if(f.includes('/')){const[d,m,y]=f.split('/');return new Date(y,m-1,d);}
+  return new Date(f);
+}
+
 function renderGestion(){
   const q = (document.getElementById('tg-search').value||'').toLowerCase();
   const resp = document.getElementById('tg-resp').value;
   const estado = document.getElementById('tg-estado').value;
+  const origen = document.getElementById('tg-origen').value;
+  const desde = document.getElementById('tg-fecha-desde').value;
+  const hasta = document.getElementById('tg-fecha-hasta').value;
 
   let tareas = getAllTareasGestion().filter(t=>{
-    if(q && !(t.cliente+t.expediente+t.tipo+t.asignado).toLowerCase().includes(q)) return false;
+    if(q && !(t.cliente+t.expediente+t.tipo+t.asignado+(t.agendadoPor||'')).toLowerCase().includes(q)) return false;
     if(resp && t.asignado !== resp) return false;
     if(estado && t.estado !== estado) return false;
+    // Origen: ext = de equipos (Excel o portal por no-Gestión), int = agendadas por Gestión
+    if(origen){
+      const esInterna = t.origen==='portal' || t.origen==='manual';
+      if(origen==='ext' && esInterna) return false;
+      if(origen==='int' && !esInterna) return false;
+    }
+    // Filtro fecha
+    if(desde || hasta){
+      const ft = parseFechaTarea(t.fecha);
+      if(!ft) return !(desde||hasta); // sin fecha → excluir si hay filtro
+      if(desde && ft < new Date(desde)) return false;
+      if(hasta && ft > new Date(hasta+'T23:59:59')) return false;
+    }
     return true;
   });
 
   document.getElementById('tg-count').textContent = tareas.length + ' tarea' + (tareas.length!==1?'s':'');
 
-  // Cards
-  const container = document.getElementById('tg-cards');
+  // Separar externas e internas
+  const externas = tareas.filter(t => t.origen!=='portal' && t.origen!=='manual');
+  const internas  = tareas.filter(t => t.origen==='portal' || t.origen==='manual');
+
+  const tbody = document.getElementById('tg-tbody');
   if(!tareas.length){
-    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text4);font-size:12px"><span style="font-size:32px;display:block;margin-bottom:.5rem;opacity:.3">—</span>Sin tareas de gestión</div>';
-  } else {
-    container.innerHTML = tareas.map(t => {
-      const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
-      const initials = member ? member.iniciales : (t.asignado||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-      const color = member ? member.color : '#888';
-
-      // Datos del proceso cruzado
-      const proc = DATA.find(r=>r.id===t.nroId);
-      const sensible   = proc ? proc.sensible : false;
-      const contraparte= proc ? proc.contraparte : '—';
-      const responsable= proc ? proc.responsable : '—';
-      const supervisor = proc ? proc.supervisor : '—';
-      const pacto      = proc ? proc.pacto : '—';
-      const organo     = proc ? proc.organo : '—';
-
-      const estadoBadge = t.estado==='Pendiente'
-        ? '<span class="badge badge-estado-pend">Pendiente</span>'
-        : t.estado==='Completada'
-        ? '<span class="badge badge-estado-done">Completada</span>'
-        : '<span class="badge badge-estado-canc">Cancelada</span>';
-
-      const tareaUrl = t.nrotarea
-        ? 'https://vinatea.mybig.com.ar/tareas/'+t.nrotarea+'/edit/'
-        : 'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
-
-      // Cambios pendientes registrados
-      const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
-      const ov = overrides[t.id] || {};
-      const manuales = loadTareasGestion();
-      const manualIdx = manuales.findIndex(x=>x.id===t.id);
-      const manualOv = manualIdx>=0 ? manuales[manualIdx] : null;
-      const cambiosPendientes = [];
-      const asignadoFinal = ov.asignado || (manualOv&&manualOv.asignado) || '';
-      const fechaFinal    = ov.fecha    || (manualOv&&manualOv.fecha)    || '';
-      const obsFinal      = ov.obs      || (manualOv&&manualOv.obs)      || '';
-      const estadoFinal   = ov.estado   || (manualOv&&manualOv.estado)   || '';
-      if(asignadoFinal && asignadoFinal !== t.asignado) cambiosPendientes.push('Reasignación → '+esc(asignadoFinal));
-      if(fechaFinal    && fechaFinal    !== t.fecha)    cambiosPendientes.push('Nueva fecha: '+esc(fechaFinal));
-      if(obsFinal)                                      cambiosPendientes.push('Comentario registrado');
-      if(estadoFinal   && estadoFinal   !== t.estado)   cambiosPendientes.push('Estado → '+esc(estadoFinal));
-
-      const cambiosBadge = cambiosPendientes.length > 0
-        ? '<div style="margin-top:8px;padding:6px 10px;background:var(--amber-l);border:1px solid var(--amber-b);border-radius:6px;font-size:11px;color:var(--amber)">'
-          +'<strong>⏳ Pendiente de cambio:</strong> '+cambiosPendientes.join(' · ')+'</div>'
-        : '';
-
-      return `<div class="tg-card${sensible?' tg-card-sensible':''}">
-        <div class="tg-card-header">
-          <div class="tg-card-title">${esc(t.tipo)}</div>
-          ${estadoBadge}
-        </div>
-        ${sensible?'<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:var(--red-l);border:1px solid var(--red-b);color:var(--red);font-size:10.5px;font-weight:500;margin-bottom:8px">⚠ Proceso sensible</div>':''}
-        <div class="tg-card-meta">
-          <div class="tg-meta-row">📁 <span>${esc(t.cliente||'—')}</span></div>
-          <div class="tg-meta-row">👤 <span style="color:var(--text3)">Contraparte:</span> <strong>${esc(contraparte)}</strong></div>
-          <div class="tg-meta-row">📄 <a href="${tareaUrl}" target="_blank" title="Ver tarea en MyBiG">#${t.nrotarea||t.nroId} — ${esc(t.expediente||'—')}</a></div>
-          <div class="tg-meta-row">⚖ <span style="color:var(--text3)">Supervisor:</span> <strong>${esc(supervisor)}</strong> · <span style="color:var(--text3)">Responsable:</span> <strong>${esc(responsable)}</strong></div>
-          <div class="tg-meta-row">🏛 <span style="color:var(--text3)">Órgano:</span> ${esc(organo)}</div>
-          <div class="tg-meta-row">📋 <span style="color:var(--text3)">Pacto:</span> ${esc(pacto)} · <span style="color:var(--text3)">Asignado a:</span> <strong>${esc(t.asignado||'—')}</strong></div>
-          <div class="tg-meta-row">👤 <span style="color:var(--text3)">Agendado por:</span> ${esc(t.agendadoPor||'—')}</div>
-          ${t.fecha?`<div class="tg-meta-row">📅 <span style="color:var(--text3)">Fecha:</span> <strong>${esc(t.fecha)}</strong></div>`:''}
-          ${t.obs?`<div class="tg-meta-row">📝 ${esc(t.obs)}</div>`:''}
-        </div>
-        ${cambiosBadge}
-        <div class="tg-card-footer">
-          <div class="tg-avatars">
-            <div class="tg-avatar" style="background:${color};margin-left:0" title="${esc(t.asignado||'')}">${initials}</div>
-            <span style="font-size:11px;color:var(--text3);margin-left:10px">${esc(t.asignado||'—')}</span>
-          </div>
-          <button class="btn-redir" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l)" onclick="abrirPanelEdicion('${t.id}')">
-            ✎ Registrar cambio
-          </button>
-        </div>
-      </div>`;
-    }).join('');
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas de gestión</td></tr>';
+    buildPag('tg-pg-info','tg-pg-btns',1,1,()=>{});
+    return;
   }
 
+  // Construir filas combinadas con separadores
+  const allRows = [];
+  if(externas.length){
+    allRows.push({sep:true, label:'📥 Agendadas por equipos ('+externas.length+')'});
+    externas.forEach(t=>allRows.push({sep:false, t, clase:'tg-origen-ext'}));
+  }
+  if(internas.length){
+    allRows.push({sep:true, label:'📌 Autoagendadas por Gestión ('+internas.length+')'});
+    internas.forEach(t=>allRows.push({sep:false, t, clase:'tg-origen-int'}));
   }
 
+  // Paginación sobre filas reales (no separadores)
+  const realRows = allRows.filter(r=>!r.sep);
+  const tp = Math.ceil(realRows.length/TG_PAGE)||1;
+  if(tgPage>tp) tgPage=1;
+  const startIdx = (tgPage-1)*TG_PAGE;
+  const endIdx = tgPage*TG_PAGE;
+  let realCount = 0;
+
+  tbody.innerHTML = allRows.map(row=>{
+    if(row.sep) return '<tr class="tg-section-sep"><td colspan="13">'+row.label+'</td></tr>';
+    realCount++;
+    if(realCount <= startIdx || realCount > endIdx) return '';
+    const t = row.t;
+    const proc = DATA.find(r=>r.id===t.nroId);
+    const supervisor = proc?proc.supervisor:'—';
+    const instancia  = proc?proc.instancia:'—';
+    const overrides  = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
+    const ov = overrides[t.id]||{};
+    const cambios = [];
+    if(ov.asignado && ov.asignado!==t.asignado) cambios.push('→'+ov.asignado);
+    if(ov.fecha && ov.fecha!==t.fecha) cambios.push('📅'+ov.fecha);
+    if(ov.estado && ov.estado!==t.estado) cambios.push(ov.estado);
+    const estadoBadge = t.estado==='Pendiente'
+      ?'<span class="badge badge-estado-pend">Pend.</span>'
+      :t.estado==='Completada'
+      ?'<span class="badge badge-estado-done">OK</span>'
+      :'<span class="badge badge-estado-canc">Canc.</span>';
+    const tareaUrl = t.nrotarea
+      ?'https://vinatea.mybig.com.ar/tareas/'+t.nrotarea+'/edit/'
+      :'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
+    const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
+    const dot = member?'<span style="width:8px;height:8px;border-radius:50%;background:'+member.color+';display:inline-block;margin-right:4px;flex-shrink:0"></span>':'';
+    return '<tr class="'+row.clase+'">'
+      +'<td><a class="id-link" href="'+tareaUrl+'" target="_blank">#'+(t.nroId||'—')+'</a></td>'
+      +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
+      +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
+      +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
+      +'<td>'+instBadge(instancia)+'</td>'
+      +'<td title="'+esc(t.tipo)+'">'+esc(t.tipo.replace('Gestión - ','').slice(0,35)+(t.tipo.length>40?'…':''))+'</td>'
+      +'<td style="display:flex;align-items:center">'+dot+esc(t.asignado||'—')+'</td>'
+      +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--text2)">'+esc(t.fecha||'—')+'</td>'
+      +'<td>'+estadoBadge+'</td>'
+      +'<td class="td-d" style="font-size:11px" title="'+esc(t.obs||'')+'">'+esc((t.obs||'').slice(0,30)+(t.obs&&t.obs.length>30?'…':''))+'</td>'
+      +'<td>'+(cambios.length?'<span style="color:var(--amber);font-size:10.5px">⏳ '+cambios.join(' · ')+'</span>':'<span style="color:var(--text4)">—</span>')+'</td>'
+      +'<td><button class="btn-redir" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px" onclick="abrirPanelEdicion(\''+t.id+'\')">✎ Editar</button></td>'
+      +'</tr>';
+  }).join('');
+
+  buildPag('tg-pg-info','tg-pg-btns',tgPage,tp,p=>{tgPage=p;renderGestion();});
+  setTimeout(addResizeHandles,0);
+}
 // CSS extra para link en tabla
 document.head.insertAdjacentHTML('beforeend','<style>.td-link{color:var(--blue);text-decoration:none;font-weight:600;font-family:var(--mono);font-size:11px}.td-link:hover{text-decoration:underline}</style>');
 
@@ -1839,7 +2052,10 @@ function selectRow(tr){
 
 function startPortal(){
   if(typeof PORTAL_DATA!=='undefined'&&PORTAL_DATA.length) DATA=PORTAL_DATA;
-  render(); 
+  // Inicializar fecha del calendario
+  const gcalInp = document.getElementById('gcal-date');
+  if(gcalInp) gcalInp.value = new Date().toISOString().slice(0,10);
+  render();
 }
 (function(){
   var s=document.createElement('script');
@@ -1855,38 +2071,272 @@ function startPortal(){
 
 
 
+// ── CHECKBOXES Y ACCIONES MASIVAS ────────────────────────────
+function onRowCheck(cb, tab){
+  const id = parseInt(cb.dataset.id);
+  if(cb.checked) selectedRows[tab].add(id);
+  else selectedRows[tab].delete(id);
+  updateBulkBar(tab);
+}
+
+function toggleAllRows(masterCb, tab='rep'){
+  const tbody = tab==='rep' ? document.getElementById('tbody') : document.getElementById('aud-tbody');
+  tbody.querySelectorAll('.row-cb').forEach(cb=>{
+    const id = parseInt(cb.dataset.id);
+    cb.checked = masterCb.checked;
+    if(masterCb.checked) selectedRows[tab].add(id);
+    else selectedRows[tab].delete(id);
+  });
+  updateBulkBar(tab);
+}
+
+function updateBulkBar(tab){
+  const cnt = selectedRows[tab].size;
+  const bar = document.getElementById('bulk-bar-'+tab);
+  const lbl = document.getElementById('bulk-cnt-'+tab);
+  if(bar){ bar.classList.toggle('show', cnt>0); }
+  if(lbl) lbl.textContent = cnt;
+  // Sync master checkbox
+  const master = document.getElementById(tab==='rep'?'cb-all':'cb-all-aud');
+  if(master){
+    const tbody = tab==='rep'?document.getElementById('tbody'):document.getElementById('aud-tbody');
+    const total = tbody ? tbody.querySelectorAll('.row-cb').length : 0;
+    master.indeterminate = cnt>0 && cnt<total;
+    master.checked = cnt>0 && cnt>=total;
+  }
+}
+
+function clearBulk(tab){
+  selectedRows[tab].clear();
+  const tbody = tab==='rep'?document.getElementById('tbody'):document.getElementById('aud-tbody');
+  if(tbody) tbody.querySelectorAll('.row-cb').forEach(cb=>cb.checked=false);
+  updateBulkBar(tab);
+}
+
+function bulkAgendar(tab){
+  const ids = [...selectedRows[tab]];
+  if(!ids.length) return;
+  showToast('Abriendo modal para '+ids.length+' proceso(s)... (por ahora abre el primero)');
+  abrirModalAgendar(ids[0]);
+}
+
+function bulkExportar(tab){
+  const ids = [...selectedRows[tab]];
+  if(!ids.length) return;
+  const rows = DATA.filter(r=>ids.includes(r.id));
+  const ws = XLSX.utils.json_to_sheet(rows.map(r=>({
+    ID:r.id, Cliente:r.cliente, Contraparte:r.contraparte,
+    Expediente:r.expediente, Supervisor:r.supervisor,
+    Responsable:r.responsable, Instancia:r.instancia,
+    Situacion:r.situacion, Distrito:r.distrito,
+    'Órgano':r.organo, Bitácora:r.bitacora
+  })));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Selección');
+  XLSX.writeFile(wb, 'seleccion_portal.xlsx');
+  showToast('✓ Exportado: '+rows.length+' proceso(s)');
+}
+
+// ── CALENDARIO COMPARATIVO GESTIÓN ────────────────────────────
+const GCAL_MIEMBROS = [
+  {nombre:'Arturo Trelles',   iniciales:'AT', cls:'gcal-AT', color:'#4f46e5'},
+  {nombre:'Carlos Morales',   iniciales:'CM', cls:'gcal-CM', color:'#2563eb'},
+  {nombre:'Juan Jose Edquen', iniciales:'JJ', cls:'gcal-JJ', color:'#7c3aed'},
+  {nombre:'Roberto Matallana',iniciales:'RM', cls:'gcal-RM', color:'#dc2626'},
+  {nombre:'Silvia Maldonado', iniciales:'SM', cls:'gcal-SM', color:'#16a34a'},
+  {nombre:'Talía León',       iniciales:'TL', cls:'gcal-TL', color:'#ca8a04'},
+];
+const GCAL_HORAS = Array.from({length:22},(_,i)=>{ const h=7+Math.floor(i/2);const m=i%2?'30':'00';return h+':'+m;});
+
+let gcalView = 'dia';
+let gcalDate = new Date();
+
+function gcalSetView(v){
+  gcalView=v;
+  document.getElementById('gcal-btn-dia').classList.toggle('active',v==='dia');
+  document.getElementById('gcal-btn-sem').classList.toggle('active',v==='sem');
+  renderGCal();
+}
+function gcalNav(d){
+  if(gcalView==='dia') gcalDate.setDate(gcalDate.getDate()+d);
+  else gcalDate.setDate(gcalDate.getDate()+d*7);
+  document.getElementById('gcal-date').value = gcalDate.toISOString().slice(0,10);
+  renderGCal();
+}
+function gcalToday(){ gcalDate=new Date(); document.getElementById('gcal-date').value=gcalDate.toISOString().slice(0,10); renderGCal(); }
+
+function renderGCal(){
+  const dateInp = document.getElementById('gcal-date');
+  if(dateInp.value) gcalDate = new Date(dateInp.value+'T12:00:00');
+  const lbl = document.getElementById('gcal-lbl');
+  const table = document.getElementById('gcal-table');
+  const tareas = getAllTareasGestion().filter(t=>t.fecha);
+
+  const diasSemana=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+  if(gcalView==='dia'){
+    const ds = gcalDate.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    lbl.textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
+
+    let html='<thead><tr><th class="hora-col">Hora</th>'
+      +GCAL_MIEMBROS.map(m=>'<th style="text-align:center"><div style="font-weight:600;color:#fff">'+m.iniciales+'</div><div style="font-size:10px;color:rgba(255,255,255,.5)">'+m.nombre.split(' ')[0]+'</div></th>').join('')
+      +'</tr></thead><tbody>';
+
+    const dStr = gcalDate.toISOString().slice(0,10);
+
+    // Calcular qué slots tienen evento por miembro (solo el slot exacto)
+    // slot: índice en GCAL_HORAS que coincide con hora de la tarea
+    // Si no tiene hora → slot 'sin-hora' (lo pintamos con indicador especial al inicio del día)
+    const slotMap = {}; // slotMap[miembroIdx][horaSlot] = [tareas]
+    GCAL_MIEMBROS.forEach((_,mi)=>{ slotMap[mi]={}; });
+
+    tareas.forEach(t=>{
+      const ft = parseFechaTarea(t.fecha);
+      if(!ft || ft.toISOString().slice(0,10)!==dStr) return;
+      const mi = GCAL_MIEMBROS.findIndex(m=>m.nombre===t.asignado);
+      if(mi<0) return;
+      if(t.hora){
+        // Encontrar slot más cercano (redondear a slot de 30 min)
+        const [hh,mm] = t.hora.split(':').map(Number);
+        const slotHora = hh+':'+(mm<30?'00':'30');
+        if(!slotMap[mi][slotHora]) slotMap[mi][slotHora]=[];
+        slotMap[mi][slotHora].push(t);
+      } else {
+        if(!slotMap[mi]['sin-hora']) slotMap[mi]['sin-hora']=[];
+        slotMap[mi]['sin-hora'].push(t);
+      }
+    });
+
+    // Fila especial "Sin hora asignada" si hay tareas sin hora
+    const haySinHora = GCAL_MIEMBROS.some((_,mi)=>slotMap[mi]['sin-hora']&&slotMap[mi]['sin-hora'].length);
+    if(haySinHora){
+      html+='<tr style="background:#fffbeb"><td class="hora-cell" style="color:var(--amber);font-size:10px">Sin hora</td>';
+      GCAL_MIEMBROS.forEach((m,mi)=>{
+        const eventos = slotMap[mi]['sin-hora']||[];
+        html+='<td class="gcal-slot" style="'+(eventos.length?'background:#fffbeb':'')+'vertical-align:top">';
+        eventos.forEach(t=>{
+          html+='<div class="gcal-event '+m.cls+'" title="'+esc(t.tipo)+' — '+esc(t.cliente||'')+'" style="border-left-color:var(--amber)">'
+            +'<div class="gcal-event-title">'+esc(t.tipo.replace('Gestión - ','').slice(0,26))+'</div>'
+            +'<div class="gcal-event-sub">'+esc(t.cliente||'')+'</div></div>';
+        });
+        html+='</td>';
+      });
+      html+='</tr>';
+    }
+
+    GCAL_HORAS.forEach(hora=>{
+      const isHalf = hora.includes(':30');
+      html+='<tr class="'+(isHalf?'half-hour':'')+'"><td class="hora-cell">'+hora+'</td>';
+      GCAL_MIEMBROS.forEach((m,mi)=>{
+        const eventos = slotMap[mi][hora]||[];
+        const occ = eventos.length>0;
+        html+='<td class="gcal-slot'+(occ?' gcal-slot-occ':'')+'" style="vertical-align:top">';
+        eventos.forEach(t=>{
+          html+='<div class="gcal-event '+m.cls+'" title="'+esc(t.tipo)+' — '+esc(t.cliente||'')+'">'
+            +'<div class="gcal-event-title">'+esc(t.tipo.replace('Gestión - ','').slice(0,26))+'</div>'
+            +'<div class="gcal-event-sub">'+esc(t.cliente||'')+'</div></div>';
+        });
+        html+='</td>';
+      });
+      html+='</tr>';
+    });
+    html+='</tbody>';
+    table.innerHTML = html;
+
+  } else {
+    // Vista semana
+    const lunes = new Date(gcalDate);
+    lunes.setDate(gcalDate.getDate()-((gcalDate.getDay()+6)%7));
+    const dias = Array.from({length:7},(_,i)=>{ const d=new Date(lunes);d.setDate(lunes.getDate()+i);return d; });
+    lbl.textContent = 'Semana del '+lunes.toLocaleDateString('es-PE',{day:'numeric',month:'short'})+' al '+dias[6].toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'});
+
+    let html='<thead><tr><th class="hora-col">Hora</th>'
+      +dias.map(d=>'<th colspan="'+GCAL_MIEMBROS.length+'" style="text-align:center;font-size:10.5px">'+diasSemana[d.getDay()].slice(0,3).toUpperCase()+' '+d.getDate()+'</th>').join('')
+      +'</tr><tr><th></th>'
+      +dias.map(()=>GCAL_MIEMBROS.map(m=>'<th style="font-size:9px;padding:4px 3px;color:rgba(255,255,255,.5)">'+m.iniciales+'</th>').join('')).join('')
+      +'</tr></thead><tbody>';
+
+    GCAL_HORAS.forEach((hora)=>{
+      if(hora.includes(':30')) return;
+      html+='<tr><td class="hora-cell">'+hora+'</td>';
+      dias.forEach(d=>{
+        const dStr=d.toISOString().slice(0,10);
+        GCAL_MIEMBROS.forEach(m=>{
+          // Solo tareas con hora que coincida con este slot, o sin hora solo en slot 09:00
+          const eventos=tareas.filter(t=>{
+            if(t.asignado!==m.nombre)return false;
+            const ft=parseFechaTarea(t.fecha);
+            if(!ft||ft.toISOString().slice(0,10)!==dStr)return false;
+            if(t.hora){
+              const [hh]=t.hora.split(':').map(Number);
+              return (hh+':00')===hora;
+            }
+            return hora==='09:00'; // sin hora → 09:00
+          });
+          if(eventos.length){
+            html+='<td class="gcal-slot gcal-slot-occ" title="'+esc(eventos[0].tipo)+'" style="padding:2px"><div class="gcal-event '+m.cls+'" style="font-size:9px;padding:2px 4px"><div class="gcal-event-title" style="font-size:9px">'+esc((eventos[0].cliente||'').slice(0,12))+'</div></div></td>';
+          } else {
+            html+='<td class="gcal-slot"></td>';
+          }
+        });
+      });
+      html+='</tr>';
+    });
+    html+='</tbody>';
+    table.innerHTML=html;
+  }
+}
+
 // ── RESIZE COLUMNAS ────────────────────────────────
 function addResizeHandles(){
   document.querySelectorAll('.table-wrap').forEach(wrap => {
     const table = wrap.querySelector('table');
     if(!table) return;
     const ths = Array.from(table.querySelectorAll('thead tr:first-child th'));
+
+    // Asegurarse que la tabla tenga table-layout:fixed con anchos explícitos
+    // Solo fijar si aún no tiene anchos explícitos (primera vez)
+    if(table.style.tableLayout !== 'fixed'){
+      ths.forEach(t => { t.style.minWidth = t.style.minWidth || t.offsetWidth + 'px'; });
+    }
+
     ths.forEach(th => {
-      if(th.querySelector('.rh')) return;
-      const rh = document.createElement('div');
-      rh.className = 'rh';
-      th.appendChild(rh);
-      let x0, w0, tw0;
-      rh.addEventListener('mousedown', e => {
-        e.stopPropagation(); e.preventDefault();
-        x0  = e.clientX;
-        w0  = th.offsetWidth;
-        tw0 = table.offsetWidth;
-        // Fijar todos los anchos actuales en el thead para que no se redistribuyan
-        ths.forEach(t => { t.style.width = t.offsetWidth + 'px'; });
-        table.style.width = tw0 + 'px';
-        table.style.tableLayout = 'fixed';
-        rh.classList.add('active');
+      // Si ya tiene handle, solo actualizar el listener (puede haberse perdido tras re-render)
+      let rh = th.querySelector('.rh');
+      if(!rh){
+        rh = document.createElement('div');
+        rh.className = 'rh';
+        th.style.position = 'relative';
+        th.appendChild(rh);
+      }
+      // Clonar para eliminar listeners anteriores
+      const newRh = rh.cloneNode(true);
+      rh.parentNode.replaceChild(newRh, rh);
+
+      let x0, w0;
+      newRh.addEventListener('mousedown', e => {
+        e.stopPropagation();
+        e.preventDefault();
+        x0 = e.clientX;
+        w0 = th.getBoundingClientRect().width;
+
+        // Fijar todos los anchos actuales ANTES de cambiar tableLayout
+        if(table.style.tableLayout !== 'fixed'){
+          ths.forEach(t => { t.style.width = t.getBoundingClientRect().width + 'px'; });
+          table.style.width = table.getBoundingClientRect().width + 'px';
+          table.style.tableLayout = 'fixed';
+        }
+
+        newRh.classList.add('active');
         document.body.style.cursor = 'col-resize';
         document.body.style.userSelect = 'none';
-        const move = e => {
-          const d = e.clientX - x0;
-          const nw = Math.max(40, w0 + d);
+
+        const move = ev => {
+          const nw = Math.max(40, w0 + ev.clientX - x0);
           th.style.width = nw + 'px';
-          table.style.width = (tw0 + (nw - w0)) + 'px';
         };
         const up = () => {
-          rh.classList.remove('active');
+          newRh.classList.remove('active');
           document.body.style.cursor = '';
           document.body.style.userSelect = '';
           document.removeEventListener('mousemove', move);
@@ -1906,7 +2356,7 @@ let agendarProcesoId = null;
 function abrirModalAgendar(id){
   agendarProcesoId = id || null;
   // Limpiar form
-  ['ag-tipo','ag-asignado','ag-fecha','ag-agendadopor','ag-obs'].forEach(i=>{
+  ['ag-tipo','ag-asignado','ag-fecha','ag-hora','ag-agendadopor','ag-obs'].forEach(i=>{
     const el=document.getElementById(i); if(el) el.value='';
   });
   document.getElementById('ag-id').value = '';
@@ -1997,6 +2447,7 @@ function confirmarAgendarTarea(){
   const tipo   = document.getElementById('ag-tipo').value;
   const asig   = document.getElementById('ag-asignado').value;
   const fecha  = document.getElementById('ag-fecha').value;
+  const hora   = document.getElementById('ag-hora').value;
   const agend  = document.getElementById('ag-agendadopor').value.trim();
   const obs    = document.getElementById('ag-obs').value.trim();
 
@@ -2019,7 +2470,8 @@ function confirmarAgendarTarea(){
     expediente: proc?proc.expediente:'—',
     tipo, asignado:asig,
     agendadoPor: agend||'—',
-    fecha: fecha?fecha.split('-').reverse().join('/'):''  ,
+    fecha: fecha?fecha.split('-').reverse().join('/'):'',
+    hora: hora||'',
     estado:'Pendiente', obs, origen:'portal'
   };
 
