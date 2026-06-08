@@ -886,32 +886,69 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
 
   <!-- Vista Lista -->
   <div id="tg-view-lista">
-    <!-- Leyenda origen -->
-    <div style="display:flex;gap:14px;margin-bottom:.6rem;font-size:11px;color:var(--text3);align-items:center">
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#eff6ff;border-left:3px solid var(--blue);display:inline-block"></span> Agendada por equipo (externa)</span>
-      <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:2px;background:#f0fdf4;border-left:3px solid var(--green);display:inline-block"></span> Autoagendada por Gestión (interna)</span>
+    <!-- Sub-tabs Externas / Internas -->
+    <div style="display:flex;gap:0;border-bottom:2px solid var(--gray-b);margin-bottom:1rem">
+      <button id="tgst-ext" onclick="switchGestionSubTab('ext')"
+        style="padding:8px 20px;font-size:12.5px;font-weight:500;font-family:var(--font);background:none;border:none;cursor:pointer;color:var(--blue);border-bottom:2px solid var(--blue);margin-bottom:-2px;display:flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:2px;background:#eff6ff;border:2px solid var(--blue);display:inline-block"></span>
+        Agendadas por equipos <span id="tgst-ext-cnt" style="background:var(--blue);color:#fff;border-radius:10px;padding:1px 7px;font-size:10.5px;margin-left:2px">0</span>
+      </button>
+      <button id="tgst-int" onclick="switchGestionSubTab('int')"
+        style="padding:8px 20px;font-size:12.5px;font-weight:500;font-family:var(--font);background:none;border:none;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:2px;background:#f0fdf4;border:2px solid var(--green);display:inline-block"></span>
+        Autoagendadas por Gestión <span id="tgst-int-cnt" style="background:var(--green);color:#fff;border-radius:10px;padding:1px 7px;font-size:10.5px;margin-left:2px">0</span>
+      </button>
     </div>
-    <div class="tg-list-wrap">
-      <table>
-        <thead><tr>
-          <th style="min-width:65px">ID Proc.</th>
-          <th style="min-width:155px">Cliente</th>
-          <th style="min-width:130px">Expediente</th>
-          <th style="min-width:90px">Supervisor</th>
-          <th style="min-width:85px">Instancia</th>
-          <th style="min-width:210px">Tipo de tarea</th>
-          <th style="min-width:115px">Asignado a</th>
-          <th style="min-width:100px">Agendado por</th>
-          <th style="min-width:90px">Fecha límite</th>
-          <th style="min-width:70px">Estado</th>
-          <th style="min-width:180px">Observaciones</th>
-          <th style="min-width:80px">Cambios</th>
-          <th style="min-width:90px">Acciones</th>
-        </tr></thead>
-        <tbody id="tg-tbody"></tbody>
-      </table>
+
+    <!-- Panel Externas -->
+    <div id="tg-panel-ext">
+      <div class="tg-list-wrap">
+        <table>
+          <thead><tr>
+            <th style="min-width:65px">ID Proc.</th>
+            <th style="min-width:155px">Cliente</th>
+            <th style="min-width:130px">Expediente</th>
+            <th style="min-width:90px">Supervisor</th>
+            <th style="min-width:85px">Instancia</th>
+            <th style="min-width:210px">Tipo de tarea</th>
+            <th style="min-width:115px">Asignado a</th>
+            <th style="min-width:100px">Agendado por</th>
+            <th style="min-width:90px">Fecha límite</th>
+            <th style="min-width:70px">Estado</th>
+            <th style="min-width:180px">Observaciones</th>
+            <th style="min-width:80px">Cambios</th>
+            <th style="min-width:90px">Acciones</th>
+          </tr></thead>
+          <tbody id="tg-tbody-ext"></tbody>
+        </table>
+      </div>
+      <div class="pagination"><span id="tg-pg-ext-info"></span><div class="pg-btns" id="tg-pg-ext-btns"></div></div>
     </div>
-    <div class="pagination"><span id="tg-pg-info"></span><div class="pg-btns" id="tg-pg-btns"></div></div>
+
+    <!-- Panel Internas -->
+    <div id="tg-panel-int" style="display:none">
+      <div class="tg-list-wrap">
+        <table>
+          <thead><tr>
+            <th style="min-width:65px">ID Proc.</th>
+            <th style="min-width:155px">Cliente</th>
+            <th style="min-width:130px">Expediente</th>
+            <th style="min-width:90px">Supervisor</th>
+            <th style="min-width:85px">Instancia</th>
+            <th style="min-width:210px">Tipo de tarea</th>
+            <th style="min-width:115px">Asignado a</th>
+            <th style="min-width:100px">Agendado por</th>
+            <th style="min-width:90px">Fecha límite</th>
+            <th style="min-width:70px">Estado</th>
+            <th style="min-width:180px">Observaciones</th>
+            <th style="min-width:80px">Cambios</th>
+            <th style="min-width:90px">Acciones</th>
+          </tr></thead>
+          <tbody id="tg-tbody-int"></tbody>
+        </table>
+      </div>
+      <div class="pagination"><span id="tg-pg-int-info"></span><div class="pg-btns" id="tg-pg-int-btns"></div></div>
+    </div>
   </div>
 
   <!-- Vista Calendario Comparativo -->
@@ -1045,7 +1082,25 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
     <div class="ag-form-row">
       <div class="ag-field">
         <label>Agendado por</label>
-        <input type="text" id="ag-agendadopor" placeholder="Tu nombre">
+        <select id="ag-agendadopor">
+          <option value="">Seleccionar quién agenda...</option>
+          <optgroup label="— Abogados de equipos —">
+            <option value="ext:Carlos Morales">Carlos Morales (Equipo Morales)</option>
+            <option value="ext:Cynthia Lagos">Cynthia Lagos (Equipo Lagos)</option>
+            <option value="ext:Elyana Arias">Elyana Arias (Equipo Arias)</option>
+            <option value="ext:Katia Jacinto">Katia Jacinto (Equipo Jacinto)</option>
+            <option value="ext:Samuel Paz">Samuel Paz (Equipo Paz)</option>
+            <option value="ext:Solanch Estrella">Solanch Estrella (Equipo Estrella)</option>
+          </optgroup>
+          <optgroup label="— Equipo Gestión —">
+            <option value="int:Arturo Trelles">Arturo Trelles</option>
+            <option value="int:Carlos Morales (Gestión)">Carlos Morales (Gestión)</option>
+            <option value="int:Juan Jose Edquen">Juan Jose Edquen</option>
+            <option value="int:Roberto Matallana">Roberto Matallana</option>
+            <option value="int:Silvia Maldonado">Silvia Maldonado</option>
+            <option value="int:Talía León">Talía León</option>
+          </optgroup>
+        </select>
       </div>
     </div>
     <div class="ag-form-row full">
@@ -1127,6 +1182,8 @@ function borrarCambioParalegal(tareaId){
 document.addEventListener('click', function(e){
   const btn = e.target.closest('.btn-borrar-cambio');
   if(btn) borrarCambioParalegal(btn.dataset.tareaId);
+  const btnE = e.target.closest('.btn-editar-tarea');
+  if(btnE) abrirPanelEdicion(btnE.dataset.tareaId);
 });
 
 let DATA=[];
@@ -1717,8 +1774,10 @@ function getAllTareasGestion(){
 
 // ── VISTA GESTIÓN ────────────────────────────────────────────
 let tgPage = 1;
+let tgPageInt = 1;
 const TG_PAGE = 50;
 let gestionView = 'lista';
+let gestionSubTab = 'ext';
 
 function switchGestionView(v){
   gestionView = v;
@@ -1730,6 +1789,18 @@ function switchGestionView(v){
   if(v==='cal') renderGCal();
 }
 
+function switchGestionSubTab(sub){
+  gestionSubTab = sub;
+  const extBtn = document.getElementById('tgst-ext');
+  const intBtn = document.getElementById('tgst-int');
+  extBtn.style.color = sub==='ext' ? 'var(--blue)' : 'var(--text3)';
+  extBtn.style.borderBottomColor = sub==='ext' ? 'var(--blue)' : 'transparent';
+  intBtn.style.color = sub==='int' ? 'var(--green)' : 'var(--text3)';
+  intBtn.style.borderBottomColor = sub==='int' ? 'var(--green)' : 'transparent';
+  document.getElementById('tg-panel-ext').style.display = sub==='ext' ? '' : 'none';
+  document.getElementById('tg-panel-int').style.display = sub==='int' ? '' : 'none';
+}
+
 function limpiarFiltroFecha(){
   document.getElementById('tg-fecha-desde').value='';
   document.getElementById('tg-fecha-hasta').value='';
@@ -1738,9 +1809,45 @@ function limpiarFiltroFecha(){
 
 function parseFechaTarea(f){
   if(!f) return null;
-  // Formato DD/MM/YYYY o YYYY-MM-DD
   if(f.includes('/')){const[d,m,y]=f.split('/');return new Date(y,m-1,d);}
   return new Date(f);
+}
+
+function buildTareaFila(t, clase){
+  const proc = DATA.find(r=>r.id===t.nroId);
+  const supervisor = proc?proc.supervisor:'—';
+  const instancia  = proc?proc.instancia:'—';
+  const overrides  = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
+  const ov = overrides[t.id]||{};
+  const cambios = [];
+  if(ov.asignado && ov.asignado!==t.asignado) cambios.push('→'+ov.asignado);
+  if(ov.fecha && ov.fecha!==t.fecha) cambios.push('📅'+ov.fecha);
+  if(ov.estado && ov.estado!==t.estado) cambios.push(ov.estado);
+  const estadoBadge = t.estado==='Pendiente'
+    ?'<span class="badge badge-estado-pend">Pend.</span>'
+    :t.estado==='Completada'
+    ?'<span class="badge badge-estado-done">OK</span>'
+    :'<span class="badge badge-estado-canc">Canc.</span>';
+  const tareaUrl = t.nrotarea
+    ?'https://vinatea.mybig.com.ar/tareas/'+t.nrotarea+'/edit/'
+    :'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
+  const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
+  const dot = member?'<span style="width:8px;height:8px;border-radius:50%;background:'+member.color+';display:inline-block;margin-right:4px;flex-shrink:0"></span>':'';
+  return '<tr class="'+clase+'">'
+    +'<td><a class="id-link" href="'+tareaUrl+'" target="_blank">#'+(t.nroId||'—')+'</a></td>'
+    +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
+    +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
+    +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
+    +'<td>'+instBadge(instancia)+'</td>'
+    +'<td title="'+esc(t.tipo)+'">'+esc(t.tipo.replace('Gestión - ','').slice(0,35)+(t.tipo.length>40?'…':''))+'</td>'
+    +'<td style="display:flex;align-items:center">'+dot+esc(t.asignado||'—')+'</td>'
+    +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
+    +'<td style="font-size:11px;color:var(--text2)">'+esc(t.fecha||'—')+'</td>'
+    +'<td>'+estadoBadge+'</td>'
+    +'<td class="td-d" style="font-size:11px" title="'+esc(t.obs||'')+'">'+esc((t.obs||'').slice(0,30)+(t.obs&&t.obs.length>30?'…':''))+'</td>'
+    +'<td>'+(cambios.length?'<span style="color:var(--amber);font-size:10.5px">⏳ '+cambios.join(' · ')+'</span>':'<span style="color:var(--text4)">—</span>')+'</td>'
+    +'<td><button class="btn-redir btn-editar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px">✎ Editar</button></td>'
+    +'</tr>';
 }
 
 function renderGestion(){
@@ -1751,100 +1858,50 @@ function renderGestion(){
   const desde = document.getElementById('tg-fecha-desde').value;
   const hasta = document.getElementById('tg-fecha-hasta').value;
 
+  const esInterna = t => t.origen === 'portal' && t.agendadoPor && t.agendadoPor !== '—';
+
   let tareas = getAllTareasGestion().filter(t=>{
     if(q && !(t.cliente+t.expediente+t.tipo+t.asignado+(t.agendadoPor||'')).toLowerCase().includes(q)) return false;
     if(resp && t.asignado !== resp) return false;
     if(estado && t.estado !== estado) return false;
-    // Origen: ext = de equipos (Excel o portal por no-Gestión), int = agendadas por Gestión
     if(origen){
-      const esInterna = t.origen==='portal' || t.origen==='manual';
-      if(origen==='ext' && esInterna) return false;
-      if(origen==='int' && !esInterna) return false;
+      if(origen==='ext' && esInterna(t)) return false;
+      if(origen==='int' && !esInterna(t)) return false;
     }
-    // Filtro fecha
     if(desde || hasta){
       const ft = parseFechaTarea(t.fecha);
-      if(!ft) return !(desde||hasta); // sin fecha → excluir si hay filtro
+      if(!ft) return false;
       if(desde && ft < new Date(desde)) return false;
       if(hasta && ft > new Date(hasta+'T23:59:59')) return false;
     }
     return true;
   });
 
+  const externas = tareas.filter(t => !esInterna(t));
+  const internas  = tareas.filter(t =>  esInterna(t));
+
+  document.getElementById('tgst-ext-cnt').textContent = externas.length;
+  document.getElementById('tgst-int-cnt').textContent = internas.length;
   document.getElementById('tg-count').textContent = tareas.length + ' tarea' + (tareas.length!==1?'s':'');
 
-  // Separar externas e internas
-  const externas = tareas.filter(t => t.origen!=='portal' && t.origen!=='manual');
-  const internas  = tareas.filter(t => t.origen==='portal' || t.origen==='manual');
+  // Tabla externas
+  const tpExt = Math.ceil(externas.length/TG_PAGE)||1;
+  if(tgPage>tpExt) tgPage=1;
+  const sliceExt = externas.slice((tgPage-1)*TG_PAGE, tgPage*TG_PAGE);
+  document.getElementById('tg-tbody-ext').innerHTML = sliceExt.length
+    ? sliceExt.map(t=>buildTareaFila(t,'tg-origen-ext')).join('')
+    : '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas agendadas por equipos</td></tr>';
+  buildPag('tg-pg-ext-info','tg-pg-ext-btns',tgPage,tpExt,p=>{tgPage=p;renderGestion();});
 
-  const tbody = document.getElementById('tg-tbody');
-  if(!tareas.length){
-    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas de gestión</td></tr>';
-    buildPag('tg-pg-info','tg-pg-btns',1,1,()=>{});
-    return;
-  }
+  // Tabla internas
+  const tpInt = Math.ceil(internas.length/TG_PAGE)||1;
+  if(tgPageInt>tpInt) tgPageInt=1;
+  const sliceInt = internas.slice((tgPageInt-1)*TG_PAGE, tgPageInt*TG_PAGE);
+  document.getElementById('tg-tbody-int').innerHTML = sliceInt.length
+    ? sliceInt.map(t=>buildTareaFila(t,'tg-origen-int')).join('')
+    : '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas autoagendadas por Gestión</td></tr>';
+  buildPag('tg-pg-int-info','tg-pg-int-btns',tgPageInt,tpInt,p=>{tgPageInt=p;renderGestion();});
 
-  // Construir filas combinadas con separadores
-  const allRows = [];
-  if(externas.length){
-    allRows.push({sep:true, label:'📥 Agendadas por equipos ('+externas.length+')'});
-    externas.forEach(t=>allRows.push({sep:false, t, clase:'tg-origen-ext'}));
-  }
-  if(internas.length){
-    allRows.push({sep:true, label:'📌 Autoagendadas por Gestión ('+internas.length+')'});
-    internas.forEach(t=>allRows.push({sep:false, t, clase:'tg-origen-int'}));
-  }
-
-  // Paginación sobre filas reales (no separadores)
-  const realRows = allRows.filter(r=>!r.sep);
-  const tp = Math.ceil(realRows.length/TG_PAGE)||1;
-  if(tgPage>tp) tgPage=1;
-  const startIdx = (tgPage-1)*TG_PAGE;
-  const endIdx = tgPage*TG_PAGE;
-  let realCount = 0;
-
-  tbody.innerHTML = allRows.map(row=>{
-    if(row.sep) return '<tr class="tg-section-sep"><td colspan="13">'+row.label+'</td></tr>';
-    realCount++;
-    if(realCount <= startIdx || realCount > endIdx) return '';
-    const t = row.t;
-    const proc = DATA.find(r=>r.id===t.nroId);
-    const supervisor = proc?proc.supervisor:'—';
-    const instancia  = proc?proc.instancia:'—';
-    const overrides  = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
-    const ov = overrides[t.id]||{};
-    const cambios = [];
-    if(ov.asignado && ov.asignado!==t.asignado) cambios.push('→'+ov.asignado);
-    if(ov.fecha && ov.fecha!==t.fecha) cambios.push('📅'+ov.fecha);
-    if(ov.estado && ov.estado!==t.estado) cambios.push(ov.estado);
-    const estadoBadge = t.estado==='Pendiente'
-      ?'<span class="badge badge-estado-pend">Pend.</span>'
-      :t.estado==='Completada'
-      ?'<span class="badge badge-estado-done">OK</span>'
-      :'<span class="badge badge-estado-canc">Canc.</span>';
-    const tareaUrl = t.nrotarea
-      ?'https://vinatea.mybig.com.ar/tareas/'+t.nrotarea+'/edit/'
-      :'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
-    const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
-    const dot = member?'<span style="width:8px;height:8px;border-radius:50%;background:'+member.color+';display:inline-block;margin-right:4px;flex-shrink:0"></span>':'';
-    return '<tr class="'+row.clase+'">'
-      +'<td><a class="id-link" href="'+tareaUrl+'" target="_blank">#'+(t.nroId||'—')+'</a></td>'
-      +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
-      +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
-      +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
-      +'<td>'+instBadge(instancia)+'</td>'
-      +'<td title="'+esc(t.tipo)+'">'+esc(t.tipo.replace('Gestión - ','').slice(0,35)+(t.tipo.length>40?'…':''))+'</td>'
-      +'<td style="display:flex;align-items:center">'+dot+esc(t.asignado||'—')+'</td>'
-      +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
-      +'<td style="font-size:11px;color:var(--text2)">'+esc(t.fecha||'—')+'</td>'
-      +'<td>'+estadoBadge+'</td>'
-      +'<td class="td-d" style="font-size:11px" title="'+esc(t.obs||'')+'">'+esc((t.obs||'').slice(0,30)+(t.obs&&t.obs.length>30?'…':''))+'</td>'
-      +'<td>'+(cambios.length?'<span style="color:var(--amber);font-size:10.5px">⏳ '+cambios.join(' · ')+'</span>':'<span style="color:var(--text4)">—</span>')+'</td>'
-      +'<td><button class="btn-redir" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px" onclick="abrirPanelEdicion(\''+t.id+'\')">✎ Editar</button></td>'
-      +'</tr>';
-  }).join('');
-
-  buildPag('tg-pg-info','tg-pg-btns',tgPage,tp,p=>{tgPage=p;renderGestion();});
   setTimeout(addResizeHandles,0);
 }
 // CSS extra para link en tabla
@@ -2357,7 +2414,8 @@ function abrirModalAgendar(id){
   agendarProcesoId = id || null;
   // Limpiar form
   ['ag-tipo','ag-asignado','ag-fecha','ag-hora','ag-agendadopor','ag-obs'].forEach(i=>{
-    const el=document.getElementById(i); if(el) el.value='';
+    const el=document.getElementById(i);
+    if(el) el.value='';
   });
   document.getElementById('ag-id').value = '';
   document.getElementById('ag-id-dropdown').style.display = 'none';
@@ -2448,7 +2506,9 @@ function confirmarAgendarTarea(){
   const asig   = document.getElementById('ag-asignado').value;
   const fecha  = document.getElementById('ag-fecha').value;
   const hora   = document.getElementById('ag-hora').value;
-  const agend  = document.getElementById('ag-agendadopor').value.trim();
+  const agendRaw = document.getElementById('ag-agendadopor').value;
+  const agend  = agendRaw ? agendRaw.split(':').slice(1).join(':') : '';
+  const origen = agendRaw.startsWith('int:') ? 'portal' : agendRaw.startsWith('ext:') ? 'excel' : 'portal';
   const obs    = document.getElementById('ag-obs').value.trim();
 
   // Validar ID si se abrió desde toolbar
@@ -2472,7 +2532,7 @@ function confirmarAgendarTarea(){
     agendadoPor: agend||'—',
     fecha: fecha?fecha.split('-').reverse().join('/'):'',
     hora: hora||'',
-    estado:'Pendiente', obs, origen:'portal'
+    estado:'Pendiente', obs, origen
   };
 
   const arr = loadTareasGestion();
