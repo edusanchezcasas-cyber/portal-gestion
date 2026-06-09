@@ -63,7 +63,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 
 /* MAIN */
 .main{padding:1.25rem 1.5rem}
-.tab-content{display:none}.tab-content.active{display:block}
+.tab-content{display:none;min-width:0;overflow-x:auto}.tab-content.active{display:block}
 
 /* STATS */
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:1rem}
@@ -173,9 +173,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .btn-sm:hover{border-color:var(--red);color:var(--red)}
 
 /* TABLA */
-.table-wrap{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);overflow-x:auto}
+.table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh);width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px}
-.table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 340px);background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh)}
 thead tr:first-child{background:var(--dark);position:sticky;top:0;z-index:10}
 thead tr.filter-row-th{background:#12122a;position:sticky;top:37px;z-index:9}
 thead tr.filter-row-th th{padding:4px 6px}
@@ -445,6 +444,12 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
 .tg-date-filter{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text3)}
 .tg-date-filter input[type=date]{padding:5px 8px;border-radius:var(--r);border:1px solid var(--gray-b);font-size:11.5px;font-family:var(--font);outline:none;background:var(--white)}
 .tg-date-filter input[type=date]:focus{border-color:var(--blue)}
+/* Columnas colapsables en Audiencias */
+.col-ext{} 
+.cols-collapsed .col-ext{display:none}
+.btn-cols-toggle{padding:5px 11px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);font-size:11.5px;cursor:pointer;font-family:var(--font);color:var(--text3);transition:all .15s;white-space:nowrap}
+.btn-cols-toggle:hover{border-color:var(--dark);color:var(--dark)}
+.btn-cols-toggle.expanded{background:var(--dark);color:#fff;border-color:var(--dark)}
 </style>
 </head>
 <body>
@@ -782,46 +787,126 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <option value="">Todos los tipos de audiencia</option>
     </select>
     <span class="count-lbl" id="aud-count">— audiencias</span>
+    <button class="btn-cols-toggle" id="aud-cols-btn" onclick="toggleAudCols()">＋ Más columnas</button>
   </div>
-  <div class="table-wrap">
-    <table>
+
+  <!-- Pills Estado/Instancia/Pacto — Audiencias -->
+  <div class="filter-bar" id="filter-bar-aud">
+    <!-- ESTADO -->
+    <div class="fdd" id="aud-fdd-estado">
+      <div class="fdd-btn" onclick="toggleFdd('aud-fdd-estado')">Estado
+        <span class="fdd-cnt" id="aud-cnt-estado"></span><span style="font-size:12px">▾</span>
+      </div>
+      <div class="fdd-panel" onclick="event.stopPropagation()">
+        <div class="fdd-item c-red" data-group-aud="estado" data-key="sensible" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--red)"></span>Solo sensibles
+        </div>
+        <div class="fdd-item c-green" data-group-aud="estado" data-key="ejecucion" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--green)"></span>Solo ejecución
+        </div>
+        <div class="fdd-item c-blue" data-group-aud="estado" data-key="tarea" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--blue)"></span>Con tarea pendiente
+        </div>
+        <span class="fdd-clear" onclick="clearGroupAud('estado')">Limpiar</span>
+      </div>
+    </div>
+    <!-- INSTANCIA -->
+    <div class="fdd" id="aud-fdd-instancia">
+      <div class="fdd-btn" onclick="toggleFdd('aud-fdd-instancia')">Instancia
+        <span class="fdd-cnt" id="aud-cnt-instancia"></span><span style="font-size:12px">▾</span>
+      </div>
+      <div class="fdd-panel" onclick="event.stopPropagation()">
+        <div class="fdd-item c-blue" data-group-aud="instancia" data-key="PRIMERA INSTANCIA" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--blue)"></span>1ra instancia
+        </div>
+        <div class="fdd-item c-purple" data-group-aud="instancia" data-key="SEGUNDA INSTANCIA" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--purple)"></span>2da instancia
+        </div>
+        <div class="fdd-item c-amber" data-group-aud="instancia" data-key="TERCERA INSTANCIA" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--amber)"></span>3ra / Suprema
+        </div>
+        <div class="fdd-item c-green" data-group-aud="instancia" data-key="EJECUCIÓN" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--green)"></span>Ejecución
+        </div>
+        <span class="fdd-clear" onclick="clearGroupAud('instancia')">Limpiar</span>
+      </div>
+    </div>
+    <!-- PACTO -->
+    <div class="fdd" id="aud-fdd-pacto">
+      <div class="fdd-btn" onclick="toggleFdd('aud-fdd-pacto')">Pacto
+        <span class="fdd-cnt" id="aud-cnt-pacto"></span><span style="font-size:12px">▾</span>
+      </div>
+      <div class="fdd-panel" onclick="event.stopPropagation()">
+        <div class="fdd-item" data-group-aud="pacto" data-key="Fijo" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Fijo
+        </div>
+        <div class="fdd-item" data-group-aud="pacto" data-key="Horas" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Horas
+        </div>
+        <div class="fdd-item" data-group-aud="pacto" data-key="Etapas o Hitos" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Etapas o Hitos
+        </div>
+        <div class="fdd-item" data-group-aud="pacto" data-key="Retainer" onclick="toggleFddItemAud(this)">
+          <div class="fdd-check"><svg class="fdd-check-mark" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="fdd-dot" style="background:var(--text3)"></span>Retainer
+        </div>
+        <span class="fdd-clear" onclick="clearGroupAud('pacto')">Limpiar</span>
+      </div>
+    </div>
+    <div style="width:1px;height:20px;background:var(--gray-b);margin:0 2px"></div>
+    <button class="btn-sm" onclick="resetAllFiltersAud()"><span style="font-size:13px">✕</span> Limpiar todo</button>
+    <!-- chips activos audiencias -->
+    <div class="active-filters" id="active-filters-aud"></div>
+  </div>
+  <div class="table-wrap" id="aud-table-wrap">
+    <table class="cols-collapsed">
       <thead>
         <tr>
           <th class="cb-th"><input type="checkbox" class="row-cb" id="cb-all-aud" onclick="toggleAllRows(this,'aud')"></th>
           <th style="min-width:65px">ID</th>
-          <th style="min-width:160px">Cliente</th>
-          <th style="min-width:140px">Contraparte</th>
-          <th style="min-width:130px">Expediente</th>
-          <th style="min-width:95px">Supervisor</th>
-          <th style="min-width:110px">Responsable</th>
-          <th style="min-width:72px">Instancia</th>
-          <th style="min-width:70px">Situación</th>
-          <th style="min-width:72px">Relevancia</th>
-          <th style="min-width:65px">Pacto</th>
-          <th style="min-width:130px">CEJ</th>
-          <th style="min-width:140px">Distrito</th>
-          <th style="min-width:185px">Órgano jurisdiccional</th>
-          <th style="min-width:200px">Bitácora</th>
-          <th style="min-width:220px">Tipo de audiencia</th>
-          <th style="min-width:115px" onclick="sortAud()" style="cursor:pointer">Fecha y hora ↕</th>
-          <th style="min-width:90px">Gestión</th>
+          <th style="min-width:150px">Cliente</th>
+          <th class="col-ext" style="min-width:130px">Contraparte</th>
+          <th style="min-width:125px">Expediente</th>
+          <th style="min-width:90px">Supervisor</th>
+          <th style="min-width:100px">Responsable</th>
+          <th style="min-width:68px">Instancia</th>
+          <th class="col-ext" style="min-width:65px">Situación</th>
+          <th class="col-ext" style="min-width:68px">Relevancia</th>
+          <th class="col-ext" style="min-width:60px">Pacto</th>
+          <th class="col-ext" style="min-width:120px">CEJ</th>
+          <th class="col-ext" style="min-width:130px">Distrito</th>
+          <th style="min-width:175px">Órgano jurisdiccional</th>
+          <th class="col-ext" style="min-width:185px">Bitácora</th>
+          <th style="min-width:200px">Tipo de audiencia</th>
+          <th style="min-width:110px" onclick="sortAud()" style="cursor:pointer">Fecha y hora ↕</th>
+          <th style="min-width:85px">Gestión</th>
         </tr>
         <tr class="filter-row-th">
           <th></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'id','aud')"><div class="col-val-dropdown" id="cvd-aud-id"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','aud')"><div class="col-val-dropdown" id="cvd-aud-cliente"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','aud')"><div class="col-val-dropdown" id="cvd-aud-contraparte"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="contraparte" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'contraparte','aud')"><div class="col-val-dropdown" id="cvd-aud-contraparte"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="expediente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'expediente','aud')"><div class="col-val-dropdown" id="cvd-aud-expediente"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="supervisor" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'supervisor','aud')"><div class="col-val-dropdown" id="cvd-aud-supervisor"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="responsable" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'responsable','aud')"><div class="col-val-dropdown" id="cvd-aud-responsable"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="instancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'instancia','aud')"><div class="col-val-dropdown" id="cvd-aud-instancia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'situacion','aud')"><div class="col-val-dropdown" id="cvd-aud-situacion"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'relevancia','aud')"><div class="col-val-dropdown" id="cvd-aud-relevancia"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'pacto','aud')"><div class="col-val-dropdown" id="cvd-aud-pacto"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="especialista" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'especialista','aud')"><div class="col-val-dropdown" id="cvd-aud-especialista"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="distrito" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'distrito','aud')"><div class="col-val-dropdown" id="cvd-aud-distrito"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="situacion" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'situacion','aud')"><div class="col-val-dropdown" id="cvd-aud-situacion"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="relevancia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'relevancia','aud')"><div class="col-val-dropdown" id="cvd-aud-relevancia"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="pacto" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'pacto','aud')"><div class="col-val-dropdown" id="cvd-aud-pacto"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="especialista" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'especialista','aud')"><div class="col-val-dropdown" id="cvd-aud-especialista"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="distrito" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'distrito','aud')"><div class="col-val-dropdown" id="cvd-aud-distrito"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="organo" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'organo','aud')"><div class="col-val-dropdown" id="cvd-aud-organo"></div></div></th>
-          <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="bitacora" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'bitacora','aud')"><div class="col-val-dropdown" id="cvd-aud-bitacora"></div></div></th>
+          <th class="col-ext"><div class="col-filter-wrap"><input class="col-filter-inp" data-col="bitacora" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'bitacora','aud')"><div class="col-val-dropdown" id="cvd-aud-bitacora"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiligencia" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiligencia','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiligencia"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="proxDiliFecha" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'proxDiliFecha','aud')"><div class="col-val-dropdown" id="cvd-aud-proxDiliFecha"></div></div></th>
           <th></th>
@@ -1116,11 +1201,113 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
   </div>
 </div>
 
+<!-- MODAL AGENDAR MASIVO -->
+<div class="overlay" id="modalBulkAgendar" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="ag-modal" style="width:580px">
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Agendar tarea en masa</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:1rem">Se creará <strong id="bulk-modal-cnt">0</strong> tarea(s) — una por cada proceso seleccionado</div>
+
+    <!-- Lista de procesos seleccionados -->
+    <div id="bulk-proc-list" style="max-height:130px;overflow-y:auto;border:1px solid var(--gray-b);border-radius:var(--r);margin-bottom:1rem;font-size:11.5px"></div>
+
+    <div class="ag-form-row">
+      <div class="ag-field">
+        <label>Tipo de tarea <span style="color:var(--red)">*</span></label>
+        <select id="bulk-tipo">
+          <option value="">Seleccionar...</option>
+          <optgroup label="1ra instancia">
+            <option>Gestión - Impulso de demanda/admisorio</option>
+            <option>Gestión - Impulso previo audiencia primera</option>
+            <option>Gestión - Impulso sentencia de primera</option>
+            <option>Gestión - Consignaciones judiciales</option>
+            <option>Gestión - Elevación a segunda</option>
+            <option>Gestión - Impulso trámite primera instancia</option>
+            <option>Gestión - Ejecución de sentencia</option>
+          </optgroup>
+          <optgroup label="2da instancia">
+            <option>Gestión - Programación vista de la causa</option>
+            <option>Gestión - Impulso previo vista de la causa</option>
+            <option>Gestión - Impulso sentencia de segunda</option>
+            <option>Gestión - Elevación a Suprema/TC</option>
+            <option>Gestión - Impulso trámite segunda instancia</option>
+          </optgroup>
+          <optgroup label="3ra instancia / Suprema">
+            <option>Gestión - Confirmación sala y número expediente</option>
+            <option>Gestión - Programación calificación</option>
+            <option>Gestión - Previo a la audiencia calificación/fondo</option>
+            <option>Gestión - Programación vista fondo</option>
+            <option>Gestión - Impulso sentencia en Suprema/TC</option>
+            <option>Gestión - Impulso trámite Suprema/TC</option>
+          </optgroup>
+          <optgroup label="Sin instancia">
+            <option>Gestión - Búsqueda demanda/cautelar</option>
+            <option>Gestión - Impulso cautelar</option>
+            <option>Gestión - Oficios</option>
+            <option>Gestión - Recojo/entrega documentos</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="ag-field">
+        <label>Asignado a <span style="color:var(--red)">*</span></label>
+        <select id="bulk-asignado">
+          <option value="">Seleccionar...</option>
+          <option>Arturo Trelles</option>
+          <option>Carlos Morales</option>
+          <option>Juan Jose Edquen</option>
+          <option>Roberto Matallana</option>
+          <option>Silvia Maldonado</option>
+          <option>Talía León</option>
+        </select>
+      </div>
+    </div>
+    <div class="ag-form-row">
+      <div class="ag-field">
+        <label>Fecha límite</label>
+        <input type="date" id="bulk-fecha">
+      </div>
+      <div class="ag-field">
+        <label>Hora <span style="color:var(--text4);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <input type="time" id="bulk-hora">
+      </div>
+    </div>
+    <div class="ag-form-row">
+      <div class="ag-field">
+        <label>Agendado por <span style="color:var(--red)">*</span></label>
+        <select id="bulk-agendadopor">
+          <option value="">Seleccionar quién agenda...</option>
+          <optgroup label="— Abogados de equipos —">
+            <option value="ext:Carlos Morales">Carlos Morales (Equipo Morales)</option>
+            <option value="ext:Cynthia Lagos">Cynthia Lagos (Equipo Lagos)</option>
+            <option value="ext:Elyana Arias">Elyana Arias (Equipo Arias)</option>
+            <option value="ext:Katia Jacinto">Katia Jacinto (Equipo Jacinto)</option>
+            <option value="ext:Samuel Paz">Samuel Paz (Equipo Paz)</option>
+            <option value="ext:Solanch Estrella">Solanch Estrella (Equipo Estrella)</option>
+          </optgroup>
+          <optgroup label="— Equipo Gestión —">
+            <option value="int:Arturo Trelles">Arturo Trelles</option>
+            <option value="int:Carlos Morales (Gestión)">Carlos Morales (Gestión)</option>
+            <option value="int:Juan Jose Edquen">Juan Jose Edquen</option>
+            <option value="int:Roberto Matallana">Roberto Matallana</option>
+            <option value="int:Silvia Maldonado">Silvia Maldonado</option>
+            <option value="int:Talía León">Talía León</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="ag-form-row full">
+      <div class="ag-field">
+        <label>Observaciones</label>
+        <textarea id="bulk-obs" placeholder="Indicaciones que aplican a todos los procesos..." style="min-height:55px"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="document.getElementById('modalBulkAgendar').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-dark" id="bulk-modal-confirm" onclick="confirmarBulkAgendar()">Agendar <span id="bulk-modal-cnt2">0</span> tarea(s)</button>
+    </div>
+  </div>
 </div>
 
-
-
-<!-- TAB PANEL PARALEGAL -->
+</div>
 <div id="tab-paralegal" class="tab-content">
   <div class="search-row">
     <div class="srch-wrap">
@@ -1213,6 +1400,69 @@ function toggleFdd(id){
   const wasOpen=el.classList.contains('open');
   document.querySelectorAll('.fdd.open').forEach(d=>d.classList.remove('open'));
   if(!wasOpen)el.classList.add('open');
+}
+
+// ── FDD AUDIENCIAS (independiente de Reporte Total) ────────────
+let fddStateAud = {estado:new Set(), instancia:new Set(), pacto:new Set()};
+
+function toggleFddItemAud(el){
+  el.classList.toggle('active');
+  const group = el.dataset.groupAud, key = el.dataset.key;
+  if(fddStateAud[group].has(key)) fddStateAud[group].delete(key);
+  else fddStateAud[group].add(key);
+  updateFddCountsAud();
+  audPage=1; renderAud(); updateActiveChipsAud();
+}
+
+function clearGroupAud(group){
+  fddStateAud[group].clear();
+  document.querySelectorAll(`.fdd-item[data-group-aud="${group}"]`).forEach(el=>el.classList.remove('active'));
+  updateFddCountsAud(); audPage=1; renderAud(); updateActiveChipsAud();
+}
+
+function updateFddCountsAud(){
+  ['estado','instancia','pacto'].forEach(g=>{
+    const n = fddStateAud[g].size;
+    const cnt = document.getElementById('aud-cnt-'+g);
+    if(cnt){ cnt.textContent=n; cnt.classList.toggle('show',n>0); }
+    const btn = document.querySelector(`#aud-fdd-${g} .fdd-btn`);
+    if(btn){
+      if(n>0){btn.style.borderColor='var(--dark)';btn.style.color='var(--dark)';}
+      else{btn.style.borderColor='';btn.style.color='';}
+    }
+  });
+}
+
+function updateActiveChipsAud(){
+  const container = document.getElementById('active-filters-aud');
+  if(!container) return;
+  const labels = {
+    sensible:'Sensibles', ejecucion:'Solo ejecución', tarea:'Con tarea',
+    'PRIMERA INSTANCIA':'1ra instancia','SEGUNDA INSTANCIA':'2da instancia',
+    'TERCERA INSTANCIA':'3ra/Suprema','EJECUCIÓN':'Ejecución',
+    'Fijo':'Fijo','Horas':'Horas','Etapas o Hitos':'Etapas','Retainer':'Retainer'
+  };
+  const chips = [];
+  ['estado','instancia','pacto'].forEach(g=>{
+    fddStateAud[g].forEach(k=>{
+      chips.push(`<div class="af-chip">${labels[k]||k}<button onclick="removeAudFddItem('${g}','${k}')">×</button></div>`);
+    });
+  });
+  container.innerHTML = chips.join('');
+}
+
+function removeAudFddItem(group, key){
+  fddStateAud[group].delete(key);
+  const el = document.querySelector(`.fdd-item[data-group-aud="${group}"][data-key="${key}"]`);
+  if(el) el.classList.remove('active');
+  updateFddCountsAud(); audPage=1; renderAud(); updateActiveChipsAud();
+}
+
+function resetAllFiltersAud(){
+  ['estado','instancia','pacto'].forEach(g=>clearGroupAud(g));
+  colFiltersAud = {};
+  document.querySelectorAll('[data-tab="aud"].col-filter-inp').forEach(i=>{i.value='';i.classList.remove('has-value');});
+  audPage=1; renderAud(); updateActiveChipsAud();
 }
 
 function toggleFddItem(el){
@@ -1402,6 +1652,18 @@ function renderAud(){
     for(const[col,val]of Object.entries(colFiltersAud)){
       if(!String(r[col]||'').toLowerCase().includes(val))return false;
     }
+    // FDD Estado
+    const est=fddStateAud.estado;
+    if(est.size){
+      const pass=(est.has('sensible')&&r.sensible)||(est.has('ejecucion')&&(r.instancia||'').toLowerCase().includes('ejec'))||(est.has('tarea')&&r.proxTarea);
+      if(!pass)return false;
+    }
+    // FDD Instancia
+    const inst=fddStateAud.instancia;
+    if(inst.size&&!inst.has(r.instancia))return false;
+    // FDD Pacto
+    const pact=fddStateAud.pacto;
+    if(pact.size&&!pact.has(r.pacto))return false;
     return true;
   });
   rows.sort((a,b)=>{const va=(a.proxDiliFecha||'').split('/').reverse().join(''),vb=(b.proxDiliFecha||'').split('/').reverse().join('');return audSortAsc?va.localeCompare(vb):vb.localeCompare(va);});
@@ -1417,17 +1679,18 @@ function renderAud(){
     return'<tr '+sc+' onclick="selectRow(this)">'
       +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="aud" '+checked+' onchange="onRowCheck(this,\'aud\')"></td>'
       +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank">'+r.id+'</a></td>'
-      +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')
+      +tdT(r.cliente,150,'td-p')
+      +'<td class="col-ext td-d" title="'+esc(r.contraparte||'')+'">'+esc((r.contraparte||'').slice(0,20)+(r.contraparte&&r.contraparte.length>20?'…':''))+'</td>'
       +'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'
-      +tdT(r.supervisor,95)+tdT(r.responsable,110)
+      +tdT(r.supervisor,90)+tdT(r.responsable,100)
       +'<td>'+instBadge(r.instancia)+'</td>'
-      +'<td>'+sitBadge(r.situacion)+'</td>'
-      +'<td>'+relBadge(r.relevancia)+'</td>'
-      +'<td class="td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'
-      +tdT(r.especialista,130,'td-d')
-      +tdT(r.distrito,140,'td-d')
-      +tdT(r.organo,185,'td-d')
-      +tdT(r.bitacora,200,'td-d')
+      +'<td class="col-ext">'+sitBadge(r.situacion)+'</td>'
+      +'<td class="col-ext">'+relBadge(r.relevancia)+'</td>'
+      +'<td class="col-ext td-d" style="font-size:10.5px">'+esc(r.pacto)+'</td>'
+      +'<td class="col-ext td-d" style="font-size:11px">'+esc((r.especialista||'').slice(0,16))+'</td>'
+      +'<td class="col-ext td-d" style="font-size:11px">'+esc((r.distrito||'').slice(0,18))+'</td>'
+      +tdT(r.organo,175,'td-d')
+      +'<td class="col-ext td-d" style="font-size:11px">'+esc((r.bitacora||'').slice(0,24)+(r.bitacora&&r.bitacora.length>24?'…':''))+'</td>'
       +'<td><span class="badge b-a">'+esc(r.proxDiligencia)+'</span></td>'
       +'<td><strong style="color:var(--amber)">'+esc(r.proxDiliFecha)+'</strong>'+(r.proxDiliHora?' <span style="color:var(--text3);font-size:11px">'+esc(r.proxDiliHora)+'</span>':'')+'</td>'
       +'<td><button class="btn-agendar" onclick="event.stopPropagation();abrirModalAgendar('+r.id+')">+ Gestión</button></td>'
@@ -1439,6 +1702,18 @@ function renderAud(){
   setTimeout(addResizeHandles, 0);
 }
 function sortAud(){audSortAsc=!audSortAsc;audPage=1;renderAud();}
+
+let audColsExpanded = false;
+function toggleAudCols(){
+  audColsExpanded = !audColsExpanded;
+  const table = document.querySelector('#aud-table-wrap table');
+  const btn   = document.getElementById('aud-cols-btn');
+  if(table) table.classList.toggle('cols-collapsed', !audColsExpanded);
+  if(btn){
+    btn.classList.toggle('expanded', audColsExpanded);
+    btn.textContent = audColsExpanded ? '− Menos columnas' : '＋ Más columnas';
+  }
+}
 
 function renderSens(){
   const q=(document.getElementById('sens-search').value||'').toLowerCase();
@@ -2173,8 +2448,71 @@ function clearBulk(tab){
 function bulkAgendar(tab){
   const ids = [...selectedRows[tab]];
   if(!ids.length) return;
-  showToast('Abriendo modal para '+ids.length+' proceso(s)... (por ahora abre el primero)');
-  abrirModalAgendar(ids[0]);
+  const procs = DATA.filter(r=>ids.includes(r.id));
+
+  // Actualizar contadores en el modal
+  document.getElementById('bulk-modal-cnt').textContent = ids.length;
+  document.getElementById('bulk-modal-cnt2').textContent = ids.length;
+
+  // Limpiar campos
+  ['bulk-tipo','bulk-asignado','bulk-fecha','bulk-hora','bulk-agendadopor','bulk-obs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+
+  // Mostrar lista de procesos seleccionados
+  const list = document.getElementById('bulk-proc-list');
+  list.innerHTML = procs.map(r=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;border-bottom:1px solid var(--gray-b)">
+      <a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/${r.id}/" target="_blank">#${r.id}</a>
+      <span style="font-weight:500;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.cliente)}</span>
+      <span style="font-size:10.5px;color:var(--text3)">${esc(r.expediente)}</span>
+      <span style="font-size:10.5px;color:var(--text4)">${esc(r.supervisor)}</span>
+    </div>`).join('');
+
+  // Guardar ids en el modal para confirmar
+  document.getElementById('modalBulkAgendar').dataset.tab = tab;
+  document.getElementById('modalBulkAgendar').classList.add('show');
+}
+
+function confirmarBulkAgendar(){
+  const tipo      = document.getElementById('bulk-tipo').value;
+  const asig      = document.getElementById('bulk-asignado').value;
+  const fecha     = document.getElementById('bulk-fecha').value;
+  const hora      = document.getElementById('bulk-hora').value;
+  const agendRaw  = document.getElementById('bulk-agendadopor').value;
+  const obs       = document.getElementById('bulk-obs').value.trim();
+
+  if(!tipo||!asig||!agendRaw){
+    showModalError('Completa: tipo de tarea, asignado a y agendado por.');
+    return;
+  }
+
+  const agend  = agendRaw.split(':').slice(1).join(':');
+  const origen = agendRaw.startsWith('int:') ? 'portal' : 'excel';
+  const tab    = document.getElementById('modalBulkAgendar').dataset.tab || 'rep';
+  const ids    = [...selectedRows[tab]];
+  const arr    = loadTareasGestion();
+
+  ids.forEach(id=>{
+    const proc = DATA.find(r=>r.id===id);
+    arr.unshift({
+      id: 'port_'+Date.now()+'_'+id,
+      nroId: id,
+      cliente:    proc?proc.cliente:'—',
+      expediente: proc?proc.expediente:'—',
+      tipo, asignado:asig,
+      agendadoPor: agend||'—',
+      fecha: fecha?fecha.split('-').reverse().join('/'):'',
+      hora: hora||'',
+      estado:'Pendiente', obs, origen
+    });
+  });
+
+  saveTareasGestion(arr);
+  document.getElementById('modalBulkAgendar').classList.remove('show');
+  clearBulk(tab);
+  renderGestion();
+  showToast('✓ '+ids.length+' tarea(s) agendada(s) correctamente');
 }
 
 function bulkExportar(tab){
