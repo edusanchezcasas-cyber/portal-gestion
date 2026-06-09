@@ -444,7 +444,18 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
 .tg-date-filter{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text3)}
 .tg-date-filter input[type=date]{padding:5px 8px;border-radius:var(--r);border:1px solid var(--gray-b);font-size:11.5px;font-family:var(--font);outline:none;background:var(--white)}
 .tg-date-filter input[type=date]:focus{border-color:var(--blue)}
-/* Columnas colapsables en Audiencias */
+/* Badge gestión agendada en fila */
+.gestion-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;font-size:9.5px;font-weight:600;white-space:nowrap;line-height:1;cursor:default;position:static}
+.gestion-badge.multiple{background:#fef3c7;border-color:#fcd34d;color:#b45309}
+/* Celda indicador — siempre visible, al inicio */
+.td-gestion-ind{width:32px;min-width:32px;padding:0 4px!important;text-align:center;vertical-align:middle;overflow:visible!important;position:relative}
+/* Tooltip fijo — se posiciona via JS para escapar del overflow de la tabla */
+.gestion-tooltip-box{display:none;position:fixed;z-index:9999;background:#1e2140;color:#e2e8f0;border-radius:8px;padding:9px 11px;min-width:270px;max-width:360px;box-shadow:0 8px 28px rgba(0,0,0,.4);font-size:11px;pointer-events:none}
+.gestion-tooltip-box.show{display:block}
+.gestion-tooltip-row{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:3px}
+.gestion-tooltip-row:last-child{border-bottom:none;padding-bottom:0}
+.gestion-tooltip-tipo{font-weight:600;color:#fff;font-size:11px}
+.gestion-tooltip-meta{color:rgba(255,255,255,.55);font-size:10px;display:flex;gap:8px;flex-wrap:wrap}
 .col-ext{} 
 .cols-collapsed .col-ext{display:none}
 .btn-cols-toggle{padding:5px 11px;border-radius:var(--r);border:1px solid var(--gray-b);background:var(--white);font-size:11.5px;cursor:pointer;font-family:var(--font);color:var(--text3);transition:all .15s;white-space:nowrap}
@@ -719,6 +730,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <thead>
         <tr id="thead-main">
           <th class="cb-th"><input type="checkbox" class="row-cb" id="cb-all" onclick="toggleAllRows(this)"></th>
+          <th class="td-gestion-ind" title="Tareas de Gestión">⚡</th>
           <th style="min-width:65px" data-col="id">ID</th>
           <th style="min-width:160px" data-col="cliente">Cliente</th>
           <th style="min-width:140px" data-col="contraparte">Contraparte</th>
@@ -738,6 +750,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
           <th style="min-width:90px">Gestión</th>
         </tr>
         <tr class="filter-row-th">
+          <th></th>
           <th></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" placeholder="Filtrar..." readonly onclick="openCvd(this,'id')"><div class="col-val-dropdown" id="cvd-id"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" placeholder="Filtrar..." readonly onclick="openCvd(this,'cliente')" oninput="onColFilter(this)"><div class="col-val-dropdown" id="cvd-cliente"></div></div></th>
@@ -873,6 +886,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <thead>
         <tr>
           <th class="cb-th"><input type="checkbox" class="row-cb" id="cb-all-aud" onclick="toggleAllRows(this,'aud')"></th>
+          <th class="td-gestion-ind" title="Tareas de Gestión">⚡</th>
           <th style="min-width:65px">ID</th>
           <th style="min-width:150px">Cliente</th>
           <th class="col-ext" style="min-width:130px">Contraparte</th>
@@ -892,6 +906,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
           <th style="min-width:85px">Gestión</th>
         </tr>
         <tr class="filter-row-th">
+          <th></th>
           <th></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="id" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'id','aud')"><div class="col-val-dropdown" id="cvd-aud-id"></div></div></th>
           <th><div class="col-filter-wrap"><input class="col-filter-inp" data-col="cliente" data-tab="aud" placeholder="Filtrar..." readonly onclick="openCvdTab(this,'cliente','aud')"><div class="col-val-dropdown" id="cvd-aud-cliente"></div></div></th>
@@ -1625,6 +1640,7 @@ function render(){
       const checked = selectedRows.rep.has(r.id) ? 'checked' : '';
       return'<tr '+sc+' onclick="selectRow(this)">'
         +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="rep" '+checked+' onchange="onRowCheck(this,\'rep\')"></td>'
+        +getGestionBadge(r.id)
         +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank" title="Ver en MyBiG #'+r.id+'">'+r.id+'</a></td>'
         +tdT(r.cliente,160,'td-p')+tdT(r.contraparte,140,'td-d')+'<td class="td-m" title="'+esc(r.expediente)+'">'+esc(r.expediente)+'</td>'+tdT(r.supervisor,95)+tdT(r.responsable,105)+'<td>'+instBadge(r.instancia)+'</td><td>'+sitBadge(r.situacion)+'</td><td>'+relBadge(r.relevancia)+'</td><td class="td-d" style="font-size:10.5px;white-space:nowrap" title="'+esc(r.pacto)+'">'+esc(r.pacto)+'</td>'+tdT(r.especialista,130,'td-d')+tdT(r.distrito,140,'td-d')+tdT(r.organo,185,'td-d')+(r.alertLectura
   ? '<td><div class="alert-lectura-badge"><span>⚠</span>INCONSISTENCIA</div><div style="font-size:10.5px;color:var(--text3);margin-top:3px" title="'+esc(r.bitacora)+'">'+esc(r.bitacora.length>28?r.bitacora.slice(0,28)+'…':r.bitacora)+'</div></td>'
@@ -1678,6 +1694,7 @@ function renderAud(){
     const tarea=r.proxTarea?'<span class="badge b-d" title="'+esc(r.proxTareaNota)+'">'+esc(r.proxTarea)+'</span>'+(r.proxTareaFecha?'<br><span style="color:var(--text4);font-size:10px">'+r.proxTareaFecha+'</span>':''):'<span style="color:var(--text4)">—</span>';
     return'<tr '+sc+' onclick="selectRow(this)">'
       +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="aud" '+checked+' onchange="onRowCheck(this,\'aud\')"></td>'
+      +getGestionBadge(r.id)
       +'<td><a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+r.id+'/" target="_blank">'+r.id+'</a></td>'
       +tdT(r.cliente,150,'td-p')
       +'<td class="col-ext td-d" title="'+esc(r.contraparte||'')+'">'+esc((r.contraparte||'').slice(0,20)+(r.contraparte&&r.contraparte.length>20?'…':''))+'</td>'
@@ -1697,7 +1714,6 @@ function renderAud(){
       +'</tr>';
   }).join('');}
   document.getElementById('aud-count').textContent=total.toLocaleString()+' audiencia'+(total!==1?'s':'');
-  buildPag('aud-pg-info','aud-pg-btns',audPage,tp,p=>{audPage=p;renderAud();});
   updateBulkBar('aud');
   setTimeout(addResizeHandles, 0);
 }
@@ -2495,23 +2511,21 @@ function confirmarBulkAgendar(){
 
   ids.forEach(id=>{
     const proc = DATA.find(r=>r.id===id);
-    arr.unshift({
+    arr.unshift(buildTareaDesdeProc(id, proc, {
       id: 'port_'+Date.now()+'_'+id,
-      nroId: id,
-      cliente:    proc?proc.cliente:'—',
-      expediente: proc?proc.expediente:'—',
-      tipo, asignado:asig,
+      tipo, asignado: asig,
       agendadoPor: agend||'—',
-      fecha: fecha?fecha.split('-').reverse().join('/'):'',
+      fecha: fecha ? fecha.split('-').reverse().join('/') : '',
       hora: hora||'',
-      estado:'Pendiente', obs, origen
-    });
+      estado: 'Pendiente', obs, origen
+    }));
   });
 
   saveTareasGestion(arr);
   document.getElementById('modalBulkAgendar').classList.remove('show');
   clearBulk(tab);
   renderGestion();
+  render(); renderAud(); // refrescar indicadores
   showToast('✓ '+ids.length+' tarea(s) agendada(s) correctamente');
 }
 
@@ -2587,8 +2601,13 @@ function renderGCal(){
 
     tareas.forEach(t=>{
       const ft = parseFechaTarea(t.fecha);
-      if(!ft || ft.toISOString().slice(0,10)!==dStr) return;
-      const mi = GCAL_MIEMBROS.findIndex(m=>m.nombre===t.asignado);
+      if(!ft) return;
+      // Comparar en local (dd/mm/yyyy) para evitar desfase UTC
+      const ftStr = ft.getFullYear()+'-'+String(ft.getMonth()+1).padStart(2,'0')+'-'+String(ft.getDate()).padStart(2,'0');
+      if(ftStr !== dStr) return;
+      // Match flexible de nombre (trim + lowercase)
+      const asigNorm = (t.asignado||'').trim().toLowerCase();
+      const mi = GCAL_MIEMBROS.findIndex(m=>m.nombre.trim().toLowerCase()===asigNorm);
       if(mi<0) return;
       if(t.hora){
         // Encontrar slot más cercano (redondear a slot de 30 min)
@@ -2659,14 +2678,18 @@ function renderGCal(){
         GCAL_MIEMBROS.forEach(m=>{
           // Solo tareas con hora que coincida con este slot, o sin hora solo en slot 09:00
           const eventos=tareas.filter(t=>{
-            if(t.asignado!==m.nombre)return false;
+            if(!t.asignado) return false;
+            const asigNorm=(t.asignado||'').trim().toLowerCase();
+            if(m.nombre.trim().toLowerCase()!==asigNorm)return false;
             const ft=parseFechaTarea(t.fecha);
-            if(!ft||ft.toISOString().slice(0,10)!==dStr)return false;
+            if(!ft)return false;
+            const ftStr=ft.getFullYear()+'-'+String(ft.getMonth()+1).padStart(2,'0')+'-'+String(ft.getDate()).padStart(2,'0');
+            if(ftStr!==dStr)return false;
             if(t.hora){
               const [hh]=t.hora.split(':').map(Number);
               return (hh+':00')===hora;
             }
-            return hora==='09:00'; // sin hora → 09:00
+            return hora==='09:00';
           });
           if(eventos.length){
             html+='<td class="gcal-slot gcal-slot-occ" title="'+esc(eventos[0].tipo)+'" style="padding:2px"><div class="gcal-event '+m.cls+'" style="font-size:9px;padding:2px 4px"><div class="gcal-event-title" style="font-size:9px">'+esc((eventos[0].cliente||'').slice(0,12))+'</div></div></td>';
@@ -2839,6 +2862,83 @@ function limpiarSeleccionProceso(){
   setTimeout(()=>document.getElementById('ag-id').focus(), 50);
 }
 
+// Tooltip de gestión (singleton fijo que se posiciona via JS)
+function ensureGestionTooltip(){
+  let t = document.getElementById('gestion-tooltip-box');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'gestion-tooltip-box';
+    t.className = 'gestion-tooltip-box';
+    document.body.appendChild(t);
+    document.addEventListener('scroll', hideGestionTooltip, true);
+  }
+  return t;
+}
+function showGestionTooltip(el, id){
+  const tareas = getAllTareasGestion().filter(t=>t.nroId===id);
+  if(!tareas.length) return;
+  const box = ensureGestionTooltip();
+  const rows = tareas.slice(0,6).map(t=>{
+    const estadoColor = t.estado==='Pendiente'?'#fbbf24':t.estado==='Completada'?'#34d399':'#f87171';
+    return '<div class="gestion-tooltip-row">'
+      +'<div class="gestion-tooltip-tipo">'+esc(t.tipo.replace('Gestión - ',''))+'</div>'
+      +'<div class="gestion-tooltip-meta">'
+        +'<span>👤 '+esc(t.asignado||'—')+'</span>'
+        +(t.fecha?'<span>📅 '+esc(t.fecha)+'</span>':'')
+        +'<span style="color:'+estadoColor+'">● '+esc(t.estado)+'</span>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+  const extra = tareas.length>6
+    ? '<div style="padding-top:5px;color:rgba(255,255,255,.4);font-size:10px">+ '+(tareas.length-6)+' tarea(s) más</div>' : '';
+  const header = '<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Tareas de Gestión ('+tareas.length+')</div>';
+  box.innerHTML = header + rows + extra;
+  // Posicionar bajo el badge
+  const rect = el.getBoundingClientRect();
+  box.style.top  = (rect.bottom + 6) + 'px';
+  box.style.left = Math.min(rect.left, window.innerWidth - 380) + 'px';
+  box.classList.add('show');
+}
+function hideGestionTooltip(){
+  const box = document.getElementById('gestion-tooltip-box');
+  if(box) box.classList.remove('show');
+}
+
+// Helper: indicador visual de tareas de gestión agendadas para un proceso
+function getGestionBadge(id){
+  const tareas = getAllTareasGestion().filter(t=>t.nroId===id);
+  if(!tareas.length) return '<td class="td-gestion-ind"></td>';
+  const pend  = tareas.filter(t=>t.estado==='Pendiente').length;
+  const total = tareas.length;
+  const cls   = pend>0 ? (total>1?'gestion-badge multiple':'gestion-badge') : 'gestion-badge';
+  const label = pend>0 ? '⚡ Gestión' : '✓ Gestión';
+  return '<td class="td-gestion-ind">'
+    +'<span class="'+cls+'" onmouseenter="showGestionTooltip(this,'+id+')" onmouseleave="hideGestionTooltip()">'
+    +label
+    +'</span>'
+    +'</td>';
+}
+
+// Helper: extrae todos los campos del proceso al crear una tarea
+function buildTareaDesdeProc(id, proc, overrides){
+  return {
+    nroId:       id,
+    cliente:     proc?.cliente    || '—',
+    contraparte: proc?.contraparte|| '—',
+    expediente:  proc?.expediente || '—',
+    supervisor:  proc?.supervisor || '—',
+    responsable: proc?.responsable|| '—',
+    instancia:   proc?.instancia  || '—',
+    situacion:   proc?.situacion  || '—',
+    relevancia:  proc?.relevancia || '—',
+    pacto:       proc?.pacto      || '—',
+    organo:      proc?.organo     || '—',
+    distrito:    proc?.distrito   || '—',
+    especialista:proc?.especialista|| '—',
+    ...overrides
+  };
+}
+
 function confirmarAgendarTarea(){
   const tipo   = document.getElementById('ag-tipo').value;
   const asig   = document.getElementById('ag-asignado').value;
@@ -2849,7 +2949,6 @@ function confirmarAgendarTarea(){
   const origen = agendRaw.startsWith('int:') ? 'portal' : agendRaw.startsWith('ext:') ? 'excel' : 'portal';
   const obs    = document.getElementById('ag-obs').value.trim();
 
-  // Validar ID si se abrió desde toolbar
   if(!agendarProcesoId){
     const idRaw = parseInt(document.getElementById('ag-id').value||'0');
     if(!idRaw){ showModalError('Ingresa el ID del proceso para continuar.'); return; }
@@ -2861,17 +2960,14 @@ function confirmarAgendarTarea(){
   }
 
   const proc = DATA.find(r=>r.id===agendarProcesoId);
-  const nueva = {
+  const nueva = buildTareaDesdeProc(agendarProcesoId, proc, {
     id: 'port_'+Date.now(),
-    nroId: agendarProcesoId,
-    cliente:    proc?proc.cliente:'—',
-    expediente: proc?proc.expediente:'—',
-    tipo, asignado:asig,
+    tipo, asignado: asig,
     agendadoPor: agend||'—',
-    fecha: fecha?fecha.split('-').reverse().join('/'):'',
+    fecha: fecha ? fecha.split('-').reverse().join('/') : '',
     hora: hora||'',
-    estado:'Pendiente', obs, origen
-  };
+    estado: 'Pendiente', obs, origen
+  });
 
   const arr = loadTareasGestion();
   arr.unshift(nueva);
@@ -2880,6 +2976,7 @@ function confirmarAgendarTarea(){
   document.getElementById('modalAgendar').classList.remove('show');
   agendarProcesoId = null;
   renderGestion();
+  render(); renderAud(); // refrescar indicadores en tablas
   showToast('✓ Tarea agendada correctamente');
 }
 
