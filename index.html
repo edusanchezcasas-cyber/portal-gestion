@@ -173,7 +173,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .btn-sm:hover{border-color:var(--red);color:var(--red)}
 
 /* TABLA */
-.table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh);width:100%}
+.table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh);width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr:first-child{background:var(--dark);position:sticky;top:0;z-index:10}
 thead tr.filter-row-th{background:#12122a;position:sticky;top:37px;z-index:9}
@@ -321,7 +321,7 @@ tbody tr.row-selected.row-alert{outline-color:var(--amber)}
 .b-d{background:#f1f5f9;border-color:#e2e8f0;color:#475569}
 
 /* PAGINACIÓN */
-.pagination{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;font-size:11px;color:var(--text3)}
+.pagination{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;margin-top:.5rem;font-size:11px;color:var(--text3)}
 .pg-btns{display:flex;gap:3px;align-items:center}
 .pg-btn{padding:3px 9px;border:1px solid var(--gray-b);border-radius:var(--r);background:var(--white);cursor:pointer;font-size:11px;color:var(--text2);font-family:var(--font);transition:all .15s}
 .pg-btn:disabled{opacity:.4;cursor:default}
@@ -372,11 +372,13 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
 /* Barra acciones masivas */
 .bulk-bar{
   display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;
-  background:var(--dark);color:#fff;padding:8px 16px;
+  background:var(--dark);color:#fff;padding:10px 20px;
   align-items:center;gap:10px;font-size:12px;
-  box-shadow:0 -4px 16px rgba(0,0,0,.18);
+  box-shadow:0 -4px 20px rgba(0,0,0,.25);
 }
 .bulk-bar.show{display:flex}
+/* Cuando bulk-bar está activa, dar espacio al body */
+body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .bulk-bar-cnt{font-weight:600;background:var(--red);padding:2px 10px;border-radius:10px;font-size:11px}
 .bulk-btn{padding:5px 13px;border-radius:var(--r);border:1px solid rgba(255,255,255,.25);
   background:transparent;color:#fff;font-size:11.5px;font-family:var(--font);cursor:pointer;transition:all .15s}
@@ -860,7 +862,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <tbody id="tbody"></tbody>
     </table>
   </div>
-  <div class="pagination" style="margin-bottom:4rem"><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
+  <div class="pagination" ><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
   <!-- Barra acciones masivas Reporte Total -->
   <div class="bulk-bar" id="bulk-bar-rep">
     <span class="bulk-bar-cnt" id="bulk-cnt-rep">0</span> proceso(s) seleccionado(s)
@@ -1029,7 +1031,7 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <tbody id="aud-tbody"></tbody>
     </table>
   </div>
-  <div class="pagination" style="margin-bottom:4rem"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
+  <div class="pagination" ><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
   <div class="bulk-bar" id="bulk-bar-aud">
     <span class="bulk-bar-cnt" id="bulk-cnt-aud">0</span> proceso(s) seleccionado(s)
     <button class="bulk-btn" onclick="selectAllFiltered('aud')">☑ Seleccionar todos los filtrados</button>
@@ -1542,18 +1544,21 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
 
 <div id="tab-paralegal" class="tab-content">
 
+  <!-- Sub-tabs por origen -->
+  <div style="display:flex;gap:0;border-bottom:2px solid var(--gray-b);margin-bottom:1rem;flex-wrap:wrap">
+    <button id="pptab-todas"      class="tg-view-tab active"   onclick="switchPPTab('todas')"      style="border-bottom:2px solid var(--dark);margin-bottom:-2px;color:var(--text)">📋 Todas <span id="pp-cnt-todas"    class="fdd-cnt show" style="background:var(--dark)">0</span></button>
+    <button id="pptab-reporte"    class="tg-view-tab"          onclick="switchPPTab('reporte')"    style="border-bottom:2px solid transparent;margin-bottom:-2px">📊 Reporte Total <span id="pp-cnt-reporte"  class="fdd-cnt show" style="background:var(--blue)">0</span></button>
+    <button id="pptab-audiencias" class="tg-view-tab"          onclick="switchPPTab('audiencias')" style="border-bottom:2px solid transparent;margin-bottom:-2px">📅 Próximas Audiencias <span id="pp-cnt-aud"  class="fdd-cnt show" style="background:var(--amber)">0</span></button>
+    <button id="pptab-gestion"    class="tg-view-tab"          onclick="switchPPTab('gestion')"    style="border-bottom:2px solid transparent;margin-bottom:-2px">⚡ Tareas de Gestión <span id="pp-cnt-gest" class="fdd-cnt show" style="background:var(--green)">0</span></button>
+    <button id="pptab-calendario" class="tg-view-tab"          onclick="switchPPTab('calendario')" style="border-bottom:2px solid transparent;margin-bottom:-2px">🗓 Calendario <span id="pp-cnt-cal"  class="fdd-cnt show" style="background:var(--purple)">0</span></button>
+  </div>
+
   <!-- Toolbar -->
-  <div class="search-row" style="flex-wrap:wrap;gap:8px">
-    <div class="srch-wrap" style="max-width:340px">
+  <div class="search-row" style="flex-wrap:wrap;gap:8px;margin-bottom:.75rem">
+    <div class="srch-wrap" style="max-width:320px">
       <span>🔍</span>
-      <input class="srch-inp" type="text" id="pp-search" placeholder="Buscar cliente, expediente, proceso..." oninput="renderParalegal()">
+      <input class="srch-inp" type="text" id="pp-search" placeholder="Buscar cliente, expediente, texto..." oninput="renderParalegal()">
     </div>
-    <select class="sel-inp" id="pp-tipo" onchange="renderParalegal()">
-      <option value="">Todos los tipos</option>
-      <option value="obs">Observaciones de proceso</option>
-      <option value="dili">Notas de diligencia</option>
-      <option value="gestion">Tareas de gestión</option>
-    </select>
     <select class="sel-inp" id="pp-atendida" onchange="renderParalegal()">
       <option value="">Todos</option>
       <option value="0">Pendientes</option>
@@ -1562,12 +1567,11 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
     <span class="count-lbl" id="pp-count">—</span>
     <div style="margin-left:auto;display:flex;gap:8px">
       <button class="btn" onclick="limpiarAtendidas()" style="font-size:11.5px;color:var(--red);border-color:var(--red-b);background:var(--red-l)">🗑 Limpiar atendidas</button>
-      <button class="btn btn-dark" onclick="exportarParalegal()" style="font-size:11.5px">↓ Exportar reporte</button>
+      <button class="btn btn-dark" onclick="exportarParalegal()" style="font-size:11.5px">↓ Exportar</button>
     </div>
   </div>
 
-  <!-- Contenedor de entradas -->
-  <div id="pp-entries" style="display:flex;flex-direction:column;gap:10px;margin-top:.5rem"></div>
+  <div id="pp-entries" style="display:flex;flex-direction:column;gap:10px"></div>
   <div class="pagination" style="margin-top:.75rem"><span id="pp-pg-info"></span><div class="pg-btns" id="pp-pg-btns"></div></div>
 
 </div>
@@ -2875,11 +2879,14 @@ function updateBulkBar(tab){
   const lbl = document.getElementById('bulk-cnt-'+tab);
   if(bar) bar.classList.toggle('show', cnt>0);
   if(lbl) lbl.textContent = cnt;
-  // Mostrar/ocultar botón "seleccionar todos filtrados"
-  const btnAll = document.getElementById('bulk-sel-all-'+(tab==='rep'?'rep':'aud'));
+  // Agregar padding al body cuando la barra está visible
+  const anyVisible = (selectedRows.rep.size>0)||(selectedRows.aud.size>0);
+  document.body.classList.toggle('has-bulk-bar', anyVisible);
+  // Botón seleccionar todos
+  const btnAllId = tab==='rep'?'bulk-sel-all-rep':'bulk-sel-all-aud';
+  const btnAll = document.getElementById(btnAllId);
   if(btnAll){
-    const hayMas = cnt < total;
-    btnAll.style.display = hayMas ? '' : 'none';
+    btnAll.style.display = cnt < total ? '' : 'none';
     btnAll.textContent = '☑ Seleccionar los '+total+' filtrados';
   }
   // Sync master checkbox
@@ -3212,16 +3219,25 @@ function guardarObsProc(){
   const texto = document.getElementById('obs-nueva').value.trim();
   if(!texto){ showModalError('Escribe una observación antes de guardar.'); return; }
   const obs = getObsProc(obsProcId);
-  obs.unshift({
-    texto,
-    autor: '—',
-    fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-    mine: true
-  });
+  obs.unshift({texto, autor:'—', fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}), mine:true});
   saveObsProc(obsProcId, obs);
+
+  // Registrar en Panel Paralegal
+  const proc = DATA.find(r=>r.id===obsProcId);
+  registrarEnPanel({
+    tipo:       'obs',
+    nroId:      obsProcId,
+    nrotarea:   0,
+    cliente:    proc?proc.cliente:'—',
+    expediente: proc?proc.expediente:'—',
+    supervisor: proc?proc.supervisor:'—',
+    texto,
+    autor:      '—'
+  });
+
   document.getElementById('obs-nueva').value = '';
   renderObsHistory();
-  render(); renderAud();
+  render(); renderAud(); renderParalegal();
   showToast('✓ Observación guardada');
 }
 function borrarObs(idx){
@@ -3342,7 +3358,24 @@ function guardarDiligencia(){
   const notas  = document.getElementById('dili-notas').value.trim();
   const obsCid = document.getElementById('dili-obs-cid').value.trim();
   saveDiliNotas(t.nrotarea, {notas, obsCid});
+
+  // Registrar en Panel Paralegal si hay observación para CID
+  if(obsCid){
+    registrarEnPanel({
+      tipo:       'dili',
+      nroId:      t.nroId||0,
+      nrotarea:   t.nrotarea||0,
+      cliente:    t.cliente||'—',
+      expediente: t.expediente||'—',
+      supervisor: t.supervisor||'—',
+      texto:      obsCid,
+      autor:      t.asignado||'—',
+      extra:      {tipoAud: t.tipo, notas}
+    });
+  }
+
   document.getElementById('modalDiligencia').classList.remove('show');
+  renderParalegal();
   showToast('✓ Notas guardadas');
 }
 
@@ -3684,147 +3717,131 @@ function abrirPanelEdicion(tareaId){
   document.getElementById('modalGestionarTarea').classList.add('show');
 }
 
+// ── REGISTRO CENTRALIZADO PANEL PARALEGAL ────────────────────
+function registrarEnPanel(entry){
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  entry.id  = 'pp_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  entry.ts  = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  entry.atendida = false;
+  // Asignar origen/pestaña automáticamente si no viene
+  if(!entry.origen){
+    if(entry.tipo==='obs')     entry.origen='reporte';
+    else if(entry.tipo==='dili') entry.origen='audiencias';
+    else                         entry.origen='gestion';
+  }
+  all.unshift(entry);
+  if(all.length>500) all.splice(500);
+  localStorage.setItem('pp_all', JSON.stringify(all));
+}
+
 function guardarGestionTarea(){
   if(!gestionTareaId) return;
 
-  const asignado  = document.getElementById('mg-asignado').value;
-  const fechaRaw  = document.getElementById('mg-fecha').value;
-  const comentario= document.getElementById('mg-comentario').value.trim();
-  const estado    = document.getElementById('mg-estado').value;
+  const asignado   = document.getElementById('mg-asignado').value;
+  const fechaRaw   = document.getElementById('mg-fecha').value;
+  const comentario = document.getElementById('mg-comentario').value.trim();
+  const estado     = document.getElementById('mg-estado').value;
+  const fecha      = fechaRaw ? fechaRaw.split('-').reverse().join('/') : '';
 
-  const fecha = fechaRaw ? fechaRaw.split('-').reverse().join('/') : '';
-
-  // Para tareas del Excel, guardar overrides en localStorage
   const arr = loadTareasGestion();
   const idx = arr.findIndex(t=>t.id===gestionTareaId);
+  let tarea = idx>=0 ? arr[idx] : TAREAS_GESTION_EXCEL.find(t=>t.id===gestionTareaId);
 
   if(idx >= 0){
-    // Tarea manual — editar directamente
-    if(asignado)  arr[idx].asignado  = asignado;
-    if(fecha)     arr[idx].fecha     = fecha;
-    if(comentario)arr[idx].obs       = comentario;
-    if(estado)    arr[idx].estado    = estado;
+    if(asignado)   arr[idx].asignado  = asignado;
+    if(fecha)      arr[idx].fecha     = fecha;
+    if(comentario) arr[idx].obs       = comentario;
+    if(estado)     arr[idx].estado    = estado;
     saveTareasGestion(arr);
   } else {
-    // Tarea del Excel — guardar override
     const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
     const actual = overrides[gestionTareaId] || {};
-    if(asignado)  actual.asignado  = asignado;
-    if(fecha)     actual.fecha     = fecha;
-    if(comentario)actual.obs       = comentario;
-    if(estado)    actual.estado    = estado;
+    if(asignado)   actual.asignado  = asignado;
+    if(fecha)      actual.fecha     = fecha;
+    if(comentario) actual.obs       = comentario;
+    if(estado)     actual.estado    = estado;
     overrides[gestionTareaId] = actual;
     localStorage.setItem('tgOverrides', JSON.stringify(overrides));
+  }
+
+  // Registrar en Panel Paralegal
+  const cambios = [];
+  if(asignado)   cambios.push('Reasignado → '+asignado);
+  if(fecha)      cambios.push('Nueva fecha: '+fecha);
+  if(estado)     cambios.push('Estado → '+estado);
+  if(comentario) cambios.push('Obs: '+comentario);
+
+  if(cambios.length || comentario){
+    const proc = tarea ? DATA.find(r=>r.id===tarea.nroId) : null;
+    registrarEnPanel({
+      tipo:       'gestion',
+      nroId:      tarea?tarea.nroId:0,
+      nrotarea:   tarea?tarea.nrotarea:0,
+      cliente:    tarea?tarea.cliente:'—',
+      expediente: tarea?tarea.expediente:'—',
+      supervisor: proc?proc.supervisor:(tarea?tarea.supervisor:'—'),
+      texto:      cambios.join(' · ')+(comentario?'\nObs: '+comentario:''),
+      autor:      '—',
+      extra:      {asignado,fecha,estado,comentario}
+    });
   }
 
   document.getElementById('modalGestionarTarea').classList.remove('show');
   gestionTareaId = null;
   renderGestion();
-  showToast('Cambios guardados en Panel Paralegal');
+  renderParalegal();
+  showToast('✓ Cambios guardados y registrados en Panel Paralegal');
 }
 
-// ── RENDER PANEL PARALEGAL ───────────────────────────────────
 // ── PANEL PARALEGAL ──────────────────────────────────────────
 const PP_PAGE = 20;
 let ppPage = 1;
+let ppTabActivo = 'todas';
+
+function switchPPTab(tab){
+  ppTabActivo = tab;
+  ppPage = 1;
+  // Estilos de sub-tabs
+  const tabs = {todas:'var(--dark)',reporte:'var(--blue)',audiencias:'var(--amber)',gestion:'var(--green)',calendario:'var(--purple)'};
+  Object.keys(tabs).forEach(t=>{
+    const btn = document.getElementById('pptab-'+t);
+    if(!btn) return;
+    const isActive = t===tab;
+    btn.style.borderBottomColor = isActive ? tabs[t] : 'transparent';
+    btn.style.color = isActive ? tabs[t] : 'var(--text3)';
+    btn.style.fontWeight = isActive ? '600' : '400';
+  });
+  renderParalegal();
+}
 
 function getAllParalelEntries(){
-  const entries = [];
-  const fmtDate = ()=>new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-
-  // 1. Observaciones de proceso (obs_proc_*)
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
-    if(!k.startsWith('obs_proc_')) continue;
-    const id = parseInt(k.replace('obs_proc_',''));
-    const obs = JSON.parse(localStorage.getItem(k)||'[]');
-    const proc = DATA.find(r=>r.id===id);
-    obs.forEach((o,oi)=>{
-      const atendida = JSON.parse(localStorage.getItem('pp_atend_'+k+'_'+oi)||'false');
-      entries.push({
-        key: k+'_'+oi,
-        tipo: 'obs',
-        nroId: id,
-        cliente: proc?proc.cliente:(o.cliente||'—'),
-        expediente: proc?proc.expediente:(o.expediente||'—'),
-        supervisor: proc?proc.supervisor:'—',
-        texto: o.texto,
-        autor: o.autor||'—',
-        fecha: o.fecha||'—',
-        atendida,
-        _obsKey: k, _obsIdx: oi
-      });
-    });
-  }
-
-  // 2. Notas/ObsCID de diligencias (dili_notas_*)
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
-    if(!k.startsWith('dili_notas_')) continue;
-    const nrotarea = parseInt(k.replace('dili_notas_',''));
-    const saved = JSON.parse(localStorage.getItem(k)||'{}');
-    const dili = DILIGENCIAS_GESTION_EXCEL.find(d=>d.nrotarea===nrotarea);
-    const atendida = JSON.parse(localStorage.getItem('pp_atend_'+k)||'false');
-    if(saved.obsCid){
-      entries.push({
-        key: k,
-        tipo: 'dili',
-        nroId: dili?dili.nroId:0,
-        nrotarea,
-        cliente: dili?dili.cliente:'—',
-        expediente: dili?dili.expediente:'—',
-        supervisor: dili?dili.supervisor:'—',
-        texto: saved.obsCid,
-        notasCid: saved.notas||'',
-        asignado: dili?dili.asignado:'—',
-        tipoAud: dili?dili.tipo:'—',
-        fecha: '—',
-        atendida,
-        _diliKey: k
-      });
-    }
-  }
-
-  // 3. Tareas de gestión del portal (origen portal con observaciones)
-  loadTareasGestion().forEach(t=>{
-    if(!t.obs) return;
-    const atendida = JSON.parse(localStorage.getItem('pp_atend_tg_'+t.id)||'false');
-    entries.push({
-      key: 'tg_'+t.id,
-      tipo: 'gestion',
-      nroId: t.nroId,
-      nrotarea: t.nrotarea||0,
-      cliente: t.cliente||'—',
-      expediente: t.expediente||'—',
-      supervisor: t.supervisor||'—',
-      texto: t.obs,
-      tipoTarea: t.tipo,
-      asignado: t.asignado||'—',
-      agendadoPor: t.agendadoPor||'—',
-      fecha: t.fecha||'—',
-      atendida,
-      _tgId: t.id
-    });
-  });
-
-  return entries;
+  return JSON.parse(localStorage.getItem('pp_all')||'[]');
 }
 
 function renderParalegal(){
-  const q = (document.getElementById('pp-search').value||'').toLowerCase();
-  const tipoFil = document.getElementById('pp-tipo').value;
+  const q        = (document.getElementById('pp-search').value||'').toLowerCase();
   const atendFil = document.getElementById('pp-atendida').value;
 
-  let entries = getAllParalelEntries().filter(e=>{
+  const all = getAllParalelEntries();
+
+  // Actualizar contadores de sub-tabs
+  const cnts = {todas:0,reporte:0,audiencias:0,gestion:0,calendario:0};
+  all.forEach(e=>{
+    cnts.todas++;
+    if(e.origen && cnts[e.origen]!==undefined) cnts[e.origen]++;
+  });
+  Object.entries(cnts).forEach(([t,c])=>{
+    const el = document.getElementById('pp-cnt-'+(t==='todas'?'todas':t==='audiencias'?'aud':t==='gestion'?'gest':t==='calendario'?'cal':t));
+    if(el) el.textContent = c;
+  });
+
+  let entries = all.filter(e=>{
+    if(ppTabActivo !== 'todas' && e.origen !== ppTabActivo) return false;
     if(q && !(e.cliente+e.expediente+(e.texto||'')).toLowerCase().includes(q)) return false;
-    if(tipoFil && e.tipo!==tipoFil) return false;
     if(atendFil==='0' && e.atendida) return false;
     if(atendFil==='1' && !e.atendida) return false;
     return true;
   });
-
-  // Pendientes primero
-  entries.sort((a,b)=>(a.atendida?1:0)-(b.atendida?1:0));
 
   const total = entries.length;
   const tp = Math.ceil(total/PP_PAGE)||1;
@@ -3833,45 +3850,49 @@ function renderParalegal(){
 
   document.getElementById('pp-count').textContent = total+' entrada'+(total!==1?'s':'');
 
+  const origenLabel = {reporte:'📊 Reporte Total',audiencias:'📅 Próximas Audiencias',gestion:'⚡ Tareas de Gestión',calendario:'🗓 Calendario'};
+  const origenColor = {reporte:'var(--blue)',audiencias:'var(--amber)',gestion:'var(--green)',calendario:'var(--purple)'};
+
   const container = document.getElementById('pp-entries');
   if(!slice.length){
     container.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text4)">'
       +'<div style="font-size:32px;margin-bottom:.5rem">📋</div>'
       +'<div>No hay entradas registradas.</div></div>';
   } else {
+    const tipoCls  = e=>e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':'pp-tipo-gestion';
+    const tipoLabel= e=>e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':'Tarea gestión';
     container.innerHTML = slice.map(e=>{
-      const tipoCls = e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':'pp-tipo-gestion';
-      const tipoLabel = e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':'Tarea gestión';
-      const procUrl = 'https://vinatea.mybig.com.ar/trabajos/overview/'+(e.nroId||0)+'/';
+      const procUrl  = 'https://vinatea.mybig.com.ar/trabajos/overview/'+(e.nroId||0)+'/';
       const tareaUrl = e.nrotarea?'https://vinatea.mybig.com.ar/tareas/'+e.nrotarea+'/edit/':procUrl;
-
-      let metaExtra = '';
-      if(e.tipo==='dili') metaExtra = ' · 👤 '+esc(e.asignado||'—')+' · 📋 '+esc(e.tipoAud||'—');
-      if(e.tipo==='gestion') metaExtra = ' · Agendado por: '+esc(e.agendadoPor||'—')+' → '+esc(e.asignado||'—');
-
-      return '<div class="pp-card'+(e.atendida?' atendida':'')+'" data-key="'+esc(e.key)+'">'
+      const oBadge   = e.origen?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:var(--gray-l);border:1px solid var(--gray-b);color:'+origenColor[e.origen]+'">'+origenLabel[e.origen]+'</span>':'';
+      const tBadge   = '<span class="pp-card-tipo '+tipoCls(e)+'">'+tipoLabel(e)+'</span>';
+      let extra = '';
+      if(e.extra){
+        if(e.extra.asignado)   extra += ' · → '+esc(e.extra.asignado);
+        if(e.extra.estado)     extra += ' · Estado: '+esc(e.extra.estado);
+        if(e.extra.fecha)      extra += ' · Fecha: '+esc(e.extra.fecha);
+        if(e.extra.tipoAud)    extra += ' · '+esc(e.extra.tipoAud);
+      }
+      return '<div class="pp-card'+(e.atendida?' atendida':'')+'">'
         +'<div class="pp-card-head">'
-          +'<span class="pp-card-tipo '+tipoCls+'">'+tipoLabel+'</span>'
-          +'<div class="pp-card-proc">'
-            +'<span class="pp-card-cliente">'+esc((e.cliente||'—').slice(0,35))+'</span>'
+          +tBadge+oBadge
+          +'<div class="pp-card-proc" style="margin-top:6px">'
+            +'<span class="pp-card-cliente">'+esc((e.cliente||'—').slice(0,40))+'</span>'
             +'<span class="pp-card-exp">'+esc(e.expediente||'—')+'</span>'
-            +(e.supervisor?'<span class="badge b-d" style="font-size:10px">Sup: '+esc(e.supervisor)+'</span>':'')
+            +(e.supervisor&&e.supervisor!=='—'?'<span class="badge b-d" style="font-size:10px">Sup: '+esc(e.supervisor)+'</span>':'')
           +'</div>'
-          +'<div style="margin-left:auto;display:flex;gap:6px;align-items:center">'
+          +'<div style="margin-left:auto;display:flex;gap:6px;align-items:flex-start">'
             +(e.nrotarea?'<a class="id-link" href="'+tareaUrl+'" target="_blank" style="font-size:11px">#'+e.nrotarea+'</a>':'')
-            +'<a class="id-link" href="'+procUrl+'" target="_blank" style="font-size:11px;color:var(--text3)">#'+e.nroId+'</a>'
+            +(e.nroId?'<a class="id-link" href="'+procUrl+'" target="_blank" style="font-size:11px;color:var(--text3)">#'+e.nroId+'</a>':'')
           +'</div>'
         +'</div>'
-        +'<div class="pp-card-body'+(e.tipo==='dili'?' obs-cid':'')+'">'+esc(e.texto||'—')+'</div>'
-        +'<div class="pp-card-meta">'
-          +(e.fecha&&e.fecha!=='—'?'📅 '+esc(e.fecha)+' · ':'')
-          +(e.autor&&e.autor!=='—'?'👤 '+esc(e.autor):'')+metaExtra
-        +'</div>'
+        +'<div class="pp-card-body'+(e.tipo==='dili'?' obs-cid':'')+'">'+esc(e.texto||'—').replace(/\n/g,'<br>')+'</div>'
+        +'<div class="pp-card-meta">🕐 '+esc(e.ts||'—')+(e.autor&&e.autor!=='—'?' · 👤 '+esc(e.autor):'')+extra+'</div>'
         +'<div class="pp-card-actions">'
           +(e.atendida
-            ?'<button class="pp-btn pp-btn-resp" onclick="marcarPPAtendida(\''+esc(e.key)+'\',false)">↩ Marcar pendiente</button>'
-            :'<button class="pp-btn pp-btn-ok" onclick="marcarPPAtendida(\''+esc(e.key)+'\',true)">✓ Marcar atendida</button>')
-          +'<button class="pp-btn pp-btn-del" onclick="eliminarPPEntry(\''+esc(e.key)+'\')">✕ Eliminar</button>'
+            ?'<button class="pp-btn pp-btn-resp" onclick="marcarPPAtendida(\''+e.id+'\',false)">↩ Pendiente</button>'
+            :'<button class="pp-btn pp-btn-ok" onclick="marcarPPAtendida(\''+e.id+'\',true)">✓ Atendida</button>')
+          +'<button class="pp-btn pp-btn-del" onclick="eliminarPPEntry(\''+e.id+'\')">✕ Eliminar</button>'
         +'</div>'
         +'</div>';
     }).join('');
@@ -3879,39 +3900,27 @@ function renderParalegal(){
   buildPag('pp-pg-info','pp-pg-btns',ppPage,tp,p=>{ppPage=p;renderParalegal();});
 }
 
-function marcarPPAtendida(key, val){
-  localStorage.setItem('pp_atend_'+key, JSON.stringify(val));
+function marcarPPAtendida(id, val){
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  const idx = all.findIndex(e=>e.id===id);
+  if(idx>=0){ all[idx].atendida=val; localStorage.setItem('pp_all',JSON.stringify(all)); }
   renderParalegal();
   showToast(val?'✓ Marcada como atendida':'↩ Marcada como pendiente');
 }
 
-function eliminarPPEntry(key){
-  // Eliminar la entrada según su tipo
-  if(key.startsWith('obs_proc_')){
-    // obs_proc_N_idx
-    const parts = key.split('_');
-    const idx = parseInt(parts.pop());
-    const k = parts.join('_');
-    const obs = JSON.parse(localStorage.getItem(k)||'[]');
-    obs.splice(idx,1);
-    if(obs.length) localStorage.setItem(k, JSON.stringify(obs));
-    else localStorage.removeItem(k);
-  } else if(key.startsWith('dili_notas_')){
-    localStorage.removeItem(key);
-  } else if(key.startsWith('tg_')){
-    const tgId = key.replace('tg_','');
-    const arr = loadTareasGestion();
-    const idx = arr.findIndex(t=>t.id===tgId);
-    if(idx>=0){ arr[idx].obs=''; saveTareasGestion(arr); }
-  }
-  localStorage.removeItem('pp_atend_'+key);
+function eliminarPPEntry(id){
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  const idx = all.findIndex(e=>e.id===id);
+  if(idx>=0){ all.splice(idx,1); localStorage.setItem('pp_all',JSON.stringify(all)); }
   renderParalegal();
   showToast('Entrada eliminada');
 }
 
 function limpiarAtendidas(){
-  const entries = getAllParalelEntries().filter(e=>e.atendida);
-  entries.forEach(e=>eliminarPPEntry(e.key));
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  const filtrado = all.filter(e=>!e.atendida);
+  localStorage.setItem('pp_all', JSON.stringify(filtrado));
+  renderParalegal();
   showToast('✓ Entradas atendidas eliminadas');
 }
 
@@ -3920,8 +3929,7 @@ function exportarParalegal(){
   const ws = XLSX.utils.json_to_sheet(entries.map(e=>({
     Tipo: e.tipo==='obs'?'Observación':e.tipo==='dili'?'Nota diligencia':'Tarea gestión',
     Cliente: e.cliente, Expediente: e.expediente, Supervisor: e.supervisor,
-    Texto: e.texto, Asignado: e.asignado||'—', Fecha: e.fecha,
-    Atendida: e.atendida?'Sí':'No'
+    Texto: e.texto, Fecha: e.ts||'—', Atendida: e.atendida?'Sí':'No'
   })));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Panel Paralegal');
