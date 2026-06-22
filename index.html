@@ -173,7 +173,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .btn-sm:hover{border-color:var(--red);color:var(--red)}
 
 /* TABLA */
-.table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh);width:100%}
+.table-wrap-outer{overflow-x:auto;width:100%}
+.table-wrap{overflow-y:auto;max-height:calc(100vh - 420px);background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r2);box-shadow:var(--sh);min-width:max-content;width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr:first-child{background:var(--dark);position:sticky;top:0;z-index:10}
 thead tr.filter-row-th{background:#12122a;position:sticky;top:37px;z-index:9}
@@ -321,7 +322,10 @@ tbody tr.row-selected.row-alert{outline-color:var(--amber)}
 .b-d{background:#f1f5f9;border-color:#e2e8f0;color:#475569}
 
 /* PAGINACIÓN */
-.pagination{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;margin-top:.5rem;font-size:11px;color:var(--text3)}
+.pagination{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.5rem 0;margin-top:.5rem;font-size:11px;color:var(--text3);
+}
 .pg-btns{display:flex;gap:3px;align-items:center}
 .pg-btn{padding:3px 9px;border:1px solid var(--gray-b);border-radius:var(--r);background:var(--white);cursor:pointer;font-size:11px;color:var(--text2);font-family:var(--font);transition:all .15s}
 .pg-btn:disabled{opacity:.4;cursor:default}
@@ -787,6 +791,10 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
     <button class="btn-sm" onclick="resetAllFilters()">
       <span style="font-size:13px">✕</span> Limpiar todo
     </button>
+    <div style="display:flex;align-items:center;gap:4px;margin-left:8px">
+      <span id="pg-info" style="white-space:nowrap;font-size:11px;color:var(--text3)"></span>
+      <div class="pg-btns" id="pg-btns" style="display:flex;gap:2px"></div>
+    </div>
   </div>
 
   <!-- Chips filtros activos -->
@@ -812,7 +820,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
     <span class="count-lbl" id="count-txt">— procesos</span>
   </div>
 
-  <div class="table-wrap">
+  <div class="table-wrap-outer"><div class="table-wrap">
     <table>
       <thead>
         <tr id="thead-main">
@@ -861,8 +869,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       </thead>
       <tbody id="tbody"></tbody>
     </table>
-  </div>
-  <div class="pagination" ><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
+  </div></div>
   <!-- Barra acciones masivas Reporte Total -->
   <div class="bulk-bar" id="bulk-bar-rep">
     <span class="bulk-bar-cnt" id="bulk-cnt-rep">0</span> proceso(s) seleccionado(s)
@@ -975,10 +982,15 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
     </div>
     <div style="width:1px;height:20px;background:var(--gray-b);margin:0 2px"></div>
     <button class="btn-sm" onclick="resetAllFiltersAud()"><span style="font-size:13px">✕</span> Limpiar todo</button>
+    <!-- Paginación audiencias -->
+    <div style="display:flex;align-items:center;gap:4px;margin-left:8px">
+      <span id="aud-pg-info" style="white-space:nowrap;font-size:11px;color:var(--text3)"></span>
+      <div class="pg-btns" id="aud-pg-btns" style="display:flex;gap:2px"></div>
+    </div>
     <!-- chips activos audiencias -->
     <div class="active-filters" id="active-filters-aud"></div>
   </div>
-  <div class="table-wrap" id="aud-table-wrap">
+  <div class="table-wrap-outer"><div class="table-wrap" id="aud-table-wrap">
     <table class="cols-collapsed">
       <thead>
         <tr>
@@ -1030,8 +1042,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       </thead>
       <tbody id="aud-tbody"></tbody>
     </table>
-  </div>
-  <div class="pagination" ><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
+  </div></div>
   <div class="bulk-bar" id="bulk-bar-aud">
     <span class="bulk-bar-cnt" id="bulk-cnt-aud">0</span> proceso(s) seleccionado(s)
     <button class="bulk-btn" onclick="selectAllFiltered('aud')">☑ Seleccionar todos los filtrados</button>
@@ -1616,7 +1627,7 @@ document.addEventListener('click', function(e){
 });
 
 let DATA=[];
-const PAGE=100;
+const PAGE=50;
 // Estado independiente por tab
 const TAB_STATE = {
   reporte:   { mf:'', colFilters:{}, fdd:{estado:new Set(),instancia:new Set(),pacto:new Set()}, page:1, q:'', sup:'', dist:'' },
@@ -1978,6 +1989,7 @@ function renderAud(){
   }).join('');}
   _filteredAud = rows;
   document.getElementById('aud-count').textContent=total.toLocaleString()+' audiencia'+(total!==1?'s':'');
+  buildPag('aud-pg-info','aud-pg-btns',audPage,tp,p=>{audPage=p;renderAud();});
   updateBulkBar('aud');
   setTimeout(addResizeHandles, 0);
 }
@@ -2088,7 +2100,11 @@ function switchTab(name,el){
   el.classList.add('active');
   activeTab = name;
   if(name==='reporte')    render();
-  if(name==='audiencias') renderAud();
+  if(name==='audiencias') {
+    renderAud();
+    const el = document.getElementById('aud-pg-info');
+    if(el && !el.textContent) el.textContent = 'Página 1 de 1 · 50 por página';
+  }
   if(name==='sensibles')  renderSens();
   if(name==='gestion')    renderGestion();
   if(name==='paralegal')  renderParalegal();
@@ -2820,9 +2836,13 @@ function selectRow(tr){
 
 function startPortal(){
   if(typeof PORTAL_DATA!=='undefined'&&PORTAL_DATA.length) DATA=PORTAL_DATA;
-  // Inicializar fecha del calendario
   const gcalInp = document.getElementById('gcal-date');
   if(gcalInp) gcalInp.value = new Date().toISOString().slice(0,10);
+  // Inicializar contadores de paginación visibles aunque no haya datos
+  const pgInfo = document.getElementById('pg-info');
+  const audPgInfo = document.getElementById('aud-pg-info');
+  if(pgInfo) pgInfo.textContent = 'Página 1 de 1 · 50 por página';
+  if(audPgInfo) audPgInfo.textContent = 'Página 1 de 1 · 50 por página';
   render();
 }
 (function(){
