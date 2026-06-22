@@ -371,9 +371,8 @@ thead tr:first-child th{position:relative}
 input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:var(--blue)}
 /* Barra acciones masivas */
 .bulk-bar{
-  display:none;position:sticky;bottom:0;left:0;right:0;z-index:50;
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;
   background:var(--dark);color:#fff;padding:8px 16px;
-  border-radius:var(--r2) var(--r2) 0 0;margin:0 -1px;
   align-items:center;gap:10px;font-size:12px;
   box-shadow:0 -4px 16px rgba(0,0,0,.18);
 }
@@ -861,14 +860,15 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <tbody id="tbody"></tbody>
     </table>
   </div>
+  <div class="pagination" style="margin-bottom:4rem"><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
   <!-- Barra acciones masivas Reporte Total -->
   <div class="bulk-bar" id="bulk-bar-rep">
     <span class="bulk-bar-cnt" id="bulk-cnt-rep">0</span> proceso(s) seleccionado(s)
+    <button class="bulk-btn" id="bulk-sel-all-rep" onclick="selectAllFiltered('rep')">☑ Seleccionar todos los filtrados</button>
     <button class="bulk-btn" onclick="bulkAgendar('rep')">+ Agendar gestión</button>
     <button class="bulk-btn" onclick="bulkExportar('rep')">↓ Exportar selección</button>
     <button class="bulk-btn bulk-btn-cancel" onclick="clearBulk('rep')">✕ Cancelar</button>
   </div>
-  <div class="pagination"><span id="pg-info"></span><div class="pg-btns" id="pg-btns"></div></div>
 </div>
 
 <!-- TAB AUDIENCIAS -->
@@ -1029,13 +1029,14 @@ input[type=checkbox].row-cb{cursor:pointer;width:14px;height:14px;accent-color:v
       <tbody id="aud-tbody"></tbody>
     </table>
   </div>
+  <div class="pagination" style="margin-bottom:4rem"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
   <div class="bulk-bar" id="bulk-bar-aud">
     <span class="bulk-bar-cnt" id="bulk-cnt-aud">0</span> proceso(s) seleccionado(s)
+    <button class="bulk-btn" onclick="selectAllFiltered('aud')">☑ Seleccionar todos los filtrados</button>
     <button class="bulk-btn" onclick="bulkAgendar('aud')">+ Agendar gestión</button>
     <button class="bulk-btn" onclick="bulkExportar('aud')">↓ Exportar selección</button>
     <button class="bulk-btn bulk-btn-cancel" onclick="clearBulk('aud')">✕ Cancelar</button>
   </div>
-  <div class="pagination"><span id="aud-pg-info"></span><div class="pg-btns" id="aud-pg-btns"></div></div>
 </div>
 
 <!-- TAB SENSIBLES -->
@@ -1875,6 +1876,7 @@ function render(){
         +'</tr>';
     }).join('');
   }
+  _filteredRep = rows;
   document.getElementById('count-txt').textContent=total.toLocaleString()+' proceso'+(total!==1?'s':'');
   buildPag('pg-info','pg-btns',page,tp,p=>{page=p;render();});
   updateStats();
@@ -1970,6 +1972,7 @@ function renderAud(){
       +'<td><button class="btn-agendar" onclick="event.stopPropagation();abrirModalAgendar('+r.id+')">+ Gestión</button></td>'
       +'</tr>';
   }).join('');}
+  _filteredAud = rows;
   document.getElementById('aud-count').textContent=total.toLocaleString()+' audiencia'+(total!==1?'s':'');
   updateBulkBar('aud');
   setTimeout(addResizeHandles, 0);
@@ -2211,7 +2214,7 @@ function procesarExcel(){
       }
     });
 
-    // Próxima diligencia — TODAS (cualquier estado), preferir la más próxima futura
+    // Próxima diligencia — priorizar Pendientes; solo usar Cancelada/Cumplida si no hay Pendiente
     const taDili={};
     const hoyStr=(()=>{const h=new Date();return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0');})();
     rawTA.forEach(r=>{
@@ -2219,19 +2222,27 @@ function procesarExcel(){
       if(!tipo.startsWith('DILIGENCIA'))return;
       const np=Number(r['nroproceso']||0);
       const fd=fmtF(r['fecha']);
+      const estado=cl(r['estadotarea']||'');
+      const esPend = estado.toLowerCase()==='pendiente';
       // Convertir DD/MM/YYYY a YYYY-MM-DD para comparar
       const fdSort=fd?fd.split('/').reverse().join('-'):'';
       const existing=taDili[np];
       if(!existing){
-        taDili[np]={...r,_fd:fd,_fds:fdSort};
-      } else {
-        const exSort=existing._fds||'';
-        // Preferir la más próxima futura; si ambas pasadas, la más reciente
-        const fdFut=fdSort>=hoyStr, exFut=exSort>=hoyStr;
-        if(fdFut && !exFut) taDili[np]={...r,_fd:fd,_fds:fdSort};
-        else if(fdFut && exFut && fdSort<exSort) taDili[np]={...r,_fd:fd,_fds:fdSort};
-        else if(!fdFut && !exFut && fdSort>exSort) taDili[np]={...r,_fd:fd,_fds:fdSort};
+        taDili[np]={...r,_fd:fd,_fds:fdSort,_esPend:esPend};
+        return;
       }
+      // Pendiente siempre gana sobre no-Pendiente
+      if(esPend && !existing._esPend){
+        taDili[np]={...r,_fd:fd,_fds:fdSort,_esPend:true};
+        return;
+      }
+      if(!esPend && existing._esPend) return; // no reemplazar pendiente con cancelada
+      // Mismo tipo de estado: elegir la más próxima futura, si no la más reciente
+      const exSort=existing._fds||'';
+      const fdFut=fdSort>=hoyStr, exFut=exSort>=hoyStr;
+      if(fdFut && !exFut) taDili[np]={...r,_fd:fd,_fds:fdSort,_esPend:esPend};
+      else if(fdFut && exFut && fdSort<exSort) taDili[np]={...r,_fd:fd,_fds:fdSort,_esPend:esPend};
+      else if(!fdFut && !exFut && fdSort>exSort) taDili[np]={...r,_fd:fd,_fds:fdSort,_esPend:esPend};
     });
 
     DATA=activos.map((r,rowIdx)=>{
@@ -2824,6 +2835,20 @@ function startPortal(){
 
 
 
+// Rows filtrados actuales (para selección masiva completa)
+let _filteredRep = [];
+let _filteredAud = [];
+
+function selectAllFiltered(tab){
+  const rows = tab==='rep' ? _filteredRep : _filteredAud;
+  rows.forEach(r=>selectedRows[tab].add(r.id));
+  // Marcar checkboxes visibles
+  const tbody = document.getElementById(tab==='rep'?'tbody':'aud-tbody');
+  if(tbody) tbody.querySelectorAll('.row-cb').forEach(cb=>cb.checked=true);
+  updateBulkBar(tab);
+  showToast('☑ '+rows.length+' proceso(s) seleccionado(s)');
+}
+
 // ── CHECKBOXES Y ACCIONES MASIVAS ────────────────────────────
 function onRowCheck(cb, tab){
   const id = parseInt(cb.dataset.id);
@@ -2845,17 +2870,25 @@ function toggleAllRows(masterCb, tab='rep'){
 
 function updateBulkBar(tab){
   const cnt = selectedRows[tab].size;
+  const total = tab==='rep' ? _filteredRep.length : _filteredAud.length;
   const bar = document.getElementById('bulk-bar-'+tab);
   const lbl = document.getElementById('bulk-cnt-'+tab);
-  if(bar){ bar.classList.toggle('show', cnt>0); }
+  if(bar) bar.classList.toggle('show', cnt>0);
   if(lbl) lbl.textContent = cnt;
+  // Mostrar/ocultar botón "seleccionar todos filtrados"
+  const btnAll = document.getElementById('bulk-sel-all-'+(tab==='rep'?'rep':'aud'));
+  if(btnAll){
+    const hayMas = cnt < total;
+    btnAll.style.display = hayMas ? '' : 'none';
+    btnAll.textContent = '☑ Seleccionar los '+total+' filtrados';
+  }
   // Sync master checkbox
   const master = document.getElementById(tab==='rep'?'cb-all':'cb-all-aud');
   if(master){
     const tbody = tab==='rep'?document.getElementById('tbody'):document.getElementById('aud-tbody');
-    const total = tbody ? tbody.querySelectorAll('.row-cb').length : 0;
-    master.indeterminate = cnt>0 && cnt<total;
-    master.checked = cnt>0 && cnt>=total;
+    const totalPage = tbody ? tbody.querySelectorAll('.row-cb').length : 0;
+    master.indeterminate = cnt>0 && cnt<totalPage;
+    master.checked = cnt>0 && cnt>=totalPage;
   }
 }
 
@@ -2984,7 +3017,31 @@ function renderGCal(){
   if(dateInp.value) gcalDate = new Date(dateInp.value+'T12:00:00');
   const lbl = document.getElementById('gcal-lbl');
   const table = document.getElementById('gcal-table');
-  const tareas = DILIGENCIAS_GESTION_EXCEL.filter(t=>t.fecha);
+  // Combinar: diligencias del Excel + tareas agendadas desde el portal (con fecha)
+  const tareasPortal = getAllTareasGestion()
+    .filter(t=>t.fecha)
+    .map(t=>({
+      nroId:      t.nroId,
+      nrotarea:   t.nrotarea||0,
+      cliente:    t.cliente||'—',
+      expediente: t.expediente||'—',
+      tipo:       t.tipo.replace('Gestión - ',''),
+      asignado:   t.asignado||'—',
+      responsable:t.responsable||'—',
+      supervisor: t.supervisor||'—',
+      organo:     t.organo||'—',
+      materia:    '',
+      submateria: '',
+      notas:      t.obs||'',
+      comentarios:'',
+      fecha:      t.fecha,
+      hora:       t.hora||'',
+      estado:     t.estado||'Pendiente',
+      _esPortal:  true,
+      _portalId:  t.id
+    }));
+  window._GCAL_TAREAS = [...DILIGENCIAS_GESTION_EXCEL.filter(t=>t.fecha), ...tareasPortal];
+  const tareas = window._GCAL_TAREAS;
 
   const diasSemana=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
@@ -3012,7 +3069,7 @@ function renderGCal(){
       const asigNorm = (t.asignado||'').trim().toLowerCase();
       const mi = GCAL_MIEMBROS.findIndex(m=>m.nombre.trim().toLowerCase()===asigNorm);
       if(mi<0) return;
-      // guardar índice para el modal
+      // guardar referencia directa al objeto
       t._gcalIdx = tidx;
       if(t.hora){
         const [hh,mm] = t.hora.split(':').map(Number);
@@ -3032,8 +3089,8 @@ function renderGCal(){
         const eventos = slotMap[mi]['sin-hora']||[];
         html+='<td class="gcal-slot" style="'+(eventos.length?'background:#fffbeb':'')+'vertical-align:top">';
         eventos.forEach(t=>{
-          const gi = DILIGENCIAS_GESTION_EXCEL.indexOf(t);
-          html+='<div class="gcal-event '+m.cls+'" style="cursor:pointer;border-left-color:var(--amber)" onclick="abrirDiligencia('+gi+')">'
+          const gi = window._GCAL_TAREAS.indexOf(t);
+          html+='<div class="gcal-event '+m.cls+'" style="cursor:pointer;border-left-color:var(--amber)'+(t._esPortal?';border-left-color:var(--green)':'')+'" onclick="abrirDiligencia('+gi+')">'
             +'<div class="gcal-event-title">'+esc(t.tipo.slice(0,26))+'</div>'
             +'<div class="gcal-event-sub">'+esc(t.cliente||'')+'</div></div>';
         });
@@ -3049,8 +3106,10 @@ function renderGCal(){
         const eventos = slotMap[mi][hora]||[];
         html+='<td class="gcal-slot'+(eventos.length?' gcal-slot-occ':'')+'" style="vertical-align:top">';
         eventos.forEach(t=>{
-          const gi = DILIGENCIAS_GESTION_EXCEL.indexOf(t);
-          html+='<div class="gcal-event '+m.cls+'" style="cursor:pointer" onclick="abrirDiligencia('+gi+')">'
+          const gi = window._GCAL_TAREAS.indexOf(t);
+          const esPortal = t._esPortal;
+          const cls = esPortal ? 'gcal-event gcal-AT' : 'gcal-event '+m.cls;
+          html+='<div class="'+cls+'" style="cursor:pointer;'+(t.estado==='Cancelada'?'opacity:.5':'')+(esPortal?';border-left-color:var(--amber)':'')+'" onclick="abrirDiligencia('+gi+')">'
             +'<div class="gcal-event-title">'+esc(t.tipo.slice(0,26))+'</div>'
             +'<div class="gcal-event-sub">'+esc(t.cliente||'')+'</div></div>';
         });
@@ -3181,9 +3240,10 @@ function getDiliNotas(nrotarea){ return JSON.parse(localStorage.getItem('dili_no
 function saveDiliNotas(nrotarea,obj){ localStorage.setItem('dili_notas_'+nrotarea,JSON.stringify(obj)); }
 
 function abrirDiligencia(gi){
-  const t = DILIGENCIAS_GESTION_EXCEL[gi];
+  const src = window._GCAL_TAREAS || DILIGENCIAS_GESTION_EXCEL;
+  const t = src[gi];
   if(!t) return;
-  diliTarget = {gi, tarea:t};
+  diliTarget = {gi, tarea:t, src};
   diliNuevoAsig = null;
 
   // Buscar datos cruzados del proceso en DATA
@@ -3256,22 +3316,24 @@ function selDiliMember(el, nombre){
 
 function confirmarReasigDili(){
   if(!diliTarget || !diliNuevoAsig || diliNuevoAsig===diliTarget.tarea.asignado) return;
-  DILIGENCIAS_GESTION_EXCEL[diliTarget.gi].asignado = diliNuevoAsig;
-  // Actualizar el chip de responsable actual en el modal
+  const t   = diliTarget.tarea;
+  const src = diliTarget.src || DILIGENCIAS_GESTION_EXCEL;
+  const gi  = diliTarget.gi;
+  src[gi].asignado = diliNuevoAsig;
+  t.asignado = diliNuevoAsig;
+  // Si es tarea del portal, persistir en localStorage
+  if(t._esPortal && t._portalId){
+    const arr = loadTareasGestion();
+    const idx = arr.findIndex(x=>x.id===t._portalId);
+    if(idx>=0){ arr[idx].asignado=diliNuevoAsig; saveTareasGestion(arr); }
+  }
   document.getElementById('dili-f-asignado').textContent = diliNuevoAsig;
-  // Resetear selección
-  diliTarget.tarea.asignado = diliNuevoAsig;
   diliNuevoAsig = null;
-  document.querySelectorAll('.dili-member').forEach(m=>{
-    m.classList.remove('selected','current');
-    const name = m.querySelector('.dili-member-name');
-    if(name && name.textContent.trim().startsWith(diliTarget?.tarea?.asignado||'___'))
-      m.classList.add('current');
-  });
+  document.querySelectorAll('.dili-member').forEach(m=>m.classList.remove('selected','current'));
   const btn = document.getElementById('dili-btn-reasig');
-  btn.disabled = true; btn.style.opacity='.4'; btn.style.pointerEvents='none';
-  renderGCal();
-  showToast('✓ Reasignado a '+DILIGENCIAS_GESTION_EXCEL[diliTarget.gi].asignado);
+  btn.disabled=true; btn.style.opacity='.4'; btn.style.pointerEvents='none';
+  renderGCal(); renderGestion();
+  showToast('✓ Reasignado a '+t.asignado);
 }
 
 function guardarDiligencia(){
