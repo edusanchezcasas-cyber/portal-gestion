@@ -3771,6 +3771,16 @@ function renderPlanner(){
         const dragAttrs = esGestion
           ? 'draggable="true" ondragstart="onPlannerDragStart(event,\''+key+'\')" ondragend="onPlannerDragEnd(event)"'
           : 'draggable="false"';
+        const tareaUrl = t.nrotarea
+          ? 'https://vinatea.mybig.com.ar/tareas/'+t.nrotarea+'/edit/'
+          : (t.nroId ? 'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/' : '');
+        const tareaLink = tareaUrl
+          ? '<a href="'+tareaUrl+'" target="_blank" onclick="event.stopPropagation()" '
+            +'style="display:inline-block;margin-top:4px;font-size:10px;color:var(--blue);text-decoration:none;font-family:\'Courier New\',monospace;font-weight:600" '
+            +'title="Abrir en MyBiG">'
+            +(t.nrotarea ? '#'+t.nrotarea : '#proc'+t.nroId)
+            +'</a>'
+          : '';
         html += '<div class="'+cls+'" '+dragAttrs+' '
           +'onclick="event.stopPropagation();'+(esGestion ? 'abrirPlannerModal(\''+key+'\')' : '')+'" '
           +'style="border-left-color:'+bColor+';cursor:'+(esGestion?'grab':'default')+'" '
@@ -3780,6 +3790,7 @@ function renderPlanner(){
           +'<div class="planner-card-tipo-full">'+esc(tipoFull)+'</div>'
           +'<div class="planner-card-meta">'+hora+(t.expediente?' · '+esc(t.expediente):'')+'</div>'
           +(t.asignadoAlt&&t.asignadoAlt!==t.asignado?'<div style="font-size:9px;color:var(--purple)">Alt: '+esc(t.asignadoAlt)+'</div>':'')
+          +tareaLink
           +'</div>';
       });
       html += '</td>';
