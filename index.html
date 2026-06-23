@@ -474,7 +474,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .ptarea-field input:focus,.ptarea-field select:focus,.ptarea-field textarea:focus{border-color:var(--blue)}
 .ptarea-field textarea{min-height:70px;resize:vertical}
 .ptarea-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.ptarea-members{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:.35rem}
+.ptarea-members{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:.35rem;align-items:start}
 .ptarea-member{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:var(--r);cursor:pointer;border:1px solid var(--gray-b);transition:all .13s;font-size:11px}
 .ptarea-member:hover{border-color:var(--dark)}
 .ptarea-member.sel{border-color:var(--blue);background:var(--blue-l);font-weight:600}
@@ -1579,6 +1579,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
           <span id="pt-proc-id" style="padding:7px 10px;background:var(--gray-l);border-radius:var(--r);font-size:11px;color:var(--text3);white-space:nowrap;align-self:center"></span>
         </div>
         <div id="pt-proc-dropdown" style="display:none;position:absolute;background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);z-index:100;max-height:160px;overflow-y:auto;box-shadow:var(--sh);width:340px;font-size:12px"></div>
+        <div id="pt-proc-info" style="display:none;margin-top:8px;padding:10px 12px;background:var(--gray-l);border:1px solid var(--gray-b);border-radius:var(--r);border-left:3px solid var(--blue)"></div>
       </div>
       <!-- Tipo y estado -->
       <div class="ptarea-row">
@@ -3948,14 +3949,29 @@ function limpiarFechaEq(){
 // ── MODAL PLANNER NUEVA/EDITAR TAREA ─────────────────────────
 let ptTareaId = null; // null = nueva, string = editar
 
+const SUPERVISORES_EQUIPOS = [
+  {nombre:'Carlos Morales',   iniciales:'CM', color:'#0369a1'},
+  {nombre:'Cynthia Lagos',    iniciales:'CL', color:'#0891b2'},
+  {nombre:'Elyana Arias',     iniciales:'EA', color:'#7c3aed'},
+  {nombre:'Katia Jacinto',    iniciales:'KJ', color:'#be185d'},
+  {nombre:'Samuel Paz',       iniciales:'SP', color:'#047857'},
+  {nombre:'Solanch Estrella', iniciales:'SE', color:'#b45309'},
+];
+
 function ptBuildMembers(seleccionado){
   const container = document.getElementById('pt-members');
   if(!container) return;
-  container.innerHTML = GCAL_MIEMBROS.map(m=>`
-    <div class="ptarea-member${m.nombre===seleccionado?' sel':''}" onclick="ptSelMember(this,'${m.nombre}')">
+  const mkCard = (m, esGestion) => `
+    <div class="ptarea-member${m.nombre===seleccionado?' sel':''}" onclick="ptSelMember(this,'${m.nombre}')"
+      title="${m.nombre}${esGestion?'':' (Supervisor)'}">
       <span style="width:9px;height:9px;border-radius:50%;background:${m.color};flex-shrink:0;display:inline-block"></span>
-      <span>${m.nombre.split(' ')[0]}</span>
-    </div>`).join('');
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.nombre.split(' ')[0]}</span>
+    </div>`;
+  container.innerHTML =
+    '<div style="font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;grid-column:1/-1;margin-bottom:2px">Equipo Gestión</div>'
+    + GCAL_MIEMBROS.map(m=>mkCard(m,true)).join('')
+    + '<div style="font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;grid-column:1/-1;margin:6px 0 2px">Supervisores</div>'
+    + SUPERVISORES_EQUIPOS.map(m=>mkCard(m,false)).join('');
 }
 function ptSelMember(el, nombre){
   document.querySelectorAll('.ptarea-member').forEach(m=>m.classList.remove('sel'));
@@ -3978,6 +3994,9 @@ function abrirPlannerNueva(fecha, miembro){
   document.getElementById('pt-hora').value = '';
   document.getElementById('pt-notas').value = '';
   document.getElementById('pt-adjuntos').innerHTML = '';
+  const info = document.getElementById('pt-proc-info');
+  if(info){ info.style.display='none'; info.innerHTML=''; }
+  ptProcSelId = null;
   ptBuildMembers(miembro||'');
   document.getElementById('pt-proc-dropdown').style.display='none';
   document.getElementById('modalPlannerTarea').classList.add('show');
@@ -3992,6 +4011,7 @@ function abrirPlannerEditar(key){
   }
   if(!t){ abrirPlannerNueva('',''); return; }
   ptTareaId = t.id;
+  ptProcSelId = t.nroId||null;
   document.getElementById('pt-title').textContent = 'Editar tarea';
   document.getElementById('pt-sub').textContent = '#'+t.nroId+' — '+(t.cliente||'').slice(0,40);
   document.getElementById('pt-proc-search').value = t.cliente||'';
@@ -4002,6 +4022,8 @@ function abrirPlannerEditar(key){
   document.getElementById('pt-hora').value = t.hora||'';
   document.getElementById('pt-notas').value = t.obs||'';
   ptBuildMembers(t.asignado||'');
+  // Mostrar info del proceso
+  if(t.nroId) ptSelProc(t.nroId, t.cliente||'', t.expediente||'');
   // Adjuntos guardados
   const adjSaved = JSON.parse(localStorage.getItem('ptarea_adj_'+t.id)||'[]');
   renderPtAdjuntos(adjSaved, t.id);
@@ -4021,9 +4043,26 @@ function ptBuscarProc(){
 }
 function ptSelProc(id, cliente, exp){
   ptProcSelId = id;
+  const proc = DATA.find(r=>r.id===id);
   document.getElementById('pt-proc-search').value = cliente;
   document.getElementById('pt-proc-id').textContent = '#'+id;
   document.getElementById('pt-proc-dropdown').style.display='none';
+  // Mostrar info completa del proceso
+  const info = document.getElementById('pt-proc-info');
+  if(info && proc){
+    info.style.display='block';
+    info.innerHTML =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11.5px">'
+      +'<div><span style="color:var(--text4);font-size:10px;text-transform:uppercase;letter-spacing:.04em">Expediente</span><div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)">'+esc(proc.expediente||'—')+'</div></div>'
+      +'<div><span style="color:var(--text4);font-size:10px;text-transform:uppercase;letter-spacing:.04em">Supervisor</span><div style="font-weight:500;color:var(--text)">'+esc(proc.supervisor||'—')+'</div></div>'
+      +'<div><span style="color:var(--text4);font-size:10px;text-transform:uppercase;letter-spacing:.04em">Instancia</span><div>'+instBadge(proc.instancia||'—')+'</div></div>'
+      +'<div><span style="color:var(--text4);font-size:10px;text-transform:uppercase;letter-spacing:.04em">Situación</span><div style="color:var(--text2)">'+esc(proc.situacion||'—')+'</div></div>'
+      +'<div style="grid-column:1/-1"><span style="color:var(--text4);font-size:10px;text-transform:uppercase;letter-spacing:.04em">Órgano jurisdiccional</span><div style="color:var(--text2)">'+esc(proc.organo||'—')+'</div></div>'
+      +(proc.relevancia==='SENSIBLE'?'<div style="grid-column:1/-1"><span class="badge b-r">⚠ SENSIBLE</span></div>':'')
+      +'</div>';
+  } else if(info){
+    info.style.display='none';
+  }
 }
 
 // Adjuntos
