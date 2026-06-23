@@ -442,14 +442,17 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .planner-date-col.hoy{background:#eff6ff!important;color:var(--blue);font-weight:700}
 /* Celda esquina superior izquierda: sticky top+left */
 .planner-table thead th:first-child{position:sticky;top:0;left:0;z-index:5;background:var(--dark)}
-.planner-card{background:#f8fafc;border:1px solid var(--gray-b);border-left:3px solid var(--blue);border-radius:5px;padding:5px 8px;margin-bottom:4px;cursor:grab;transition:all .15s;user-select:none}
+.planner-card{background:#f8fafc;border:1px solid var(--gray-b);border-left:3px solid var(--blue);border-radius:5px;padding:6px 9px;margin-bottom:4px;cursor:grab;transition:all .15s;user-select:none}
 .planner-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);transform:translateY(-1px)}
 .planner-card.dragging{opacity:.4;cursor:grabbing}
 .planner-card.reasignada{border-left-color:var(--amber);background:#fffbeb}
 .planner-card.original{border-left-color:var(--gray-b);background:var(--gray-l);opacity:.6}
-.planner-card-tipo{font-size:9.5px;font-weight:600;color:var(--text4);text-transform:uppercase;margin-bottom:2px}
-.planner-card-cliente{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
-.planner-card-meta{font-size:10px;color:var(--text3);margin-top:2px}
+.planner-card.planner-card-noedit{cursor:default}
+.planner-card.planner-card-noedit:hover{box-shadow:none;transform:none;background:#f8fafc}
+.planner-card-tipo{font-size:9.5px;font-weight:600;color:var(--text4);text-transform:uppercase;margin-bottom:2px;letter-spacing:.04em}
+.planner-card-cliente{font-size:11.5px;font-weight:700;color:var(--text);white-space:normal;word-break:break-word;line-height:1.35;margin-bottom:2px}
+.planner-card-tipo-full{font-size:11px;color:var(--text2);white-space:normal;word-break:break-word;line-height:1.35;margin-bottom:3px}
+.planner-card-meta{font-size:10px;color:var(--text3);margin-top:2px;white-space:normal;word-break:break-word}
 .planner-card-hora{font-size:10px;font-weight:600;color:var(--amber)}
 .planner-drop-zone{min-height:40px;border-radius:4px;transition:background .15s}
 .planner-drop-zone.drag-over{background:#eff6ff;border:2px dashed var(--blue)}
@@ -1127,6 +1130,15 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
         <option>Juan Jose Edquen</option><option>Roberto Matallana</option>
         <option>Silvia Maldonado</option><option>Talía León</option>
       </select>
+      <select class="sel-inp" id="tg-supervisor" onchange="renderGestion()">
+        <option value="">Todos los supervisores</option>
+        <option>Carlos Morales</option><option>Cynthia Lagos</option>
+        <option>Elyana Arias</option><option>Katia Jacinto</option>
+        <option>Samuel Paz</option><option>Solanch Estrella</option>
+      </select>
+      <select class="sel-inp" id="tg-organo" onchange="renderGestion()" style="max-width:200px">
+        <option value="">Todos los órganos</option>
+      </select>
       <select class="sel-inp" id="tg-estado" onchange="renderGestion()">
         <option value="">Todos los estados</option>
         <option>Pendiente</option><option>Completada</option><option>Cancelada</option>
@@ -1173,6 +1185,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
             <th style="min-width:130px">Expediente</th>
             <th style="min-width:90px">Supervisor</th>
             <th style="min-width:85px">Instancia</th>
+            <th style="min-width:185px">Órgano jurisdiccional</th>
             <th style="min-width:210px">Tipo de tarea</th>
             <th style="min-width:115px">Asignado a</th>
             <th style="min-width:100px">Agendado por</th>
@@ -1198,6 +1211,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
             <th style="min-width:130px">Expediente</th>
             <th style="min-width:90px">Supervisor</th>
             <th style="min-width:85px">Instancia</th>
+            <th style="min-width:185px">Órgano jurisdiccional</th>
             <th style="min-width:210px">Tipo de tarea</th>
             <th style="min-width:115px">Asignado a</th>
             <th style="min-width:100px">Agendado por</th>
@@ -1374,6 +1388,20 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
           <option>Roberto Matallana</option>
           <option>Silvia Maldonado</option>
           <option>Talía León</option>
+        </select>
+      </div>
+    </div>
+    <div class="ag-form-row">
+      <div class="ag-field">
+        <label>Supervisor <span style="color:var(--text4);font-weight:400;text-transform:none;letter-spacing:0">(opcional — se autocompleta)</span></label>
+        <select id="ag-supervisor">
+          <option value="">— Del proceso —</option>
+          <option>Carlos Morales</option>
+          <option>Cynthia Lagos</option>
+          <option>Elyana Arias</option>
+          <option>Katia Jacinto</option>
+          <option>Samuel Paz</option>
+          <option>Solanch Estrella</option>
         </select>
       </div>
     </div>
@@ -2293,6 +2321,7 @@ function switchTab(name,el){
 let rawRT=null,rawTA=null;
 let TAREAS_GESTION_EXCEL=[];
 let DILIGENCIAS_GESTION_EXCEL=[];
+let TAREAS_EXCEL_GESTION_ALL = [];
 function dzOver(e,id){e.preventDefault();document.getElementById(id).classList.add('dragover');}
 function dzOut(id){document.getElementById(id).classList.remove('dragover');}
 function dzDrop(e,id,tipo){e.preventDefault();dzOut(id);const f=e.dataTransfer.files[0];if(f)loadFile({files:[f]},tipo,tipo==='rt'?'st1':'st2');}
@@ -2728,8 +2757,9 @@ function parseFechaTarea(f){
 
 function buildTareaFila(t, clase){
   const proc = DATA.find(r=>r.id===t.nroId);
-  const supervisor = proc?proc.supervisor:'—';
+  const supervisor = t.supervisorManual || (proc?proc.supervisor:'—') || t.supervisor || '—';
   const instancia  = proc?proc.instancia:'—';
+  const organo     = proc?proc.organo:'—';
   const overrides  = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
   const ov = overrides[t.id]||{};
   const cambios = [];
@@ -2752,6 +2782,7 @@ function buildTareaFila(t, clase){
     +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
     +'<td>'+instBadge(instancia)+'</td>'
+    +'<td class="td-d" style="font-size:11px" title="'+esc(organo)+'">'+esc((organo||'—').slice(0,32)+(organo&&organo.length>32?'…':''))+'</td>'
     +'<td title="'+esc(t.tipo)+'">'+esc(t.tipo.replace('Gestión - ','').slice(0,35)+(t.tipo.length>40?'…':''))+'</td>'
     +'<td style="display:flex;align-items:center">'+dot+esc(t.asignado||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
@@ -2766,16 +2797,31 @@ function buildTareaFila(t, clase){
 function renderGestion(){
   const q = (document.getElementById('tg-search').value||'').toLowerCase();
   const resp = document.getElementById('tg-resp').value;
+  const supFil = document.getElementById('tg-supervisor').value;
+  const organoFil = document.getElementById('tg-organo').value;
   const estado = document.getElementById('tg-estado').value;
   const origen = document.getElementById('tg-origen').value;
   const desde = document.getElementById('tg-fecha-desde').value;
   const hasta = document.getElementById('tg-fecha-hasta').value;
 
+  // Poblar select órganos dinámicamente
+  const organoSel = document.getElementById('tg-organo');
+  const organoActual = organoSel.value;
+  const organosUnicos = [...new Set(getAllTareasGestion().map(t=>{
+    const proc = DATA.find(r=>r.id===t.nroId);
+    return proc?proc.organo:'';
+  }).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  organoSel.innerHTML = '<option value="">Todos los órganos</option>'
+    + organosUnicos.map(o=>'<option value="'+esc(o)+'"'+(o===organoActual?' selected':'')+'>'+esc(o.slice(0,45))+'</option>').join('');
+
   const esInterna = t => t.origen === 'portal' && t.agendadoPor && t.agendadoPor !== '—';
 
   let tareas = getAllTareasGestion().filter(t=>{
+    const proc = DATA.find(r=>r.id===t.nroId);
     if(q && !(t.cliente+t.expediente+t.tipo+t.asignado+(t.agendadoPor||'')).toLowerCase().includes(q)) return false;
     if(resp && t.asignado !== resp) return false;
+    if(supFil && (!proc || proc.supervisor !== supFil)) return false;
+    if(organoFil && (!proc || proc.organo !== organoFil)) return false;
     if(estado && t.estado !== estado) return false;
     if(origen){
       if(origen==='ext' && esInterna(t)) return false;
@@ -2803,7 +2849,7 @@ function renderGestion(){
   const sliceExt = externas.slice((tgPage-1)*TG_PAGE, tgPage*TG_PAGE);
   document.getElementById('tg-tbody-ext').innerHTML = sliceExt.length
     ? sliceExt.map(t=>buildTareaFila(t,'tg-origen-ext')).join('')
-    : '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas agendadas por equipos</td></tr>';
+    : '<tr><td colspan="14" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas agendadas por equipos</td></tr>';
   buildPag('tg-pg-ext-info','tg-pg-ext-btns',tgPage,tpExt,p=>{tgPage=p;renderGestion();});
 
   // Tabla internas
@@ -2812,7 +2858,7 @@ function renderGestion(){
   const sliceInt = internas.slice((tgPageInt-1)*TG_PAGE, tgPageInt*TG_PAGE);
   document.getElementById('tg-tbody-int').innerHTML = sliceInt.length
     ? sliceInt.map(t=>buildTareaFila(t,'tg-origen-int')).join('')
-    : '<tr><td colspan="13" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas autoagendadas por Gestión</td></tr>';
+    : '<tr><td colspan="14" style="text-align:center;padding:2rem;color:var(--text4)">Sin tareas autoagendadas por Gestión</td></tr>';
   buildPag('tg-pg-int-info','tg-pg-int-btns',tgPageInt,tpInt,p=>{tgPageInt=p;renderGestion();});
 
   setTimeout(addResizeHandles,0);
@@ -3591,22 +3637,28 @@ let plannerReasignaciones = {}; // {tareaKey: nuevoAsignado}
 
 function plannerToday(){
   const inp = document.getElementById('planner-date');
-  if(inp) inp.value = new Date().toISOString().slice(0,10);
+  const hoy = new Date();
+  if(inp) inp.value = hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
   renderPlanner();
 }
 function plannerNav(d){
   const inp = document.getElementById('planner-date');
   if(!inp) return;
-  const dt = new Date(inp.value || new Date());
+  const rawVal = inp.value || new Date().toISOString().slice(0,10);
+  const dt = new Date(rawVal + 'T12:00:00');
   dt.setDate(dt.getDate() + d * parseInt(document.getElementById('planner-days').value||7));
-  inp.value = dt.toISOString().slice(0,10);
+  // Formatear manualmente como YYYY-MM-DD en hora local para evitar desfase UTC
+  inp.value = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   renderPlanner();
 }
 
 function renderPlanner(){
   const inp   = document.getElementById('planner-date');
   const nDays = parseInt(document.getElementById('planner-days')?.value||7);
-  const base  = new Date(inp?.value || new Date().toISOString().slice(0,10));
+  // Fix: parsear como hora local (T12:00:00) para evitar que UTC medianoche
+  // retroceda un día al convertir a hora local (Peru = UTC-5)
+  const rawVal = inp?.value || new Date().toISOString().slice(0,10);
+  const base   = new Date(rawVal + 'T12:00:00');
   const hoy   = new Date(); hoy.setHours(0,0,0,0);
 
   // Generar array de fechas
@@ -3660,6 +3712,7 @@ function renderPlanner(){
     ...tareasPortal.map(t=>({...t, _src:'portal', _key:'portal_'+t.id})),
     ...tareasExcelGestion
   ];
+  TAREAS_EXCEL_GESTION_ALL = tareasExcelGestion; // guardar para acceso global
 
   // Aplicar reasignaciones del planner
   todas.forEach(t=>{
@@ -3708,23 +3761,26 @@ function renderPlanner(){
         const asigOrig = (t.asignado||'').trim().toLowerCase();
         const reasignada = t._plannerAsig && t._plannerAsig.trim().toLowerCase()!==asigOrig;
         const esOriginal = reasignada && asigOrig===mNorm;
-        const tipo  = t.tipo?(t.tipo.replace('DILIGENCIA - ','').replace('Gestión - ','')).slice(0,22):'—';
-        const tipoLabel = t.tipo?(t.tipo.toUpperCase().startsWith('DILIGENCIA')?'Diligencia':t.tipo.startsWith('Gestión')?'Gestión':t.tipo.slice(0,14)):'—';
-        const hora = t.hora?'<span class="planner-card-hora">'+esc(t.hora)+'</span>':'';
-        const cls = 'planner-card'+(esOriginal?' original':reasignada?' reasignada':'');
-        const bColor = t.tipo&&t.tipo.toUpperCase().startsWith('DILIGENCIA')?'var(--amber)':t.tipo&&t.tipo.startsWith('Gestión')?'var(--green)':'var(--blue)';
+        const esGestion  = t.tipo && (t.tipo.startsWith('Gestión') || t._src==='portal');
+        const tipoFull   = t.tipo ? t.tipo.replace('DILIGENCIA - ','').replace('Gestión - ','') : '—';
+        const tipoLabel  = t.tipo ? (t.tipo.toUpperCase().startsWith('DILIGENCIA') ? 'Diligencia' : t.tipo.startsWith('Gestión') ? 'Gestión' : t.tipo.slice(0,16)) : '—';
+        const hora = t.hora ? '<span class="planner-card-hora">'+esc(t.hora)+'</span>' : '';
+        const cls = 'planner-card'+(esOriginal?' original':reasignada?' reasignada':'')+(esGestion?'':' planner-card-noedit');
+        const bColor = t.tipo && t.tipo.toUpperCase().startsWith('DILIGENCIA') ? 'var(--amber)' : t.tipo && t.tipo.startsWith('Gestión') ? 'var(--green)' : 'var(--blue)';
         const key = t._key;
-        html += '<div class="'+cls+'" draggable="true" '
-          +'ondragstart="onPlannerDragStart(event,\''+key+'\')" '
-          +'ondragend="onPlannerDragEnd(event)" '
-          +'onclick="event.stopPropagation();abrirPlannerModal(\''+key+'\')" '
-          +'style="border-left-color:'+bColor+'" '
-          +'title="'+esc(t.cliente||'')+(esOriginal?' (original)':reasignada?' → '+esc(t._plannerAsig):'')+'"><div class="planner-card-tipo">'
-          +esc(tipoLabel)+(esOriginal?' · original':'')+(reasignada&&!esOriginal?' · reasignada':'')
-          +'</div><div class="planner-card-cliente">'+esc((t.cliente||'—').slice(0,24))+'</div>'
-          +'<div class="planner-card-meta">'+hora+(t.expediente?' · '+esc(t.expediente.slice(-12)):'')+'</div>'
+        const dragAttrs = esGestion
+          ? 'draggable="true" ondragstart="onPlannerDragStart(event,\''+key+'\')" ondragend="onPlannerDragEnd(event)"'
+          : 'draggable="false"';
+        html += '<div class="'+cls+'" '+dragAttrs+' '
+          +'onclick="event.stopPropagation();'+(esGestion ? 'abrirPlannerModal(\''+key+'\')' : '')+'" '
+          +'style="border-left-color:'+bColor+';cursor:'+(esGestion?'grab':'default')+'" '
+          +'title="'+esc(t.cliente||'')+(esOriginal?' (original)':reasignada?' → '+esc(t._plannerAsig):'')+(!esGestion?' · Solo lectura':'')+'">'
+          +'<div class="planner-card-tipo">'+esc(tipoLabel)+(esOriginal?' · original':'')+(reasignada&&!esOriginal?' · reasignada':'')+(esGestion?'':' 🔒')+'</div>'
+          +'<div class="planner-card-cliente">'+esc(t.cliente||'—')+'</div>'
+          +'<div class="planner-card-tipo-full">'+esc(tipoFull)+'</div>'
+          +'<div class="planner-card-meta">'+hora+(t.expediente?' · '+esc(t.expediente):'')+'</div>'
           +(t.asignadoAlt&&t.asignadoAlt!==t.asignado?'<div style="font-size:9px;color:var(--purple)">Alt: '+esc(t.asignadoAlt)+'</div>':'')
-          +'<div style="font-size:9.5px;color:var(--text4);margin-top:2px">'+esc(tipo)+'</div></div>';
+          +'</div>';
       });
       html += '</td>';
     });
@@ -3747,6 +3803,16 @@ function onPlannerDrop(e, fecha, miembro){
   e.preventDefault();
   e.currentTarget.classList.remove('drag-over');
   if(!plannerDragId) return;
+  // Solo permitir reasignar tareas de Gestión (portal_ o excel_ con tipo Gestión)
+  if(plannerDragId.startsWith('excel_')){
+    const nr = parseInt(plannerDragId.replace('excel_',''));
+    const t = (TAREAS_EXCEL_GESTION_ALL||[]).find(x=>x.nrotarea===nr) || DILIGENCIAS_GESTION_EXCEL.find(x=>x.nrotarea===nr);
+    if(t && t.tipo && !t.tipo.startsWith('Gestión')){
+      showToast('⚠ Solo se pueden reasignar tareas de Gestión');
+      plannerDragId = null;
+      return;
+    }
+  }
   // Guardar reasignación
   plannerReasignaciones[plannerDragId] = miembro;
   // Si es tarea del portal, actualizar también en localStorage
@@ -3990,7 +4056,17 @@ function guardarPlannerTarea(){
   const asignado= ptGetMember();
   const fecha   = fechaRaw ? fechaRaw.split('-').reverse().join('/') : '';
 
-  if(!tipo){ showModalError('Selecciona un tipo de tarea.'); return; }
+  // Si es tarea Excel (tiene data-ex-nrotarea)
+  const exNr = document.getElementById('modalPlannerTarea').dataset.exNrotarea;
+  if(exNr && !ptTareaId){
+    localStorage.setItem('ptarea_notas_'+exNr, JSON.stringify({notas}));
+    showToast('✓ Notas guardadas');
+    document.getElementById('modalPlannerTarea').classList.remove('show');
+    document.getElementById('modalPlannerTarea').dataset.exNrotarea = '';
+    ptProcSelId = null;
+    renderPlanner();
+    return;
+  }
 
   // Buscar proceso
   const procId = ptProcSelId || (ptTareaId ? (getAllTareasGestion().find(t=>t.id===ptTareaId)||{}).nroId : 0);
@@ -4038,12 +4114,46 @@ function guardarPlannerTarea(){
 function abrirPlannerModal(key){
   if(key.startsWith('portal_')){
     abrirPlannerEditar(key);
-  } else {
-    const nr = parseInt(key.replace('excel_',''));
-    const src = window._GCAL_TAREAS||DILIGENCIAS_GESTION_EXCEL;
-    const gi = src.findIndex(x=>x.nrotarea===nr);
-    if(gi>=0) abrirDiligencia(gi);
+    return;
   }
+  const nr = parseInt(key.replace('excel_',''));
+  // Buscar primero en diligencias (para abrir modal enriquecido)
+  const src = window._GCAL_TAREAS || DILIGENCIAS_GESTION_EXCEL;
+  const gi  = src.findIndex(x=>x.nrotarea===nr);
+  if(gi>=0){
+    abrirDiligencia(gi);
+    return;
+  }
+  // Si no es diligencia, buscar en todas las tareas Excel del equipo Gestión
+  const t = TAREAS_EXCEL_GESTION_ALL.find(x=>x.nrotarea===nr);
+  if(t) abrirPlannerTareaExcel(t);
+}
+
+function abrirPlannerTareaExcel(t){
+  // Mostrar modal de detalle de tarea Excel con opción de notas
+  document.getElementById('pt-title').textContent = t.tipo||'Tarea';
+  document.getElementById('pt-sub').textContent = '#'+(t.nrotarea||'—')+' — '+(t.cliente||'—');
+  document.getElementById('pt-proc-search').value = t.cliente||'';
+  document.getElementById('pt-proc-id').textContent = t.nroId?'#'+t.nroId:'';
+  // Buscar tipo más cercano
+  const tipoSel = Array.from(document.getElementById('pt-tipo').options)
+    .find(o=>o.value && t.tipo && t.tipo.toLowerCase().includes(o.value.toLowerCase().replace('gestión - ','')));
+  document.getElementById('pt-tipo').value = tipoSel ? tipoSel.value : '';
+  document.getElementById('pt-estado').value = t.estado||'Pendiente';
+  document.getElementById('pt-fecha').value = t.fecha ? t.fecha.split('/').reverse().join('-') : '';
+  document.getElementById('pt-hora').value = t.hora||'';
+  // Notas guardadas en localStorage
+  const saved = JSON.parse(localStorage.getItem('ptarea_notas_'+t.nrotarea)||'{}');
+  document.getElementById('pt-notas').value = saved.notas||t.notas||'';
+  ptBuildMembers(t.asignado||'');
+  const adjSaved = JSON.parse(localStorage.getItem('ptarea_adj_ex_'+t.nrotarea)||'[]');
+  renderPtAdjuntos(adjSaved, 'ex_'+t.nrotarea);
+  // Marcar como tarea Excel (no crear nueva, solo notas+adjuntos)
+  ptTareaId = null;
+  ptProcSelId = t.nroId||null;
+  // Guardar referencia para el save
+  document.getElementById('modalPlannerTarea').dataset.exNrotarea = t.nrotarea||'';
+  document.getElementById('modalPlannerTarea').classList.add('show');
 }
 
 // ── RESIZE COLUMNAS ────────────────────────────────
@@ -4115,7 +4225,7 @@ let agendarProcesoId = null;
 function abrirModalAgendar(id){
   agendarProcesoId = id || null;
   // Limpiar form
-  ['ag-tipo','ag-asignado','ag-fecha','ag-hora','ag-agendadopor','ag-obs'].forEach(i=>{
+  ['ag-tipo','ag-asignado','ag-supervisor','ag-fecha','ag-hora','ag-agendadopor','ag-obs'].forEach(i=>{
     const el=document.getElementById(i);
     if(el) el.value='';
   });
@@ -4289,6 +4399,7 @@ function confirmarAgendarTarea(){
   const agend  = agendRaw ? agendRaw.split(':').slice(1).join(':') : '';
   const origen = agendRaw.startsWith('int:') ? 'portal' : agendRaw.startsWith('ext:') ? 'excel' : 'portal';
   const obs    = document.getElementById('ag-obs').value.trim();
+  const supSel = document.getElementById('ag-supervisor').value; // puede ser '' = usar el del proceso
 
   if(!agendarProcesoId){
     const idRaw = parseInt(document.getElementById('ag-id').value||'0');
@@ -4307,7 +4418,8 @@ function confirmarAgendarTarea(){
     agendadoPor: agend||'—',
     fecha: fecha ? fecha.split('-').reverse().join('/') : '',
     hora: hora||'',
-    estado: 'Pendiente', obs, origen
+    estado: 'Pendiente', obs, origen,
+    supervisorManual: supSel||''
   });
 
   const arr = loadTareasGestion();
