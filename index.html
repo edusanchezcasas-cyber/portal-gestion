@@ -2377,7 +2377,11 @@ function renderSens(){
 function updateStats(){
   document.getElementById('st-total').textContent=DATA.length.toLocaleString();
   document.getElementById('st-sent').textContent=DATA.filter(r=>r.porSentenciar).length.toLocaleString();
-  document.getElementById('st-dili').textContent=DATA.filter(r=>r.proxDiligencia).length.toLocaleString();
+  const hoyStatStr=(()=>{const h=new Date();return h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0');})();
+  document.getElementById('st-dili').textContent=DATA.filter(r=>{
+    if(!r.proxDiligencia||!r.proxDiliFecha)return false;
+    return r.proxDiliFecha.split('/').reverse().join('-')>=hoyStatStr;
+  }).length.toLocaleString();
   document.getElementById('st-sens').textContent=DATA.filter(r=>r.sensible).length.toLocaleString();
   document.getElementById('st-ej').textContent=DATA.filter(r=>r.situacion==='EJECUCION').length.toLocaleString();
   document.getElementById('mfb-s-cnt').textContent   =DATA.filter(r=>r.porSentenciar).length.toLocaleString();
@@ -2586,8 +2590,8 @@ function procesarExcel(){
         return;
       }
 
-      // Solo audiencias reales entran en taDili y taAnt (excluir oficios, notificaciones, etc.)
-      if(!esAudienciaReal) return;
+      // taDili recibe todos los tipos (incluyendo oficios) para el Planner
+      // taAnt solo captura audiencias reales
 
       const existing=taDili[np];
       if(!existing){
@@ -2627,11 +2631,13 @@ function procesarExcel(){
       if(!id)return null;
       const sid=String(id);
       const tn=taNoDili[sid], td=taDili[sid];
-
-      const dT=td?cl(td['tipo']).replace(/^DILIGENCIA - /i,''):'';
-      const dF=td?fmtF(td['fecha']):'';
-      const dH=td?fmtH(td['hora']||''):'';
-      const dID=td?Number(td['nrotarea']||0):0;
+      // proxDiligencia solo muestra audiencias reales (no oficios ni notificaciones)
+      const tdTipo = td ? cl(td['tipo']||'').toUpperCase() : '';
+      const tdEsAudiencia = tdTipo.includes('AUDIENCIA');
+      const dT=tdEsAudiencia?cl(td['tipo']).replace(/^DILIGENCIA - /i,''):'';
+      const dF=tdEsAudiencia?fmtF(td['fecha']):'';
+      const dH=tdEsAudiencia?fmtH(td['hora']||''):'';
+      const dID=tdEsAudiencia?Number(td['nrotarea']||0):0;
 
       const _pt=tn?cl(tn['tipo']):'';
       const _pf=tn?fmtF(tn['fecha']):'';
@@ -3817,10 +3823,10 @@ function renderPlanner(){
   const base   = new Date(rawVal + 'T12:00:00');
   const hoy   = new Date(); hoy.setHours(0,0,0,0);
 
-  // Generar array de fechas
+  // Generar array de fechas — solo desde hoy en adelante
   const dias = Array.from({length:nDays},(_,i)=>{
     const d = new Date(base); d.setDate(base.getDate()+i); return d;
-  });
+  }).filter(d=>d>=hoy);
 
   // Etiqueta rango
   const lbl = document.getElementById('planner-lbl');
@@ -3834,11 +3840,11 @@ function renderPlanner(){
   const NOMBRES_GESTION_SET = new Set(['arturo trelles','carlos morales','juan jose edquen','juan josé edquen','roberto matallana','silvia maldonado','talía león','talia leon']);
   const tareasExcelGestion = rawTA ? rawTA
     .filter(r=>{
-      const est     = String(r['estadotarea']||'').trim();
+      const est     = String(r['estadotarea']||'').trim().toLowerCase();
       const usuario = String(r['usuario']||'').trim().toLowerCase();
       const alterno = String(r['asignado_alterno']||'').trim().toLowerCase();
-      // Solo Pendientes, con usuario O asignado_alterno en equipo Gestión
-      return est==='Pendiente' && (NOMBRES_GESTION_SET.has(usuario) || NOMBRES_GESTION_SET.has(alterno)) && r['fecha'];
+      // Pendientes del equipo Gestión con fecha asignada
+      return (est==='pendiente') && (NOMBRES_GESTION_SET.has(usuario) || NOMBRES_GESTION_SET.has(alterno)) && r['fecha'];
     })
     .map(r=>{
       const cl=v=>String(v==null?'':v).trim();
