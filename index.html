@@ -3727,8 +3727,11 @@ function plannerNav(d){
 function renderPlanner(){
   const inp   = document.getElementById('planner-date');
   const nDays = parseInt(document.getElementById('planner-days')?.value||7);
-  const base  = new Date(inp?.value || new Date().toISOString().slice(0,10));
-  const hoy   = new Date(); hoy.setHours(0,0,0,0);
+  // Parsear fecha local sin UTC offset
+  const rawVal = inp?.value || new Date().toISOString().slice(0,10);
+  const [by,bm,bd] = rawVal.split('-').map(Number);
+  const base = new Date(by, bm-1, bd);
+  const hoy  = new Date(); hoy.setHours(0,0,0,0);
 
   // Generar array de fechas
   const dias = Array.from({length:nDays},(_,i)=>{
@@ -3755,7 +3758,24 @@ function renderPlanner(){
     })
     .map(r=>{
       const cl=v=>String(v==null?'':v).trim();
-      const fmtF=v=>{if(!v)return '';if(v instanceof Date){return String(v.getDate()).padStart(2,'0')+'/'+String(v.getMonth()+1).padStart(2,'0')+'/'+v.getFullYear();}const s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s)){const p=s.slice(0,10).split('-');return p[2]+'/'+p[1]+'/'+p[0];}return s.slice(0,10);};
+      const fmtF=v=>{
+        if(!v) return '';
+        if(v instanceof Date){
+          // Usar UTC para evitar desfase Lima (UTC-5)
+          const dd=String(v.getUTCDate()).padStart(2,'0');
+          const mm=String(v.getUTCMonth()+1).padStart(2,'0');
+          const yy=v.getUTCFullYear();
+          return dd+'/'+mm+'/'+yy;
+        }
+        if(typeof v==='number'){
+          const d=new Date(Math.round((v-25569)*86400*1000));
+          return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear();
+        }
+        const s=String(v).trim();
+        if(/^\d{4}-\d{2}-\d{2}/.test(s)){const p=s.slice(0,10).split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+        if(/^\d{2}\/\d{2}\/\d{4}/.test(s)) return s.slice(0,10);
+        return s.slice(0,10);
+      };
       return {
         nroId:          Number(r['nroproceso']||0),
         nrotarea:       Number(r['nrotarea']||0),
@@ -3781,7 +3801,9 @@ function renderPlanner(){
     ...tareasPortal.map(t=>({...t, _src:'portal', _key:'portal_'+t.id})),
     ...tareasExcelGestion
   ];
-  TAREAS_EXCEL_GESTION_ALL = tareasExcelGestion; // guardar para acceso global
+  TAREAS_EXCEL_GESTION_ALL = tareasExcelGestion;
+  console.log('Planner: portal='+tareasPortal.length+' excel='+tareasExcelGestion.length+' total='+todas.length);
+  if(tareasExcelGestion.length>0) console.log('Muestra fechas:', tareasExcelGestion.slice(0,3).map(t=>JSON.stringify({f:t.fecha,a:t.asignado,tipo:t.tipo?.slice(0,20)})));
 
   // Aplicar reasignaciones del planner
   todas.forEach(t=>{
@@ -4482,6 +4504,20 @@ function renderFavoritos(){
         +campos.map(c=>'<div class="fav-card-field"><label>'+esc(c.l)+'</label><span>'+esc((c.v||'—').slice(0,40))+'</span></div>').join('')
         +'</div>' : '';
 
+      const historial = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
+      const histHtml = historial.length
+        ? '<div style="max-height:120px;overflow-y:auto;margin-bottom:.5rem;display:flex;flex-direction:column;gap:5px">'
+          +historial.map((h,i)=>`
+            <div style="padding:6px 10px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid #f59e0b;font-size:11.5px">
+              <div style="color:var(--text);line-height:1.5">${esc(h.texto)}</div>
+              <div style="font-size:10px;color:var(--text4);margin-top:2px;display:flex;justify-content:space-between">
+                <span>${esc(h.autor||'—')} · ${esc(h.fecha||'')}</span>
+                <button onclick="borrarFavComentario(${f.id},${i})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button>
+              </div>
+            </div>`).join('')
+          +'</div>'
+        : '<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios aún.</div>';
+
       return '<div class="fav-card">'
         +'<div class="fav-card-header">'
           +'<span class="fav-star activo" onclick="toggleFav('+f.id+')" title="Quitar favorito" style="flex-shrink:0">⭐</span>'
@@ -4493,14 +4529,16 @@ function renderFavoritos(){
           +'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+f.id+'/" target="_blank" style="font-size:11px;flex-shrink:0">#'+f.id+'</a>'
         +'</div>'
         +gridHtml
-        +'<div style="margin-bottom:.5rem">'
-          +'<textarea placeholder="Observaciones sobre este proceso..." '
-            +'style="width:100%;min-height:50px;padding:7px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;box-sizing:border-box;resize:vertical;color:var(--text)" '
-            +'id="fav-obs-'+f.id+'" onchange="saveFavObs('+f.id+',this.value)">'+esc(saved.obs||'')+'</textarea>'
+        +'<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em">💬 Comentarios</div>'
+        +histHtml
+        +'<div style="display:flex;gap:6px;margin-bottom:.75rem">'
+          +'<textarea id="fav-new-obs-'+f.id+'" placeholder="Escribe un comentario o observación... puedes usar @nombre para mencionar" '
+            +'style="flex:1;min-height:50px;padding:7px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;color:var(--text);box-sizing:border-box"></textarea>'
         +'</div>'
         +'<div class="fav-card-actions">'
+          +'<button class="btn btn-dark" onclick="guardarFavComentario('+f.id+')" style="font-size:11px">💾 Guardar comentario</button>'
           +'<button class="btn-sm" onclick="abrirModalAgendar('+f.id+')" style="font-size:11px">+ Agendar tarea</button>'
-          +'<button class="btn-sm" onclick="abrirObsProc('+f.id+')" style="font-size:11px">💬 Observaciones</button>'
+          +'<button class="btn-sm" onclick="abrirObsProc('+f.id+')" style="font-size:11px">📋 Panel CID</button>'
         +'</div>'
         +'</div>';
     }).join('');
@@ -4518,6 +4556,30 @@ function renderFavoritos(){
 
 function saveFavObs(id, texto){
   localStorage.setItem('fav_obs_'+id, JSON.stringify({obs:texto}));
+}
+
+function guardarFavComentario(id){
+  const ta = document.getElementById('fav-new-obs-'+id);
+  if(!ta) return;
+  const texto = ta.value.trim();
+  if(!texto){ showToast('Escribe un comentario antes de guardar'); return; }
+  const hist = JSON.parse(localStorage.getItem('fav_hist_'+id)||'[]');
+  hist.unshift({
+    texto,
+    autor: '—',
+    fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  });
+  localStorage.setItem('fav_hist_'+id, JSON.stringify(hist));
+  ta.value = '';
+  renderFavoritos();
+  showToast('✓ Comentario guardado');
+}
+
+function borrarFavComentario(id, idx){
+  const hist = JSON.parse(localStorage.getItem('fav_hist_'+id)||'[]');
+  hist.splice(idx,1);
+  localStorage.setItem('fav_hist_'+id, JSON.stringify(hist));
+  renderFavoritos();
 }
 
 // ── TAGS ─────────────────────────────────────────────────────
