@@ -442,15 +442,16 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .planner-date-col.hoy{background:#eff6ff!important;color:var(--blue);font-weight:700}
 /* Celda esquina superior izquierda: sticky top+left */
 .planner-table thead th:first-child{position:sticky;top:0;left:0;z-index:5;background:var(--dark)}
-.planner-card{background:#f8fafc;border:1px solid var(--gray-b);border-left:3px solid var(--blue);border-radius:5px;padding:5px 8px;margin-bottom:4px;cursor:grab;transition:all .15s;user-select:none}
-.planner-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);transform:translateY(-1px)}
+.planner-card{background:#f8fafc;border:1px solid var(--gray-b);border-left:3px solid var(--blue);border-radius:5px;padding:6px 9px;margin-bottom:5px;cursor:grab;transition:all .15s;user-select:none;position:relative}
+.planner-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.12);transform:translateY(-1px);z-index:2}
 .planner-card.dragging{opacity:.4;cursor:grabbing}
 .planner-card.reasignada{border-left-color:var(--amber);background:#fffbeb}
 .planner-card.original{border-left-color:var(--gray-b);background:var(--gray-l);opacity:.6}
 .planner-card-tipo{font-size:9.5px;font-weight:600;color:var(--text4);text-transform:uppercase;margin-bottom:2px}
-.planner-card-cliente{font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
-.planner-card-meta{font-size:10px;color:var(--text3);margin-top:2px}
-.planner-card-hora{font-size:10px;font-weight:600;color:var(--amber)}
+.planner-card-cliente{font-size:11.5px;font-weight:700;color:var(--text);word-break:break-word;line-height:1.3;margin-bottom:2px}
+.planner-card-meta{font-size:10.5px;color:var(--text3);margin-top:2px}
+.planner-card-hora{font-size:10.5px;font-weight:600;color:var(--amber)}
+.planner-card-tipo-full{font-size:10px;color:var(--text3);margin-top:2px;word-break:break-word;line-height:1.3}
 .planner-drop-zone{min-height:40px;border-radius:4px;transition:background .15s}
 .planner-drop-zone.drag-over{background:#eff6ff;border:2px dashed var(--blue)}
 /* Equipos */
@@ -884,6 +885,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       <span id="pg-info" style="white-space:nowrap;font-size:11px;color:var(--text3)"></span>
       <div class="pg-btns" id="pg-btns" style="display:flex;gap:2px"></div>
     </div>
+    <button class="btn-sm" onclick="exportarVistaActual()" style="margin-left:4px;font-size:11px;white-space:nowrap">↓ Exportar vista</button>
   </div>
 
   <!-- Chips filtros activos -->
@@ -1080,6 +1082,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       <span id="aud-pg-info" style="white-space:nowrap;font-size:11px;color:var(--text3)"></span>
       <div class="pg-btns" id="aud-pg-btns" style="display:flex;gap:2px"></div>
     </div>
+    <button class="btn-sm" onclick="exportarVistaActual()" style="font-size:11px;white-space:nowrap">↓ Exportar vista</button>
     <!-- chips activos audiencias -->
     <div class="active-filters" id="active-filters-aud"></div>
   </div>
@@ -3333,20 +3336,59 @@ function confirmarBulkAgendar(){
   showToast('✓ '+ids.length+' tarea(s) agendada(s) correctamente');
 }
 
+function procToRow(r){
+  return {
+    ID: r.id,
+    Cliente: r.cliente,
+    Contraparte: r.contraparte,
+    Expediente: r.expediente,
+    Supervisor: r.supervisor,
+    Responsable: r.responsable,
+    Instancia: r.instancia,
+    Situación: r.situacion,
+    Relevancia: r.relevancia,
+    Pacto: r.pacto,
+    Distrito: r.distrito,
+    Órgano: r.organo,
+    Bitácora: r.bitacora,
+    'Especialista legal': r.especialista,
+    'Próxima tarea': r.proxTarea,
+    'Fecha próxima tarea': r.proxTareaFecha,
+    'Próxima audiencia': r.proxDiligencia,
+    'Fecha próxima audiencia': r.proxDiliFecha,
+    'ID Tarea': r.proxDiliId||'',
+    'Días sin diligencia': r.ultimaDiliFecha?(Math.round((new Date()-new Date(r.ultimaDiliFecha.split('/').reverse().join('-')))/(1000*60*60*24))):'',
+  };
+}
+
 function bulkExportar(tab){
   const ids = [...selectedRows[tab]];
-  if(!ids.length) return;
-  const rows = DATA.filter(r=>ids.includes(r.id));
-  const ws = XLSX.utils.json_to_sheet(rows.map(r=>({
-    ID:r.id, Cliente:r.cliente, Contraparte:r.contraparte,
-    Expediente:r.expediente, Supervisor:r.supervisor,
-    Responsable:r.responsable, Instancia:r.instancia,
-    Situacion:r.situacion, Distrito:r.distrito,
-    'Órgano':r.organo, Bitácora:r.bitacora
-  })));
+  if(!ids.length){ showToast('Selecciona al menos un proceso'); return; }
+  const rows = (tab==='rep'?DATA:DATA.filter(r=>r.proxDiligencia)).filter(r=>ids.includes(r.id));
+  const ws = XLSX.utils.json_to_sheet(rows.map(procToRow));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Selección');
-  XLSX.writeFile(wb, 'seleccion_portal.xlsx');
+  XLSX.writeFile(wb, 'seleccion_portal_gestion.xlsx');
+  showToast('✓ Exportado: '+rows.length+' proceso(s)');
+}
+
+function exportarVistaActual(){
+  // Exporta todos los registros filtrados actualmente (no solo los seleccionados)
+  const tab = document.querySelector('.tab-content.active')?.id?.replace('tab-','');
+  let rows = [];
+  let nombre = 'reporte';
+  if(tab==='audiencias'){
+    rows = _filteredAud;
+    nombre = 'proximas_audiencias';
+  } else {
+    rows = _filteredRep;
+    nombre = 'reporte_total';
+  }
+  if(!rows.length){ showToast('No hay datos para exportar'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows.map(procToRow));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Vista actual');
+  XLSX.writeFile(wb, nombre+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('✓ Exportado: '+rows.length+' proceso(s)');
 }
 
@@ -3934,13 +3976,13 @@ function renderPlanner(){
           +'ondragstart="onPlannerDragStart(event,\''+key+'\')" '
           +'ondragend="onPlannerDragEnd(event)" '
           +'onclick="event.stopPropagation();abrirPlannerModal(\''+key+'\')" '
-          +'style="border-left-color:'+bColor+'" '
-          +'title="'+esc(t.cliente||'')+(esOriginal?' (original)':reasignada?' → '+esc(t._plannerAsig):'')+'"><div class="planner-card-tipo">'
-          +esc(tipoLabel)+(esOriginal?' · original':'')+(reasignada&&!esOriginal?' · reasignada':'')
-          +'</div><div class="planner-card-cliente">'+esc((t.cliente||'—').slice(0,24))+'</div>'
-          +'<div class="planner-card-meta">'+hora+(t.expediente?' · '+esc(t.expediente.slice(-12)):'')+'</div>'
-          +'<div class="planner-card-hours">⏱ '+horasLabel+'<span style="font-size:9px;color:var(--text4);margin-left:2px">'+esc(t.tipo?t.tipo.slice(0,18):'')+'</span></div>'
-          +(t.asignadoAlt&&t.asignadoAlt!==t.asignado?'<div style="font-size:9px;color:var(--purple)">Alt: '+esc(t.asignadoAlt)+'</div>':'')
+          +'style="border-left-color:'+bColor+'">'
+          +'<div class="planner-card-tipo">'+esc(tipoLabel)+(esOriginal?' · original':'')+(reasignada&&!esOriginal?' · reasignada':'')+'</div>'
+          +'<div class="planner-card-cliente">'+esc(t.cliente||'—')+'</div>'
+          +'<div class="planner-card-tipo-full">'+esc(t.tipo||'')+'</div>'
+          +'<div class="planner-card-meta">'+(t.hora?'<span class="planner-card-hora">'+esc(t.hora)+'</span> · ':'')+(t.expediente?esc(t.expediente):'')+'</div>'
+          +'<div class="planner-card-hours">⏱ '+horasLabel+'</div>'
+          +(t.asignadoAlt&&t.asignadoAlt!==t.asignado?'<div style="font-size:9px;color:var(--purple);margin-top:2px">Alt: '+esc(t.asignadoAlt)+'</div>':'')
           +'</div>';
       });
 
