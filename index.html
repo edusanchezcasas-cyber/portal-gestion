@@ -524,6 +524,14 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .planner-cell-add{opacity:0;transition:opacity .15s;font-size:11px;color:var(--text4);text-align:center;padding:4px;cursor:pointer;border:1px dashed transparent;border-radius:4px;width:100%}
 .planner-drop-zone:hover .planner-cell-add{opacity:1;border-color:var(--gray-b)}
 .planner-cell-add:hover{background:var(--gray-l);color:var(--blue)!important;border-color:var(--blue)!important}
+/* ── APROBACIÓN DE TAREAS ── */
+.pp-tipo-aprobacion{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pp-btn-apro{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}.pp-btn-apro:hover{background:#dcfce7}
+.pp-btn-rech{background:#fef2f2;color:#dc2626;border-color:#fecaca}.pp-btn-rech:hover{background:#fee2e2}
+.pp-apro-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600}
+.pp-apro-pend{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pp-apro-ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.pp-apro-rech{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
 /* ── PANEL PARALEGAL CARDS ── */
 .pp-card:hover{border-color:#cbd5e1}
 .pp-card.atendida{opacity:.55;background:var(--gray-l)}
@@ -751,18 +759,9 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       <span>⚖</span>
       <div style="text-align:left">
         <div style="font-size:12px;font-weight:600">Procesos por sentenciar</div>
-        <div style="font-size:10.5px;opacity:.65;margin-top:1px">Bitácora: Pendiente de lectura de sentencia</div>
+        <div style="font-size:10.5px;opacity:.65;margin-top:1px">Lectura pendiente · Nueva sentencia</div>
       </div>
       <span class="mfb-cnt" id="mfb-s-cnt">—</span>
-    </button>
-
-    <button class="mfb mfb-s" id="mfb-ns" onclick="toggleMF('nsent')" style="--mfb-color:var(--purple)">
-      <span>📝</span>
-      <div style="text-align:left">
-        <div style="font-size:12px;font-weight:600">Pendiente nueva sentencia</div>
-        <div style="font-size:10.5px;opacity:.65;margin-top:1px">Bitácora: Pendiente de emitir nueva sentencia</div>
-      </div>
-      <span class="mfb-cnt" id="mfb-ns-cnt">—</span>
     </button>
 
     <button class="mfb mfb-s" id="mfb-adm" onclick="toggleMF('adm')" style="--mfb-color:var(--blue)">
@@ -1371,7 +1370,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 <div class="overlay" id="modalAgendar" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="ag-modal">
     <div style="font-size:16px;font-weight:600;margin-bottom:4px">Agendar tarea de gestión</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:1rem">Solo visible para el equipo Gestión</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:1rem" id="ag-modal-sub">Requiere aprobación del supervisor del equipo</div>
     <!-- Fila ID — solo visible cuando se abre desde toolbar (sin proceso preseleccionado) -->
     <div id="ag-id-row" class="ag-form-row full" style="display:none;margin-bottom:.85rem">
       <div class="ag-field">
@@ -1395,6 +1394,29 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       </div>
     </div>
     <div class="ag-proceso-info" id="ag-info" style="display:none">—</div>
+    <div class="ag-form-row">
+      <div class="ag-field">
+        <label>Solicitado por <span style="color:var(--red)">*</span></label>
+        <select id="ag-solicitante">
+          <option value="">Seleccionar abogado/responsable...</option>
+          <optgroup label="Supervisores">
+            <option value="Elyana Arias|sup">Elyana Arias (Supervisora)</option>
+            <option value="Solanch Estrella|sup">Solanch Estrella (Supervisora)</option>
+            <option value="Samuel Paz|sup">Samuel Paz (Supervisor)</option>
+            <option value="Carlos Morales|sup">Carlos Morales (Supervisor)</option>
+            <option value="Cynthia Lagos|sup">Cynthia Lagos (Supervisora)</option>
+            <option value="Katia Jacinto|sup">Katia Jacinto (Supervisora)</option>
+          </optgroup>
+          <optgroup label="Equipo Gestión">
+            <option value="Roberto Matallana|gest">Roberto Matallana</option>
+            <option value="Arturo Trelles|gest">Arturo Trelles</option>
+            <option value="Silvia Maldonado|gest">Silvia Maldonado</option>
+            <option value="Carlos Morales|gest">Carlos Morales</option>
+            <option value="Juan Jose Edquen|gest">Juan Jose Edquen</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
     <div class="ag-form-row">
       <div class="ag-field">
         <label>Tipo de tarea</label>
@@ -2120,8 +2142,7 @@ function getFiltered(){
     if(q&&!(r.cliente+r.contraparte+r.expediente+r.responsable+r.organo+r.especialista+r.bitacora+r.proxTarea).toLowerCase().includes(q))return false;
     if(sup&&r.supervisor!==sup)return false;
     if(dist&&r.distrito!==dist)return false;
-    if(mf==='sent' &&!r.porSentenciar)    return false;
-    if(mf==='nsent'&&!r.porNuevaSentencia)return false;
+    if(mf==='sent' &&!r.porSentenciar&&!r.porNuevaSentencia)return false;
     if(mf==='adm'  &&!r.porAdmitir)       return false;
     if(mf==='arch' &&!r.porArchivo)        return false;
     if(mf==='dili'&&!r.proxDiligencia)return false;
@@ -2373,14 +2394,14 @@ function renderSens(){
 
 function updateStats(){
   document.getElementById('st-total').textContent=DATA.length.toLocaleString();
-  document.getElementById('st-sent').textContent=DATA.filter(r=>r.porSentenciar).length.toLocaleString();
+  document.getElementById('st-sent').textContent=DATA.filter(r=>r.porSentenciar||r.porNuevaSentencia).length.toLocaleString();
   document.getElementById('st-dili').textContent=DATA.filter(r=>r.proxDiligencia).length.toLocaleString();
   document.getElementById('st-sens').textContent=DATA.filter(r=>r.sensible).length.toLocaleString();
   document.getElementById('st-ej').textContent=DATA.filter(r=>r.situacion==='EJECUCION').length.toLocaleString();
-  document.getElementById('mfb-s-cnt').textContent   =DATA.filter(r=>r.porSentenciar).length.toLocaleString();
-  document.getElementById('mfb-ns-cnt').textContent  =DATA.filter(r=>r.porNuevaSentencia).length.toLocaleString();
-  document.getElementById('mfb-adm-cnt').textContent =DATA.filter(r=>r.porAdmitir).length.toLocaleString();
-  document.getElementById('mfb-arch-cnt').textContent=DATA.filter(r=>r.porArchivo).length.toLocaleString();
+  const porSentTotal = DATA.filter(r=>r.porSentenciar||r.porNuevaSentencia).length;
+  document.getElementById('mfb-s-cnt').textContent    = porSentTotal.toLocaleString();
+  document.getElementById('mfb-adm-cnt').textContent  = DATA.filter(r=>r.porAdmitir).length.toLocaleString();
+  document.getElementById('mfb-arch-cnt').textContent = DATA.filter(r=>r.porArchivo).length.toLocaleString();
 }
 
 function buildPag(infoId,btnsId,cur,total,cb){
@@ -2400,7 +2421,6 @@ function buildPag(infoId,btnsId,cur,total,cb){
 function toggleMF(f){
   mf=mf===f?'':f;page=1;
   document.getElementById('mfb-s').className   ='mfb mfb-s'+(mf==='sent' ?' active':'');
-  document.getElementById('mfb-ns').className  ='mfb mfb-s'+(mf==='nsent'?' active':'');
   document.getElementById('mfb-adm').className ='mfb mfb-s'+(mf==='adm'  ?' active':'');
   document.getElementById('mfb-arch').className='mfb mfb-s'+(mf==='arch' ?' active':'');
   render();
@@ -2891,6 +2911,10 @@ function buildTareaFila(t, clase){
   if(ov.estado && ov.estado!==t.estado) cambios.push(ov.estado);
   const estadoBadge = t.estado==='Pendiente'
     ?'<span class="badge badge-estado-pend">Pend.</span>'
+    :t.estado==='Pendiente aprobación'
+    ?'<span class="badge" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-size:10px">⏳ Aprobación</span>'
+    :t.estado==='Rechazada'
+    ?'<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-size:10px">✗ Rechazada</span>'
     :t.estado==='Completada'
     ?'<span class="badge badge-estado-done">OK</span>'
     :'<span class="badge badge-estado-canc">Canc.</span>';
@@ -4563,6 +4587,43 @@ function initAllMentions(){
   });
 }
 
+// ── APROBACIÓN DE TAREAS ─────────────────────────────────────
+function aprobarTarea(ppId, tareaId){
+  // Cambiar estado de la tarea a Pendiente
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===tareaId);
+  if(idx>=0){
+    arr[idx].estado = 'Pendiente';
+    arr[idx].aprobadaEn = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    saveTareasGestion(arr);
+  }
+  // Marcar entrada del panel como atendida
+  marcarPPAtendida(ppId, true);
+  // Actualizar estado en pp_all
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  const pidx = all.findIndex(e=>e.id===ppId);
+  if(pidx>=0){ all[pidx].estado='aprobada'; all[pidx].atendida=true; localStorage.setItem('pp_all',JSON.stringify(all)); }
+  renderGestion(); renderParalegal();
+  if(typeof gestionView!=='undefined'&&gestionView==='planner') renderPlanner();
+  showToast('✓ Tarea aprobada y enviada a Gestión');
+}
+
+function rechazarTarea(ppId, tareaId){
+  // Cambiar estado de la tarea a Rechazada
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===tareaId);
+  if(idx>=0){
+    arr[idx].estado = 'Rechazada';
+    saveTareasGestion(arr);
+  }
+  // Actualizar estado en pp_all
+  const all = JSON.parse(localStorage.getItem('pp_all')||'[]');
+  const pidx = all.findIndex(e=>e.id===ppId);
+  if(pidx>=0){ all[pidx].estado='rechazada'; all[pidx].atendida=true; localStorage.setItem('pp_all',JSON.stringify(all)); }
+  renderGestion(); renderParalegal();
+  showToast('✗ Tarea rechazada');
+}
+
 // ── FAVORITOS ────────────────────────────────────────────────
 function getFavs(){ return JSON.parse(localStorage.getItem('fav_procs')||'{}'); }
 function saveFavs(o){ localStorage.setItem('fav_procs',JSON.stringify(o)); }
@@ -5062,33 +5123,45 @@ function buildTareaDesdeProc(id, proc, overrides){
 }
 
 function confirmarAgendarTarea(){
-  const tipo   = document.getElementById('ag-tipo').value;
-  const asig   = document.getElementById('ag-asignado').value;
-  const fecha  = document.getElementById('ag-fecha').value;
-  const hora   = document.getElementById('ag-hora').value;
+  const tipo     = document.getElementById('ag-tipo').value;
+  const asig     = document.getElementById('ag-asignado').value;
+  const fecha    = document.getElementById('ag-fecha').value;
+  const hora     = document.getElementById('ag-hora').value;
   const agendRaw = document.getElementById('ag-agendadopor').value;
-  const agend  = agendRaw ? agendRaw.split(':').slice(1).join(':') : '';
-  const origen = agendRaw.startsWith('int:') ? 'portal' : agendRaw.startsWith('ext:') ? 'excel' : 'portal';
-  const obs    = document.getElementById('ag-obs').value.trim();
+  const agend    = agendRaw ? agendRaw.split(':').slice(1).join(':') : '';
+  const origen   = agendRaw.startsWith('int:') ? 'portal' : agendRaw.startsWith('ext:') ? 'excel' : 'portal';
+  const obs      = document.getElementById('ag-obs').value.trim();
+  const solRaw   = document.getElementById('ag-solicitante').value;
+  const solNombre = solRaw ? solRaw.split('|')[0] : '';
+  const solRol    = solRaw ? solRaw.split('|')[1] : '';
 
   if(!agendarProcesoId){
     const idRaw = parseInt(document.getElementById('ag-id').value||'0');
     if(!idRaw){ showModalError('Ingresa el ID del proceso para continuar.'); return; }
     agendarProcesoId = idRaw;
   }
-  if(!tipo||!asig){
-    showModalError('Completa el tipo de tarea y el responsable asignado.');
-    return;
-  }
+  if(!tipo||!asig){ showModalError('Completa el tipo de tarea y el responsable asignado.'); return; }
+  if(!solNombre){ showModalError('Indica quién solicita la tarea.'); return; }
 
   const proc = DATA.find(r=>r.id===agendarProcesoId);
+
+  // Determinar estado según quién solicita:
+  // - Supervisor: aprobación automática → Pendiente
+  // - Abogado/otro: requiere aprobación → Pendiente aprobación
+  const esSup = solRol==='sup' || solRol==='gest'; // Gestión también aprueba directamente
+  const estadoInicial = esSup ? 'Pendiente' : 'Pendiente aprobación';
+  const supervisorDelProc = proc ? proc.supervisor : '';
+
   const nueva = buildTareaDesdeProc(agendarProcesoId, proc, {
     id: 'port_'+Date.now(),
     tipo, asignado: asig,
-    agendadoPor: agend||'—',
+    agendadoPor:  agend||'—',
+    solicitadoPor: solNombre,
+    supervisorAprobador: supervisorDelProc,
     fecha: fecha ? fecha.split('-').reverse().join('/') : '',
     hora: hora||'',
-    estado: 'Pendiente', obs, origen,
+    estado: estadoInicial,
+    obs, origen,
     tags: [...agTagsActivos],
     adjuntos: [...agAdjuntos]
   });
@@ -5097,15 +5170,30 @@ function confirmarAgendarTarea(){
   arr.unshift(nueva);
   saveTareasGestion(arr);
 
+  // Registrar en Panel Paralegal si requiere aprobación
+  if(estadoInicial==='Pendiente aprobación'){
+    registrarEnPanel({
+      tipo:    'aprobacion',
+      origen:  'gestion',
+      nroId:   agendarProcesoId,
+      cliente: proc?proc.cliente:'—',
+      expediente: proc?proc.expediente:'—',
+      supervisor: supervisorDelProc,
+      texto:   solNombre+' solicita tarea: '+tipo+(obs?' · '+obs:''),
+      autor:   solNombre,
+      tareaId: nueva.id,
+      estado:  'pendiente_aprobacion'
+    });
+    showToast('📋 Tarea enviada al supervisor '+supervisorDelProc+' para aprobación');
+  } else {
+    showToast('✓ Tarea agendada correctamente');
+  }
+
   document.getElementById('modalAgendar').classList.remove('show');
   agendarProcesoId = null;
-  resetTags();
-  resetAgAdjuntos();
-  renderGestion();
-  render(); renderAud();
-  // Refrescar planner si está visible
+  resetTags(); resetAgAdjuntos();
+  renderGestion(); render(); renderAud();
   if(typeof gestionView!=='undefined' && gestionView==='planner') renderPlanner();
-  showToast('✓ Tarea agendada correctamente');
 }
 
 // Modal de error simple (reemplaza alert())
@@ -5318,8 +5406,8 @@ function renderParalegal(){
       +'<div style="font-size:32px;margin-bottom:.5rem">📋</div>'
       +'<div>No hay entradas registradas.</div></div>';
   } else {
-    const tipoCls  = e=>e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':'pp-tipo-gestion';
-    const tipoLabel= e=>e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':'Tarea gestión';
+    const tipoCls  = e=>e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':e.tipo==='aprobacion'?'pp-tipo-aprobacion':'pp-tipo-gestion';
+    const tipoLabel= e=>e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':e.tipo==='aprobacion'?'⏳ Solicitud aprobación':'Tarea gestión';
     container.innerHTML = slice.map(e=>{
       const procUrl  = 'https://vinatea.mybig.com.ar/trabajos/overview/'+(e.nroId||0)+'/';
       const tareaUrl = e.nrotarea?'https://vinatea.mybig.com.ar/tareas/'+e.nrotarea+'/edit/':procUrl;
@@ -5348,9 +5436,16 @@ function renderParalegal(){
         +'<div class="pp-card-body'+(e.tipo==='dili'?' obs-cid':'')+'">'+esc(e.texto||'—').replace(/\n/g,'<br>')+'</div>'
         +'<div class="pp-card-meta">🕐 '+esc(e.ts||'—')+(e.autor&&e.autor!=='—'?' · 👤 '+esc(e.autor):'')+extra+'</div>'
         +'<div class="pp-card-actions">'
-          +(e.atendida
-            ?'<button class="pp-btn pp-btn-resp" onclick="marcarPPAtendida(\''+e.id+'\',false)">↩ Pendiente</button>'
-            :'<button class="pp-btn pp-btn-ok" onclick="marcarPPAtendida(\''+e.id+'\',true)">✓ Atendida</button>')
+          +(e.tipo==='aprobacion' && e.estado!=='aprobada' && e.estado!=='rechazada'
+            ?'<button class="pp-btn pp-btn-apro" onclick="aprobarTarea(\''+e.id+'\',\''+esc(e.tareaId||'')+'\')">✓ Aprobar</button>'
+             +'<button class="pp-btn pp-btn-rech" onclick="rechazarTarea(\''+e.id+'\',\''+esc(e.tareaId||'')+'\')">✗ Rechazar</button>'
+            :(e.estado==='aprobada'?'<span class="pp-apro-badge pp-apro-ok">✓ Aprobada</span>'
+             :e.estado==='rechazada'?'<span class="pp-apro-badge pp-apro-rech">✗ Rechazada</span>':''))
+          +(e.tipo!=='aprobacion'||e.estado==='aprobada'||e.estado==='rechazada'
+            ?(e.atendida
+              ?'<button class="pp-btn pp-btn-resp" onclick="marcarPPAtendida(\''+e.id+'\',false)">↩ Pendiente</button>'
+              :'<button class="pp-btn pp-btn-ok" onclick="marcarPPAtendida(\''+e.id+'\',true)">✓ Atendida</button>')
+            :'')
           +'<button class="pp-btn pp-btn-del" onclick="eliminarPPEntry(\''+e.id+'\')">✕ Eliminar</button>'
         +'</div>'
         +'</div>';
