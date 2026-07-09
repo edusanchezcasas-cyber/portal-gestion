@@ -2186,6 +2186,7 @@ function render(){
         const color=d>30?'var(--red)':d>14?'var(--amber)':'var(--text3)';
         return '<span style="color:'+color+';font-weight:600;font-size:11px">'+d+'d</span>';
       })();
+      const checked = selectedRows.rep.has(r.id) ? 'checked' : '';
       return'<tr '+sc+' onclick="selectRow(this)">'
         +'<td class="cb-td" onclick="event.stopPropagation()"><input type="checkbox" class="row-cb" data-id="'+r.id+'" data-tab="rep" '+checked+' onchange="onRowCheck(this,\'rep\')"></td>'
         +getGestionBadge(r.id)
