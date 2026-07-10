@@ -4759,6 +4759,20 @@ function getSentencias(nroId){
   return sents;
 }
 
+// ── HELPERS FORMATO FECHA / MONTO ────────────────────────────
+function fmtFechaEs(v){
+  if(v===null||v===undefined||v==='') return '';
+  const d = v instanceof Date ? v : new Date(v);
+  if(isNaN(d.getTime())) return String(v);
+  return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'}).replace(/\./g,'');
+}
+function fmtMonto(v){
+  if(v===null||v===undefined||v==='') return '';
+  const n = Number(String(v).replace(/,/g,''));
+  if(isNaN(n)) return String(v);
+  return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
 function renderSentencias(nroId){
   const sents = getSentencias(nroId);
   if(!sents.length) return '<div style="font-size:11px;color:var(--text4);padding:.3rem 0">Sin sentencias registradas.</div>';
@@ -4767,8 +4781,8 @@ function renderSentencias(nroId){
     +'<div class="sent-card-header"><span class="sent-inst">'+esc(s.label)+'</span>'
     +(s.resultado?'<span class="sent-resultado '+clsR(s.resultado)+'">'+esc(s.resultado)+'</span>':'')+'</div>'
     +'<div class="sent-sentencia">'+esc(s.sentencia||'—')+'</div>'
-    +(s.fecha?'<div class="sent-fecha">📅 '+esc(String(s.fecha).slice(0,10))+'</div>':'')
-    +(s.monto&&String(s.monto)!=='0'&&s.monto?'<div class="sent-monto">S/ '+esc(s.monto)+'</div>':'')
+    +(s.fecha?'<div class="sent-fecha">📅 '+esc(fmtFechaEs(s.fecha))+'</div>':'')
+    +(s.monto&&String(s.monto)!=='0'&&s.monto?'<div class="sent-monto">S/ '+esc(fmtMonto(s.monto))+'</div>':'')
     +(s.detalle?'<div class="sent-detalle">'+esc(String(s.detalle).slice(0,80))+'</div>':'')
   +'</div>').join('')+'</div>';
 }
