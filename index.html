@@ -2992,7 +2992,7 @@ function buildTareaFila(t, clase){
   const favTarMap = JSON.parse(localStorage.getItem('fav_tareas')||'{}');
   const esFavTar = !!favTarMap[t.id];
   return '<tr class="'+clase+'">'
-    +'<td style="width:24px;text-align:center;padding:0 2px" onclick="event.stopPropagation()"><span class="tg-fav-star'+(esFavTar?' activo':'')+'" onclick="toggleFavTarea(\'' +esc(t.id)+ '\',' +JSON.stringify(t.cliente||'')+ ',' +JSON.stringify(t.tipo||'')+ ')">⭐</span></td>'
+    +'<td style="width:24px;text-align:center;padding:0 2px" onclick="event.stopPropagation()"><span class="tg-fav-star'+(esFavTar?' activo':'')+'" data-tid="'+esc(t.id)+'" onclick="toggleFavTarea(this.dataset.tid)" title="'+(esFavTar?'Quitar de favoritos':'Marcar como favorito')+'">⭐</span></td>'
     +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
     +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
@@ -4724,11 +4724,19 @@ function toggleFavTarea(id, cliente, tipo){
 
 // ── SENTENCIAS DEL PROCESO ────────────────────────────────────
 function getSentencias(nroId){
-  // Las columnas de sentencias están en el mismo reporte total (rawRT)
   if(!rawRT||!rawRT.length) return [];
   const cl = v=>String(v==null?'':v).trim();
   const fila = rawRT.find(r=>Number(r['Nro']||r['nro']||0)===nroId);
   if(!fila) return [];
+  // Flujo: s1=1ra inst, s2=2da 1ra inst, s3=2da inst, s4=2da 2da inst, s5=3ra inst, s6=2da 3ra inst
+  const LABELS = {
+    1:'1ra instancia',
+    2:'2da sentencia 1ra inst.',
+    3:'2da instancia',
+    4:'2da sentencia 2da inst.',
+    5:'3ra instancia',
+    6:'2da sentencia 3ra inst.'
+  };
   const sents = [];
   for(let i=1;i<=6;i++){
     const fecha   = cl(fila['fecha_s'+i]||'');
@@ -4737,7 +4745,7 @@ function getSentencias(nroId){
     const monto   = cl(fila['monto_s'+i]||'');
     const detalle = cl(fila['detalle_s'+i]||'');
     if(sent||result){
-      sents.push({instancia:i, fecha, sentencia:sent, resultado:result, monto, detalle});
+      sents.push({label: LABELS[i], fecha, sentencia:sent, resultado:result, monto, detalle});
     }
   }
   return sents;
@@ -4747,9 +4755,9 @@ function renderSentencias(nroId){
   const sents = getSentencias(nroId);
   if(!sents.length) return '<div style="font-size:11px;color:var(--text4);padding:.3rem 0">Sin sentencias registradas.</div>';
   const clsR = r=>r==='Favorable'?'sent-fav':r.includes('Desfavorable')||r.includes('Adverso')?'sent-des':'sent-neu';
-  const instLabel = n=>n===1?'1ra':n===2?'2da':n===3?'3ra':n+'ta';
   return '<div class="sent-grid">'+sents.map(s=>'<div class="sent-card">'
-    +'<div class="sent-card-header"><span class="sent-inst">'+instLabel(s.instancia)+' instancia</span>'+(s.resultado?'<span class="sent-resultado '+clsR(s.resultado)+'">'+esc(s.resultado)+'</span>':'')+'</div>'
+    +'<div class="sent-card-header"><span class="sent-inst">'+esc(s.label)+'</span>'
+    +(s.resultado?'<span class="sent-resultado '+clsR(s.resultado)+'">'+esc(s.resultado)+'</span>':'')+'</div>'
     +'<div class="sent-sentencia">'+esc(s.sentencia||'—')+'</div>'
     +(s.fecha?'<div class="sent-fecha">📅 '+esc(String(s.fecha).slice(0,10))+'</div>':'')
     +(s.monto&&String(s.monto)!=='0'&&s.monto?'<div class="sent-monto">S/ '+esc(s.monto)+'</div>':'')
