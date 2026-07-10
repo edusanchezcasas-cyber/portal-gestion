@@ -4944,54 +4944,93 @@ function borrarComentarioTarea(idx){
 function exportarFavoritosExcel(){
   const favs   = getFavs();
   const favTar = getFavTareas();
-  const rows   = [];
-  // Procesos
-  Object.values(favs).forEach(f=>{
-    const proc = DATA.find(r=>r.id===f.id);
+
+  if(!Object.keys(favs).length && !Object.keys(favTar).length){
+    showToast('No hay favoritos para exportar');
+    return;
+  }
+
+  const fmtSentencias = sents => sents.length
+    ? sents.map(s=>s.label+': '+(s.resultado||s.sentencia||'—')+(s.fecha?' ('+fmtFechaEs(s.fecha)+')':'')+(s.monto&&String(s.monto)!=='0'?' — S/ '+fmtMonto(s.monto):'')).join('  |  ')
+    : '—';
+  const fmtComentarios = hist => hist.length
+    ? hist.map(h=>'['+(h.fecha||'—')+'] '+h.texto).join('  |  ')
+    : '—';
+
+  // Ancho automático de columna en base al contenido (con tope razonable)
+  const autoCols = rows => {
+    if(!rows.length) return [];
+    const headers = Object.keys(rows[0]);
+    return headers.map(h=>{
+      const maxLen = Math.max(h.length, ...rows.map(r=>String(r[h]==null?'':r[h]).length));
+      return { wch: Math.min(Math.max(maxLen+2, 10), 60) };
+    });
+  };
+
+  const wb = XLSX.utils.book_new();
+
+  // ── HOJA 1: PROCESOS FAVORITOS ──
+  const rowsProc = Object.values(favs).map(f=>{
+    const proc  = DATA.find(r=>r.id===f.id);
     const sents = getSentencias(f.id);
     const hist  = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
-    rows.push({
-      Tipo:'Proceso',
-      Usuario: f.usuario||'—',
-      ID: f.id,
-      Cliente: proc?proc.cliente:'—',
-      Expediente: proc?proc.expediente:'—',
-      Supervisor: proc?proc.supervisor:'—',
-      Responsable: proc?proc.responsable:'—',
-      Instancia: proc?proc.instancia:'—',
-      Situación: proc?proc.situacion:'—',
-      Pacto: proc?proc.pacto:'—',
-      'Próx.Audiencia': proc?proc.proxDiligencia:'—',
-      'Fecha Audiencia': proc?proc.proxDiliFecha:'—',
-      'Sentencias': sents.map(s=>s.instancia+'ra:'+s.resultado).join(' | '),
-      'Comentarios': hist.map(h=>h.fecha+': '+h.texto).join(' | ')
-    });
+    return {
+      'Usuario':          f.usuario||'—',
+      'ID Proceso':       f.id,
+      'Cliente':          proc?proc.cliente:'—',
+      'Expediente':       proc?proc.expediente:'—',
+      'Supervisor':       proc?proc.supervisor:'—',
+      'Responsable':      proc?proc.responsable:'—',
+      'Instancia':        proc?proc.instancia:'—',
+      'Situación':        proc?proc.situacion:'—',
+      'Pacto':            proc?(proc.pacto||'—'):'—',
+      'Relevancia':       proc?(proc.relevancia||'—'):'—',
+      'Distrito':         proc?(proc.distrito||'—'):'—',
+      'Próx. Diligencia': proc?(proc.proxDiligencia||'—'):'—',
+      'Fecha Diligencia': proc?(proc.proxDiliFecha||'—'):'—',
+      'Bitácora':         proc?(proc.bitacora||'—'):'—',
+      'Órgano':           proc?(proc.organo||'—'):'—',
+      'Sentencias':       fmtSentencias(sents),
+      'Comentarios':      fmtComentarios(hist),
+    };
   });
-  // Tareas
-  Object.values(favTar).forEach(f=>{
-    const t = getAllTareasGestion().find(x=>x.id===f.id);
-    const hist = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
-    rows.push({
-      Tipo:'Tarea',
-      Usuario:'—',
-      ID: f.id,
-      Cliente: f.cliente||'—',
-      Expediente:'—',
-      Supervisor: t?t.supervisor:'—',
-      Responsable: t?t.asignado:'—',
-      Instancia:'—',
-      Situación: t?t.estado:'—',
-      Pacto:'—',
-      'Próx.Audiencia':'—',
-      'Fecha Audiencia': t?t.fecha:'—',
-      'Sentencias':'—',
-      'Comentarios': hist.map(h=>h.fecha+': '+h.texto).join(' | ')
-    });
+  if(rowsProc.length){
+    const wsProc = XLSX.utils.json_to_sheet(rowsProc);
+    wsProc['!cols'] = autoCols(rowsProc);
+    wsProc['!autofilter'] = { ref: wsProc['!ref'] };
+    XLSX.utils.book_append_sheet(wb, wsProc, 'Procesos favoritos');
+  }
+
+  // ── HOJA 2: TAREAS FAVORITAS ──
+  const rowsTar = Object.values(favTar).map(f=>{
+    const tarea = getAllTareasGestion().find(x=>x.id===f.id);
+    const proc  = tarea ? DATA.find(r=>r.id===tarea.nroId) : null;
+    const hist  = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
+    const adj   = (tarea&&tarea.adjuntos)||[];
+    return {
+      'Usuario':      f.usuario||'—',
+      'Tipo de tarea':f.tipo||(tarea?tarea.tipo:'—')||'—',
+      'Cliente':      proc?proc.cliente:(f.cliente||'—'),
+      'Expediente':   proc?proc.expediente:(tarea?tarea.expediente:'—'),
+      'ID Proceso':   proc?proc.id:'—',
+      'Supervisor':   proc?(proc.supervisor||'—'):'—',
+      'Instancia':    proc?(proc.instancia||'—'):'—',
+      'Situación':    proc?(proc.situacion||'—'):'—',
+      'Asignado a':   tarea?(tarea.asignado||'—'):'—',
+      'Fecha tarea':  tarea?(tarea.fecha||'—'):'—',
+      'Estado':       tarea?(tarea.estado||'—'):'—',
+      'Nota de la tarea': tarea?(tarea.obs||'—'):'—',
+      'Adjuntos':     adj.length?adj.map(a=>a.nombre).join(', '):'—',
+      'Comentarios':  fmtComentarios(hist),
+    };
   });
-  if(!rows.length){ showToast('No hay favoritos para exportar'); return; }
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Favoritos');
+  if(rowsTar.length){
+    const wsTar = XLSX.utils.json_to_sheet(rowsTar);
+    wsTar['!cols'] = autoCols(rowsTar);
+    wsTar['!autofilter'] = { ref: wsTar['!ref'] };
+    XLSX.utils.book_append_sheet(wb, wsTar, 'Tareas favoritas');
+  }
+
   XLSX.writeFile(wb, 'favoritos_'+new Date().toISOString().slice(0,10)+'.xlsx');
   showToast('✓ Favoritos exportados a Excel');
 }
@@ -5036,7 +5075,7 @@ function exportarFavoritosPDF(){
           +'<div class="field"><label>Bitácora</label><span>'+esc((proc.bitacora||'—').slice(0,40))+'</span></div>'
           +'</div>':'')
         +(sents.length?'<div style="margin:6px 0"><strong style="font-size:10px;color:#6b7280">SENTENCIAS:</strong> '
-          +sents.map(s=>'<span class="sent '+(s.resultado==='Favorable'?'ok':s.resultado.includes('Desfavorable')?'bad':'neu')+'">'+s.instancia+'ra: '+esc(s.sentencia)+' ('+esc(s.resultado)+')</span>').join('')+'</div>':'')
+          +sents.map(s=>'<span class="sent '+(s.resultado==='Favorable'?'ok':s.resultado.includes('Desfavorable')?'bad':'neu')+'">'+esc(s.label)+': '+esc(s.sentencia||s.resultado||'—')+' ('+esc(s.resultado)+')'+(s.fecha?' · '+esc(fmtFechaEs(s.fecha)):'')+(s.monto&&String(s.monto)!=='0'?' · S/ '+esc(fmtMonto(s.monto)):'')+'</span>').join('')+'</div>':'')
         +(hist.length?'<div><strong style="font-size:10px;color:#6b7280">COMENTARIOS:</strong>'
           +hist.map(h=>'<div class="com">'+esc(h.fecha)+': '+esc(h.texto)+'</div>').join('')+'</div>':'')
         +'</div>';
