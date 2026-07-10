@@ -1976,7 +1976,39 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-// ── BORRAR CAMBIO PARALEGAL ──────────────────────────────────
+// ── ELIMINAR TAREA DE GESTIÓN ─────────────────────────────────
+function eliminarTareaGestion(id){
+  const tarea = getAllTareasGestion().find(t=>t.id===id);
+  const nombre = tarea ? (tarea.tipo||'').replace('Gestión - ','')+' — '+(tarea.cliente||'') : ('#'+id);
+  if(!confirm('¿Eliminar esta tarea?\n\n'+nombre+'\n\nEsta acción no se puede deshacer.')) return;
+
+  // Tarea manual creada desde el portal → se borra directamente
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===id);
+  if(idx>=0){
+    arr.splice(idx,1);
+    saveTareasGestion(arr);
+  } else {
+    // Tarea proveniente del Excel → no se puede borrar la fila origen,
+    // se marca como eliminada vía override para que deje de mostrarse
+    const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
+    overrides[id] = {...(overrides[id]||{}), eliminada:true};
+    localStorage.setItem('tgOverrides', JSON.stringify(overrides));
+  }
+
+  // Limpiar también de favoritos si estaba marcada
+  const favTar = getFavTareas();
+  if(favTar[id]){ delete favTar[id]; saveFavTareas(favTar); }
+
+  updateFavBadge();
+  renderGestion();
+  renderFavoritos();
+  renderParalegal();
+  if(document.getElementById('planner-table')) renderPlanner();
+  showToast('🗑 Tarea eliminada');
+}
+
+
 function borrarCambioParalegal(tareaId){
   // Borrar override de Excel
   const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
@@ -2013,6 +2045,8 @@ document.addEventListener('click', function(e){
   if(btnD) abrirDevolverTarea(btnD.dataset.tareaId);
   const btnC = e.target.closest('.btn-comentar-tarea');
   if(btnC) abrirComentariosTarea(btnC.dataset.tareaId);
+  const btnX = e.target.closest('.btn-eliminar-tarea');
+  if(btnX) eliminarTareaGestion(btnX.dataset.tareaId);
 });
 
 let DATA=[];
@@ -2900,8 +2934,10 @@ function saveTareasGestion(arr){
 // Combinar tareas del Excel + manuales
 function getAllTareasGestion(){
   const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
-  // Tareas del Excel con overrides aplicados
-  const deExcel = TAREAS_GESTION_EXCEL.map(t=>{
+  // Tareas del Excel con overrides aplicados (excluye las marcadas como eliminadas)
+  const deExcel = TAREAS_GESTION_EXCEL
+    .filter(t => !(overrides[t.id] && overrides[t.id].eliminada))
+    .map(t=>{
     const proc = DATA.find(r=>r.id===t.nroId);
     const ov = overrides[t.id] || {};
     return {
@@ -3009,6 +3045,7 @@ function buildTareaFila(t, clase){
       +'<button class="btn-redir btn-editar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px">✎ Editar</button>'
       +'<button class="btn-redir btn-comentar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--green);color:var(--green);background:var(--green-l);padding:3px 8px;font-size:11px">💬</button>'
       +'<button class="btn-redir btn-devolver-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--red-b);color:var(--red);background:var(--red-l);padding:3px 8px;font-size:11px">↩</button>'
+      +'<button class="btn-redir btn-eliminar-tarea" data-tarea-id="'+esc(t.id)+'" title="Eliminar tarea" style="border-color:var(--red-b);color:#fff;background:var(--red);padding:3px 8px;font-size:11px">🗑</button>'
     +'</td>'
     +'</tr>';
 }
@@ -4069,11 +4106,16 @@ function renderPlanner(){
         const horas = getHorasTarea(t.tipo);
         const horasLabel = horas>=1 ? horas+'h' : Math.round(horas*60)+'min';
         const key = t._key;
+        // El botón de eliminar solo aplica a tareas de gestión del portal (tienen t.id real en getAllTareasGestion)
+        const delBtn = t._src==='portal'
+          ?'<button class="btn-redir btn-eliminar-tarea" data-tarea-id="'+esc(t.id)+'" title="Eliminar tarea" onclick="event.stopPropagation()" style="position:absolute;top:3px;right:3px;width:16px;height:16px;line-height:14px;padding:0;font-size:9px;border:none;border-radius:3px;background:var(--red);color:#fff;opacity:.55;cursor:pointer">🗑</button>'
+          :'';
         html += '<div class="'+cls+'" draggable="true" '
           +'ondragstart="onPlannerDragStart(event,\''+key+'\')" '
           +'ondragend="onPlannerDragEnd(event)" '
           +'onclick="event.stopPropagation();abrirPlannerModal(\''+key+'\')" '
           +'style="border-left-color:'+bColor+'">'
+          +delBtn
           +'<div class="planner-card-tipo">'+esc(tipoLabel)+(esOriginal?' · original':'')+(reasignada&&!esOriginal?' · reasignada':'')+'</div>'
           +'<div class="planner-card-cliente">'+esc(t.cliente||'—')+'</div>'
           +'<div class="planner-card-tipo-full">'+esc(t.tipo||'')+'</div>'
