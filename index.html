@@ -524,6 +524,22 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 .planner-cell-add{opacity:0;transition:opacity .15s;font-size:11px;color:var(--text4);text-align:center;padding:4px;cursor:pointer;border:1px dashed transparent;border-radius:4px;width:100%}
 .planner-drop-zone:hover .planner-cell-add{opacity:1;border-color:var(--gray-b)}
 .planner-cell-add:hover{background:var(--gray-l);color:var(--blue)!important;border-color:var(--blue)!important}
+/* ── SENTENCIAS EN FAVORITOS ── */
+.sent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin:.5rem 0}
+.sent-card{background:var(--white);border:1px solid var(--gray-b);border-radius:var(--r);padding:8px 10px;font-size:11.5px}
+.sent-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.sent-inst{font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase}
+.sent-resultado{padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:600}
+.sent-fav{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.sent-des{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.sent-neu{background:var(--gray-l);color:var(--text3);border:1px solid var(--gray-b)}
+.sent-sentencia{font-weight:600;color:var(--text);margin-bottom:2px}
+.sent-fecha{font-size:10px;color:var(--text4)}
+.sent-monto{font-size:11px;color:var(--amber);font-weight:600;margin-top:2px}
+.sent-detalle{font-size:10.5px;color:var(--text3);margin-top:3px;font-style:italic}
+.tg-fav-star{cursor:pointer;font-size:13px;opacity:.25;transition:all .13s;user-select:none}
+.tg-fav-star:hover{opacity:.7}
+.tg-fav-star.activo{opacity:1;color:#f59e0b}
 /* ── APROBACIÓN DE TAREAS ── */
 .pp-tipo-aprobacion{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
 .pp-btn-apro{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}.pp-btn-apro:hover{background:#dcfce7}
@@ -717,6 +733,14 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
     </div>
     <div id="st2"></div>
     <input type="file" id="f2" accept=".xlsx" style="display:none" onchange="loadFile(this,'ta','st2')">
+    <div class="dz-label" style="margin-top:1rem"><span>⚖</span> Reporte de Sentencias <span style="font-size:11px;color:var(--text4)">(opcional)</span></div>
+    <div class="drop-zone" id="dz3" onclick="document.getElementById('f3').click()" ondragover="dzOver(event,'dz3')" ondragleave="dzOut('dz3')" ondrop="dzDrop(event,'dz3','sent')">
+      <span>↓</span>
+      <div class="dz-t">Arrastra aquí o haz clic para seleccionar</div>
+      <div class="dz-s">.xlsx — Reporte de sentencias (enriquece favoritos)</div>
+    </div>
+    <div id="st3"></div>
+    <input type="file" id="f3" accept=".xlsx" style="display:none" onchange="loadFile(this,'sent','st3')">
     <div class="modal-actions">
       <button class="btn" onclick="document.getElementById('modalCarga').classList.remove('show')">Cancelar</button>
       <button class="btn btn-dark" id="btnProcesar" disabled onclick="procesarExcel()">Procesar y actualizar</button>
@@ -1218,6 +1242,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       <div class="tg-list-wrap">
         <table>
           <thead><tr>
+            <th style="width:28px">⭐</th>
             <th style="min-width:65px">ID Proc.</th>
             <th style="min-width:155px">Cliente</th>
             <th style="min-width:130px">Expediente</th>
@@ -1227,6 +1252,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
             <th style="min-width:115px">Asignado a</th>
             <th style="min-width:100px">Agendado por</th>
             <th style="min-width:90px">Fecha límite</th>
+            <th style="min-width:120px">Fecha encargo</th>
             <th style="min-width:70px">Estado</th>
             <th style="min-width:180px">Observaciones</th>
             <th style="min-width:80px">Cambios</th>
@@ -1243,6 +1269,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
       <div class="tg-list-wrap">
         <table>
           <thead><tr>
+            <th style="width:28px">⭐</th>
             <th style="min-width:65px">ID Proc.</th>
             <th style="min-width:155px">Cliente</th>
             <th style="min-width:130px">Expediente</th>
@@ -1252,6 +1279,7 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
             <th style="min-width:115px">Asignado a</th>
             <th style="min-width:100px">Agendado por</th>
             <th style="min-width:90px">Fecha límite</th>
+            <th style="min-width:120px">Fecha encargo</th>
             <th style="min-width:70px">Estado</th>
             <th style="min-width:180px">Observaciones</th>
             <th style="min-width:80px">Cambios</th>
@@ -1323,6 +1351,10 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
         <option>Talía León</option>
       </select>
       <span class="count-lbl" id="fav-count">— favoritos</span>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn-sm" onclick="exportarFavoritosExcel()" style="font-size:11.5px">↓ Excel</button>
+        <button class="btn-sm" onclick="exportarFavoritosPDF()" style="font-size:11.5px">↓ PDF</button>
+      </div>
     </div>
     <div id="fav-container"></div>
   </div>
@@ -1504,7 +1536,8 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
     <div class="ag-form-row full">
       <div class="ag-field">
         <label>Observaciones</label>
-        <textarea id="ag-obs" placeholder="Indicaciones, contexto o acción requerida..."></textarea>
+        <textarea id="ag-obs" placeholder="Indicaciones, contexto o acción requerida..." maxlength="250" oninput="document.getElementById('ag-obs-cnt').textContent=this.value.length+'/250'"></textarea>
+        <div style="text-align:right;font-size:10.5px;color:var(--text4);margin-top:2px" id="ag-obs-cnt">0/250</div>
       </div>
     </div>
     <!-- TAGs -->
@@ -1731,6 +1764,43 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
   </div>
 </div>
 
+<!-- MODAL DEVOLVER TAREA -->
+<div class="overlay" id="modalDevolverTarea" onclick="if(event.target===this)this.classList.remove('show')">
+  <div style="background:var(--white);border-radius:12px;padding:1.5rem;width:460px;max-width:95vw;box-shadow:0 16px 48px rgba(0,0,0,.2)">
+    <div style="font-size:15px;font-weight:700;margin-bottom:.3rem">↩ Devolver tarea</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:1rem" id="dev-tarea-info">—</div>
+    <div style="margin-bottom:.75rem">
+      <label style="font-size:11px;font-weight:600;color:var(--text3);display:block;margin-bottom:.3rem">Motivo o comentario <span style="color:var(--red)">*</span></label>
+      <textarea id="dev-comentario" placeholder="Explica por qué se devuelve la tarea..." maxlength="250" style="width:100%;min-height:80px;padding:8px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;box-sizing:border-box" oninput="document.getElementById('dev-cnt').textContent=this.value.length+'/250'"></textarea>
+      <div style="text-align:right;font-size:10.5px;color:var(--text4)" id="dev-cnt">0/250</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn" onclick="document.getElementById('modalDevolverTarea').classList.remove('show')">Cancelar</button>
+      <button class="btn btn-dark" style="background:var(--red);border-color:var(--red)" onclick="confirmarDevolverTarea()">↩ Devolver tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMENTARIOS TAREA -->
+<div class="overlay" id="modalComentariosTarea" onclick="if(event.target===this)this.classList.remove('show')">
+  <div style="background:var(--white);border-radius:12px;padding:0;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.2)">
+    <div style="padding:1.1rem 1.4rem .8rem;border-bottom:1px solid var(--gray-b);position:sticky;top:0;background:var(--white);z-index:2">
+      <div style="font-size:15px;font-weight:700">💬 Comentarios de la tarea</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px" id="com-tarea-info">—</div>
+    </div>
+    <div style="padding:1rem 1.4rem">
+      <div id="com-historial" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:.75rem"></div>
+      <label style="font-size:11px;font-weight:600;color:var(--text3);display:block;margin-bottom:.3rem">Nuevo comentario</label>
+      <textarea id="com-nuevo" placeholder="Escribe un comentario o solicita información adicional... @nombre para mencionar" maxlength="250" style="width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;box-sizing:border-box" oninput="document.getElementById('com-cnt').textContent=this.value.length+'/250'"></textarea>
+      <div style="text-align:right;font-size:10.5px;color:var(--text4);margin-bottom:.5rem" id="com-cnt">0/250</div>
+    </div>
+    <div style="padding:.85rem 1.4rem;border-top:1px solid var(--gray-b);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--white)">
+      <button class="btn" onclick="document.getElementById('modalComentariosTarea').classList.remove('show')">Cerrar</button>
+      <button class="btn btn-dark" onclick="guardarComentarioTarea()">💬 Agregar comentario</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL FAVORITO USUARIO -->
 <div class="overlay" id="modalFavUser" onclick="if(event.target===this)this.classList.remove('show')">
   <div style="background:var(--white);border-radius:12px;padding:1.5rem;width:380px;max-width:95vw;box-shadow:0 16px 48px rgba(0,0,0,.2)">
@@ -1947,6 +2017,10 @@ document.addEventListener('click', function(e){
   if(btn) borrarCambioParalegal(btn.dataset.tareaId);
   const btnE = e.target.closest('.btn-editar-tarea');
   if(btnE) abrirPanelEdicion(btnE.dataset.tareaId);
+  const btnD = e.target.closest('.btn-devolver-tarea');
+  if(btnD) abrirDevolverTarea(btnD.dataset.tareaId);
+  const btnC = e.target.closest('.btn-comentar-tarea');
+  if(btnC) abrirComentariosTarea(btnC.dataset.tareaId);
 });
 
 let DATA=[];
@@ -2447,7 +2521,7 @@ function switchTab(name,el){
 }
 
 // Carga Excel
-let rawRT=null,rawTA=null;
+let rawRT=null,rawTA=null,rawSENT=null;
 let TAREAS_GESTION_EXCEL=[];
 let DILIGENCIAS_GESTION_EXCEL=[];
 let TAREAS_EXCEL_GESTION_ALL = [];
@@ -2461,7 +2535,7 @@ function loadFile(inp,tipo,stId){
     try{
       const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
       const json=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
-      if(tipo==='rt')rawRT=json;else rawTA=json;
+      if(tipo==='rt') rawRT=json; else if(tipo==='sent') rawSENT=json; else rawTA=json;
       showSt(stId,'✓ '+file.name+' — '+json.length.toLocaleString()+' filas cargadas','ok');
       document.getElementById('btnProcesar').disabled=!(rawRT&&rawTA);
     }catch(err){showSt(stId,'✗ Error: '+err.message,'err');}
@@ -2923,8 +2997,10 @@ function buildTareaFila(t, clase){
     :'https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/';
   const member = TEAM_GESTION.find(m=>m.nombre===t.asignado);
   const dot = member?'<span style="width:8px;height:8px;border-radius:50%;background:'+member.color+';display:inline-block;margin-right:4px;flex-shrink:0"></span>':'';
+  const favTarMap = JSON.parse(localStorage.getItem('fav_tareas')||'{}');
+  const esFavTar = !!favTarMap[t.id];
   return '<tr class="'+clase+'">'
-    +'<td><a class="id-link" href="'+tareaUrl+'" target="_blank">#'+(t.nroId||'—')+'</a></td>'
+    +'<td style="width:24px;text-align:center;padding:0 2px" onclick="event.stopPropagation()"><span class="tg-fav-star'+(esFavTar?' activo':'')+'" onclick="toggleFavTarea(\'' +esc(t.id)+ '\',' +JSON.stringify(t.cliente||'')+ ',' +JSON.stringify(t.tipo||'')+ ')">⭐</span></td>'
     +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
     +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
@@ -2933,10 +3009,15 @@ function buildTareaFila(t, clase){
     +'<td style="display:flex;align-items:center">'+dot+esc(t.asignado||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
     +'<td style="font-size:11px;color:var(--text2)">'+esc(t.fecha||'—')+'</td>'
+    +'<td style="font-size:10.5px;color:var(--text4);white-space:nowrap">'+esc(t.fechaEncargo||'—')+'</td>'
     +'<td>'+estadoBadge+'</td>'
     +'<td class="td-d" style="font-size:11px" title="'+esc(t.obs||'')+'">'+esc((t.obs||'').slice(0,30)+(t.obs&&t.obs.length>30?'…':''))+'</td>'
     +'<td>'+(cambios.length?'<span style="color:var(--amber);font-size:10.5px">⏳ '+cambios.join(' · ')+'</span>':'<span style="color:var(--text4)">—</span>')+'</td>'
-    +'<td><button class="btn-redir btn-editar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px">✎ Editar</button></td>'
+    +'<td style="display:flex;gap:4px;flex-wrap:wrap">'
+      +'<button class="btn-redir btn-editar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--blue-b);color:var(--blue);background:var(--blue-l);padding:3px 8px;font-size:11px">✎ Editar</button>'
+      +'<button class="btn-redir btn-comentar-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--green);color:var(--green);background:var(--green-l);padding:3px 8px;font-size:11px">💬</button>'
+      +'<button class="btn-redir btn-devolver-tarea" data-tarea-id="'+esc(t.id)+'" style="border-color:var(--red-b);color:var(--red);background:var(--red-l);padding:3px 8px;font-size:11px">↩</button>'
+    +'</td>'
     +'</tr>';
 }
 
@@ -4624,6 +4705,306 @@ function rechazarTarea(ppId, tareaId){
   showToast('✗ Tarea rechazada');
 }
 
+
+// ── FAVORITOS DE TAREAS DE GESTIÓN ───────────────────────────
+function getFavTareas(){ return JSON.parse(localStorage.getItem('fav_tareas')||'{}'); }
+function saveFavTareas(o){ localStorage.setItem('fav_tareas',JSON.stringify(o)); }
+
+function toggleFavTarea(id, cliente, tipo){
+  const favs = getFavTareas();
+  // Buscar datos de la tarea si no se pasan
+  if(!cliente&&!tipo){
+    const t = getAllTareasGestion().find(x=>x.id===id);
+    if(t){ cliente=t.cliente||''; tipo=t.tipo||''; }
+  }
+  if(favs[id]){
+    delete favs[id];
+    saveFavTareas(favs);
+    renderGestion(); renderFavoritos();
+    showToast('⭐ Tarea quitada de favoritos');
+  } else {
+    favs[id] = {id, cliente, tipo, ts: Date.now()};
+    saveFavTareas(favs);
+    updateFavBadge(); renderGestion(); renderFavoritos();
+    showToast('⭐ Tarea agregada a favoritos');
+  }
+}
+
+// ── SENTENCIAS DEL PROCESO ────────────────────────────────────
+function getSentencias(nroId){
+  if(!rawSENT||!rawSENT.length) return [];
+  const cl = v=>String(v==null?'':v).trim();
+  const fila = rawSENT.find(r=>Number(r['Nro']||r['nro']||0)===nroId);
+  if(!fila) return [];
+  const sents = [];
+  for(let i=1;i<=6;i++){
+    const fecha   = cl(fila['fecha_s'+i]||'');
+    const sent    = cl(fila['sentencia_s'+i]||'');
+    const result  = cl(fila['resultado_s'+i]||'');
+    const monto   = cl(fila['monto_s'+i]||'');
+    const detalle = cl(fila['detalle_s'+i]||'');
+    if(sent||result){
+      sents.push({instancia:i, fecha, sentencia:sent, resultado:result, monto, detalle});
+    }
+  }
+  return sents;
+}
+
+function renderSentencias(nroId){
+  const sents = getSentencias(nroId);
+  if(!sents.length) return '<div style="font-size:11px;color:var(--text4);padding:.3rem 0">Sin sentencias registradas.</div>';
+  const clsR = r=>r==='Favorable'?'sent-fav':r.includes('Desfavorable')||r.includes('Adverso')?'sent-des':'sent-neu';
+  const instLabel = n=>n===1?'1ra':n===2?'2da':n===3?'3ra':n+'ta';
+  return '<div class="sent-grid">'+sents.map(s=>'<div class="sent-card">'
+    +'<div class="sent-card-header"><span class="sent-inst">'+instLabel(s.instancia)+' instancia</span>'+(s.resultado?'<span class="sent-resultado '+clsR(s.resultado)+'">'+esc(s.resultado)+'</span>':'')+'</div>'
+    +'<div class="sent-sentencia">'+esc(s.sentencia||'—')+'</div>'
+    +(s.fecha?'<div class="sent-fecha">📅 '+esc(String(s.fecha).slice(0,10))+'</div>':'')
+    +(s.monto&&String(s.monto)!=='0'&&s.monto?'<div class="sent-monto">S/ '+esc(s.monto)+'</div>':'')
+    +(s.detalle?'<div class="sent-detalle">'+esc(String(s.detalle).slice(0,80))+'</div>':'')
+  +'</div>').join('')+'</div>';
+}
+
+// ── HELPER FAVORITOS COMENTARIOS ─────────────────────────────
+function guardarFavTareaComentario(id){
+  const ta = document.getElementById('fav-new-obs-tarea-'+id);
+  if(!ta||!ta.value.trim()){ showToast('Escribe algo primero'); return; }
+  const hist = JSON.parse(localStorage.getItem('fav_hist_tarea_'+id)||'[]');
+  hist.unshift({texto:ta.value.trim(), fecha:new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})});
+  localStorage.setItem('fav_hist_tarea_'+id, JSON.stringify(hist));
+  ta.value=''; renderFavoritos();
+  showToast('✓ Comentario guardado');
+}
+function borrarFavTareaComentario(id, idx){
+  const hist = JSON.parse(localStorage.getItem('fav_hist_tarea_'+id)||'[]');
+  hist.splice(idx,1);
+  localStorage.setItem('fav_hist_tarea_'+id, JSON.stringify(hist));
+  renderFavoritos();
+}
+
+// ── DEVOLVER TAREA ───────────────────────────────────────────
+let devolverTareaId = null;
+function abrirDevolverTarea(id){
+  devolverTareaId = id;
+  const t = getAllTareasGestion().find(x=>x.id===id);
+  document.getElementById('dev-tarea-info').textContent = t ? (t.tipo||'—')+' — '+(t.cliente||'').slice(0,40) : '#'+id;
+  document.getElementById('dev-comentario').value='';
+  document.getElementById('dev-cnt').textContent='0/250';
+  document.getElementById('modalDevolverTarea').classList.add('show');
+}
+function confirmarDevolverTarea(){
+  const comentario = document.getElementById('dev-comentario').value.trim();
+  if(!comentario){ showModalError('Escribe el motivo para devolver la tarea.'); return; }
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===devolverTareaId);
+  if(idx>=0){
+    arr[idx].estado = 'Devuelta';
+    if(!arr[idx].comentarios) arr[idx].comentarios=[];
+    arr[idx].comentarios.unshift({
+      texto: '↩ DEVUELTA: '+comentario,
+      autor: 'Equipo Gestión',
+      fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    });
+    saveTareasGestion(arr);
+    // Registrar en Panel Paralegal para notificar al que agendó
+    registrarEnPanel({
+      tipo:'gestion', origen:'gestion',
+      nroId: arr[idx].nroId||0,
+      cliente: arr[idx].cliente||'—',
+      expediente: arr[idx].expediente||'—',
+      supervisor: arr[idx].supervisor||'—',
+      texto: '↩ Tarea devuelta por Gestión: '+comentario,
+      autor:'Equipo Gestión',
+      tareaId: devolverTareaId
+    });
+  }
+  document.getElementById('modalDevolverTarea').classList.remove('show');
+  renderGestion(); showToast('↩ Tarea devuelta');
+}
+
+// ── COMENTARIOS EN TAREA ─────────────────────────────────────
+let comentarioTareaId = null;
+function abrirComentariosTarea(id){
+  comentarioTareaId = id;
+  const t = getAllTareasGestion().find(x=>x.id===id);
+  document.getElementById('com-tarea-info').textContent = t ? (t.tipo||'—')+' — '+(t.cliente||'').slice(0,40) : '#'+id;
+  document.getElementById('com-nuevo').value='';
+  document.getElementById('com-cnt').textContent='0/250';
+  renderComentariosTarea();
+  document.getElementById('modalComentariosTarea').classList.add('show');
+  setTimeout(()=>{const el=document.getElementById('com-nuevo');if(el)initMention(el);},100);
+}
+function renderComentariosTarea(){
+  const t = getAllTareasGestion().find(x=>x.id===comentarioTareaId);
+  const coms = (t&&t.comentarios)||[];
+  const c = document.getElementById('com-historial');
+  if(!c) return;
+  if(!coms.length){
+    c.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text4);font-size:12px">Sin comentarios aún.</div>';
+    return;
+  }
+  c.innerHTML = coms.map((cm,i)=>'<div style="padding:8px 10px;background:'+(cm.texto.startsWith('↩')?'#fef2f2':'var(--gray-l)')+';border-radius:var(--r);border-left:3px solid '+(cm.texto.startsWith('↩')?'var(--red)':'var(--blue)')+'">'
+    +'<div style="font-size:12px;color:var(--text)">'+esc(cm.texto)+'</div>'
+    +'<div style="font-size:10px;color:var(--text4);margin-top:3px;display:flex;justify-content:space-between">'
+      +'<span>'+esc(cm.autor||'—')+' · '+esc(cm.fecha||'')+'</span>'
+      +'<button data-cid="'+i+'" onclick="borrarComentarioTarea(+this.dataset.cid)" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button>'
+    +'</div></div>').join('');
+}
+function guardarComentarioTarea(){
+  const texto = document.getElementById('com-nuevo').value.trim();
+  if(!texto){ showToast('Escribe un comentario'); return; }
+  const arr = loadTareasGestion();
+  const idx = arr.findIndex(t=>t.id===comentarioTareaId);
+  if(idx>=0){
+    if(!arr[idx].comentarios) arr[idx].comentarios=[];
+    arr[idx].comentarios.unshift({
+      texto,
+      autor: '—',
+      fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    });
+    saveTareasGestion(arr);
+  }
+  document.getElementById('com-nuevo').value='';
+  document.getElementById('com-cnt').textContent='0/250';
+  renderComentariosTarea(); renderGestion();
+  showToast('✓ Comentario agregado');
+}
+function borrarComentarioTarea(idx){
+  const arr = loadTareasGestion();
+  const ti = arr.findIndex(t=>t.id===comentarioTareaId);
+  if(ti>=0&&arr[ti].comentarios){ arr[ti].comentarios.splice(idx,1); saveTareasGestion(arr); }
+  renderComentariosTarea();
+}
+
+// ── EXPORTAR FAVORITOS ───────────────────────────────────────
+function exportarFavoritosExcel(){
+  const favs   = getFavs();
+  const favTar = getFavTareas();
+  const rows   = [];
+  // Procesos
+  Object.values(favs).forEach(f=>{
+    const proc = DATA.find(r=>r.id===f.id);
+    const sents = getSentencias(f.id);
+    const hist  = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
+    rows.push({
+      Tipo:'Proceso',
+      Usuario: f.usuario||'—',
+      ID: f.id,
+      Cliente: proc?proc.cliente:'—',
+      Expediente: proc?proc.expediente:'—',
+      Supervisor: proc?proc.supervisor:'—',
+      Responsable: proc?proc.responsable:'—',
+      Instancia: proc?proc.instancia:'—',
+      Situación: proc?proc.situacion:'—',
+      Pacto: proc?proc.pacto:'—',
+      'Próx.Audiencia': proc?proc.proxDiligencia:'—',
+      'Fecha Audiencia': proc?proc.proxDiliFecha:'—',
+      'Sentencias': sents.map(s=>s.instancia+'ra:'+s.resultado).join(' | '),
+      'Comentarios': hist.map(h=>h.fecha+': '+h.texto).join(' | ')
+    });
+  });
+  // Tareas
+  Object.values(favTar).forEach(f=>{
+    const t = getAllTareasGestion().find(x=>x.id===f.id);
+    const hist = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
+    rows.push({
+      Tipo:'Tarea',
+      Usuario:'—',
+      ID: f.id,
+      Cliente: f.cliente||'—',
+      Expediente:'—',
+      Supervisor: t?t.supervisor:'—',
+      Responsable: t?t.asignado:'—',
+      Instancia:'—',
+      Situación: t?t.estado:'—',
+      Pacto:'—',
+      'Próx.Audiencia':'—',
+      'Fecha Audiencia': t?t.fecha:'—',
+      'Sentencias':'—',
+      'Comentarios': hist.map(h=>h.fecha+': '+h.texto).join(' | ')
+    });
+  });
+  if(!rows.length){ showToast('No hay favoritos para exportar'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Favoritos');
+  XLSX.writeFile(wb, 'favoritos_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('✓ Favoritos exportados a Excel');
+}
+
+function exportarFavoritosPDF(){
+  const favs   = getFavs();
+  const favTar = getFavTareas();
+  const fecha  = new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let html = '<html><head><meta charset="UTF-8"><style>'
+    +'body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:20px}'
+    +'h1{font-size:18px;color:#1a1a2e;border-bottom:2px solid #1a1a2e;padding-bottom:6px}'
+    +'h2{font-size:14px;color:#1a1a2e;margin-top:20px}'
+    +'.card{border:1px solid #e5e7eb;border-left:4px solid #f59e0b;border-radius:6px;padding:12px;margin-bottom:12px;page-break-inside:avoid}'
+    +'.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:11px;margin:8px 0;padding:8px;background:#f9fafb;border-radius:4px}'
+    +'.field label{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;display:block}'
+    +'.field span{color:#111;font-weight:500}'
+    +'.sent{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin:2px}'
+    +'.ok{background:#f0fdf4;color:#15803d}.bad{background:#fef2f2;color:#dc2626}.neu{background:#f3f4f6;color:#6b7280}'
+    +'.com{padding:6px 8px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:4px;font-size:11px;margin:3px 0}'
+    +'@media print{body{padding:0}}'
+    +'</style></head><body>'
+    +'<h1>⭐ Favoritos — Portal Gestión V&T</h1>'
+    +'<p style="color:#6b7280;font-size:11px">Generado el '+fecha+'</p>';
+
+  if(Object.keys(favs).length){
+    html += '<h2>Procesos favoritos</h2>';
+    Object.values(favs).forEach(f=>{
+      const proc = DATA.find(r=>r.id===f.id);
+      const sents = getSentencias(f.id);
+      const hist  = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
+      html += '<div class="card">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:6px">'
+          +'<div><strong>'+(proc?proc.cliente:'#'+f.id)+'</strong><br><span style="font-size:10px;color:#6b7280">'+(proc?proc.expediente:'')+'</span></div>'
+          +'<div style="font-size:10px;color:#6b7280">Usuario: <strong>'+f.usuario+'</strong> · #'+f.id+'</div>'
+        +'</div>'
+        +(proc?'<div class="grid">'
+          +'<div class="field"><label>Supervisor</label><span>'+esc(proc.supervisor||'—')+'</span></div>'
+          +'<div class="field"><label>Responsable</label><span>'+esc(proc.responsable||'—')+'</span></div>'
+          +'<div class="field"><label>Instancia</label><span>'+esc(proc.instancia||'—')+'</span></div>'
+          +'<div class="field"><label>Situación</label><span>'+esc(proc.situacion||'—')+'</span></div>'
+          +'<div class="field"><label>Próx. audiencia</label><span>'+esc(proc.proxDiligencia?proc.proxDiligencia+' · '+proc.proxDiliFecha:'—')+'</span></div>'
+          +'<div class="field"><label>Bitácora</label><span>'+esc((proc.bitacora||'—').slice(0,40))+'</span></div>'
+          +'</div>':'')
+        +(sents.length?'<div style="margin:6px 0"><strong style="font-size:10px;color:#6b7280">SENTENCIAS:</strong> '
+          +sents.map(s=>'<span class="sent '+(s.resultado==='Favorable'?'ok':s.resultado.includes('Desfavorable')?'bad':'neu')+'">'+s.instancia+'ra: '+esc(s.sentencia)+' ('+esc(s.resultado)+')</span>').join('')+'</div>':'')
+        +(hist.length?'<div><strong style="font-size:10px;color:#6b7280">COMENTARIOS:</strong>'
+          +hist.map(h=>'<div class="com">'+esc(h.fecha)+': '+esc(h.texto)+'</div>').join('')+'</div>':'')
+        +'</div>';
+    });
+  }
+
+  if(Object.keys(favTar).length){
+    html += '<h2>Tareas favoritas</h2>';
+    Object.values(favTar).forEach(f=>{
+      const t = getAllTareasGestion().find(x=>x.id===f.id);
+      const hist = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
+      html += '<div class="card" style="border-left-color:#16a34a">'
+        +'<div><strong>'+esc(f.cliente||'Tarea')+'</strong> · <span style="color:#16a34a">'+esc(f.tipo||'—')+'</span></div>'
+        +(t?'<div class="grid">'
+          +'<div class="field"><label>Asignado</label><span>'+esc(t.asignado||'—')+'</span></div>'
+          +'<div class="field"><label>Estado</label><span>'+esc(t.estado||'—')+'</span></div>'
+          +'<div class="field"><label>Fecha</label><span>'+esc(t.fecha||'—')+'</span></div>'
+          +'<div class="field"><label>Encargo</label><span>'+esc(t.fechaEncargo||'—')+'</span></div>'
+          +'</div>':'')
+        +(hist.length?'<div><strong style="font-size:10px;color:#6b7280">COMENTARIOS:</strong>'
+          +hist.map(h=>'<div class="com">'+esc(h.fecha)+': '+esc(h.texto)+'</div>').join('')+'</div>':'')
+        +'</div>';
+    });
+  }
+
+  html += '</body></html>';
+  const win = window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 500);
+}
+
 // ── FAVORITOS ────────────────────────────────────────────────
 function getFavs(){ return JSON.parse(localStorage.getItem('fav_procs')||'{}'); }
 function saveFavs(o){ localStorage.setItem('fav_procs',JSON.stringify(o)); }
@@ -4635,7 +5016,7 @@ function toggleFav(id){
   const favs = getFavs();
   const key = String(id);
   if(favs[key]){
-    // Ya es favorito — quitar directamente con confirmación visual
+    // Quitar — solo el dueño puede quitarlo, pero como no hay login, cualquiera puede
     delete favs[key];
     saveFavs(favs);
     updateFavBadge();
@@ -4643,13 +5024,14 @@ function toggleFav(id){
     showToast('⭐ Quitado de favoritos');
     return;
   }
-  // No es favorito — preguntar quién
+  // Verificar si ya está ocupado por alguien
+  // (en este portal compartido, si está en favs ya tiene dueño → bloquear)
+  // Como toggleFav se llama desde la estrella solo cuando NO está activo, aquí siempre es nuevo
   favPendingId = id;
   favSelectedUser = null;
   const proc = DATA.find(r=>r.id===id);
   const sub = document.getElementById('fav-modal-proc');
   if(sub) sub.textContent = proc ? '#'+id+' — '+(proc.cliente||'').slice(0,50) : '#'+id;
-  // Resetear selección
   document.querySelectorAll('.fav-user-btn').forEach(b=>b.classList.remove('sel'));
   const btn = document.getElementById('fav-modal-confirm');
   if(btn){ btn.disabled=true; btn.style.opacity='.4'; }
@@ -4683,11 +5065,19 @@ function confirmarFav(){
 
 function getFavBadge(id){
   const favs = getFavs();
-  const activo = !!favs[String(id)];
-  const usuario = activo ? favs[String(id)].usuario : '';
+  const key = String(id);
+  const activo = !!favs[key];
+  const usuario = activo ? favs[key].usuario : '';
+  // Si está marcado por otro usuario → candado bloqueado
+  if(activo){
+    return '<td style="width:28px;text-align:center;padding:0 4px;overflow:visible" onclick="event.stopPropagation()">'
+      +'<span class="fav-star activo" onclick="toggleFav('+id+')" title="Favorito de '+esc(usuario)+' — click para quitar">⭐</span>'
+      +'</td>';
+  }
+  // Ver si ya está ocupado por alguien más (para bloquear)
+  // En este modelo single-user no aplica bloqueo cruzado, pero dejamos el hook
   return '<td style="width:28px;text-align:center;padding:0 4px;overflow:visible" onclick="event.stopPropagation()">'
-    +'<span class="fav-star'+(activo?' activo':'')+'" onclick="toggleFav('+id+')" title="'
-    +(activo?'Quitar de favoritos ('+usuario+')':'Marcar como favorito')+'">⭐</span>'
+    +'<span class="fav-star" onclick="toggleFav('+id+')" title="Marcar como favorito">⭐</span>'
     +'</td>';
 }
 
@@ -4698,107 +5088,93 @@ function updateFavBadge(){
 }
 
 function renderFavoritos(){
-  const favs = getFavs();
+  const favs    = getFavs();
+  const favTar  = getFavTareas();
   const userFil = (document.getElementById('fav-user')||{}).value||'';
-  const entries = Object.values(favs).filter(f=>!userFil||f.usuario===userFil);
-
-  // Agrupar por usuario
-  const byUser = {};
-  entries.forEach(f=>{
-    if(!byUser[f.usuario]) byUser[f.usuario]=[];
-    byUser[f.usuario].push(f);
-  });
-
-  const cnt = document.getElementById('fav-count');
-  if(cnt) cnt.textContent = entries.length+' favorito'+(entries.length!==1?'s':'');
-
+  const procEnt = Object.values(favs).filter(f=>!userFil||f.usuario===userFil);
+  const tarEnt  = Object.values(favTar);
+  const total   = procEnt.length + tarEnt.length;
+  const cntEl   = document.getElementById('fav-count');
+  if(cntEl) cntEl.textContent = total+' favorito'+(total!==1?'s':'');
   const container = document.getElementById('fav-container');
   if(!container) return;
 
-  if(!entries.length){
-    container.innerHTML='<div style="text-align:center;padding:3rem;color:var(--text4);font-size:13px">'
-      +'<div style="font-size:40px;margin-bottom:.75rem">⭐</div>'
-      +'Sin procesos favoritos aún.<br>Márcalos desde Reporte Total o Próximas Audiencias.</div>';
+  if(!total){
+    container.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text4);font-size:13px"><div style="font-size:40px;margin-bottom:.75rem">⭐</div>Sin favoritos aún.<br>Márcalos desde Reporte Total, Próximas Audiencias o Tareas de Gestión.</div>';
     return;
   }
 
-  const userColors = {
-    'Roberto Matallana':'#dc2626','Carlos Morales':'#2563eb',
-    'Arturo Trelles':'#4f46e5','Silvia Maldonado':'#16a34a','Juan Jose Edquen':'#7c3aed'
-  };
+  const userColors={'Roberto Matallana':'#dc2626','Carlos Morales':'#2563eb','Arturo Trelles':'#4f46e5','Silvia Maldonado':'#16a34a','Juan Jose Edquen':'#7c3aed'};
+  let html = '';
 
-  container.innerHTML = Object.entries(byUser).map(([usr, items])=>{
-    const color = userColors[usr]||'#6b7280';
-    const cards = items.map(f=>{
-      const proc = DATA.find(r=>r.id===f.id);
-      const saved = JSON.parse(localStorage.getItem('fav_obs_'+f.id)||'{}');
+  // ── PROCESOS FAVORITOS ──
+  if(procEnt.length){
+    const byUser = {};
+    procEnt.forEach(f=>{ if(!byUser[f.usuario]) byUser[f.usuario]=[]; byUser[f.usuario].push(f); });
+    html += '<div style="font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">⭐ Procesos favoritos</div>';
+    html += Object.entries(byUser).map(([usr,items])=>{
+      const color = userColors[usr]||'#6b7280';
+      const cards = items.map(f=>{
+        const proc = DATA.find(r=>r.id===f.id);
+        const hist = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
+        const campos = proc?[
+          {l:'Supervisor',v:proc.supervisor},{l:'Responsable',v:proc.responsable},
+          {l:'Instancia',v:proc.instancia},{l:'Situación',v:proc.situacion},
+          {l:'Pacto',v:proc.pacto},{l:'Relevancia',v:proc.relevancia},
+          {l:'Distrito',v:proc.distrito},{l:'Próx.dilig.',v:proc.proxDiligencia?(proc.proxDiligencia+' · '+proc.proxDiliFecha):'—'},
+          {l:'Bitácora',v:proc.bitacora||'—'},{l:'Órgano',v:proc.organo||'—'},
+        ]:[];
+        const gridHtml = campos.length?'<div class="fav-card-grid">'+campos.map(c=>'<div class="fav-card-field"><label>'+esc(c.l)+'</label><span>'+esc((c.v||'—').slice(0,45))+'</span></div>').join('')+'</div>':'';
+        const sentHtml = rawSENT?'<div style="margin-bottom:.5rem"><div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">⚖ Sentencias previas</div>'+renderSentencias(f.id)+'</div>':'';
+        const histHtml = hist.length
+          ?'<div style="max-height:100px;overflow-y:auto;margin-bottom:.4rem;display:flex;flex-direction:column;gap:4px">'+hist.map((h,i)=>'<div style="padding:5px 9px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid #f59e0b;font-size:11.5px"><div>'+esc(h.texto)+'</div><div style="font-size:10px;color:var(--text4);display:flex;justify-content:space-between"><span>'+esc(h.fecha||'')+'</span><button onclick="borrarFavComentario('+f.id+','+i+')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button></div></div>').join('')+'</div>'
+          :'<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios.</div>';
+        return '<div class="fav-card">'
+          +'<div class="fav-card-header"><span class="fav-star activo" onclick="toggleFav('+f.id+')" style="flex-shrink:0">⭐</span>'
+          +'<div style="flex:1"><div class="fav-card-title">'+esc(proc?proc.cliente:'#'+f.id)+'</div>'
+          +'<div class="fav-card-exp">'+esc(proc?proc.expediente:'')+(proc&&proc.instancia?' · <span style="color:var(--blue)">'+esc(proc.instancia)+'</span>':'')+'</div></div>'
+          +'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+f.id+'/" target="_blank" style="font-size:11px">#'+f.id+'</a></div>'
+          +gridHtml+sentHtml
+          +'<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:.3rem">💬 Comentarios</div>'
+          +histHtml
+          +'<div style="display:flex;gap:6px;margin-bottom:.6rem"><textarea id="fav-new-obs-'+f.id+'" placeholder="Comentario... @nombre para mencionar" style="flex:1;min-height:45px;padding:7px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;box-sizing:border-box"></textarea></div>'
+          +'<div class="fav-card-actions"><button class="btn btn-dark" onclick="guardarFavComentario('+f.id+')" style="font-size:11px">💾 Guardar</button>'
+          +'<button class="btn-sm" onclick="abrirModalAgendar('+f.id+')" style="font-size:11px">+ Agendar</button>'
+          +'<button class="btn-sm" onclick="abrirObsProc('+f.id+')" style="font-size:11px">📋 CID</button></div>'
+          +'</div>';
+      }).join('');
+      return '<div style="margin-bottom:1.5rem"><div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem;padding:.4rem .6rem;background:var(--white);border-radius:var(--r);border:1px solid var(--gray-b)"><span style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;display:inline-block"></span><span style="font-weight:600;font-size:12.5px">'+esc(usr)+'</span><span style="font-size:11px;color:var(--text4)">'+items.length+' proceso'+(items.length!==1?'s':'')+'</span></div>'+cards+'</div>';
+    }).join('');
+  }
 
-      // Grid de datos del proceso
-      const campos = proc ? [
-        {l:'Supervisor',   v:proc.supervisor},
-        {l:'Responsable',  v:proc.responsable},
-        {l:'Instancia',    v:proc.instancia},
-        {l:'Situación',    v:proc.situacion},
-        {l:'Pacto',        v:proc.pacto},
-        {l:'Relevancia',   v:proc.relevancia},
-        {l:'Distrito',     v:proc.distrito},
-        {l:'Próx. dilig.', v:proc.proxDiligencia?(proc.proxDiligencia+' · '+proc.proxDiliFecha):'—'},
-        {l:'Bitácora',     v:proc.bitacora||'—'},
-        {l:'Órgano',       v:proc.organo||'—'},
-      ] : [];
-
-      const gridHtml = campos.length ? '<div class="fav-card-grid">'
-        +campos.map(c=>'<div class="fav-card-field"><label>'+esc(c.l)+'</label><span>'+esc((c.v||'—').slice(0,40))+'</span></div>').join('')
-        +'</div>' : '';
-
-      const historial = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
-      const histHtml = historial.length
-        ? '<div style="max-height:120px;overflow-y:auto;margin-bottom:.5rem;display:flex;flex-direction:column;gap:5px">'
-          +historial.map((h,i)=>`
-            <div style="padding:6px 10px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid #f59e0b;font-size:11.5px">
-              <div style="color:var(--text);line-height:1.5">${esc(h.texto)}</div>
-              <div style="font-size:10px;color:var(--text4);margin-top:2px;display:flex;justify-content:space-between">
-                <span>${esc(h.autor||'—')} · ${esc(h.fecha||'')}</span>
-                <button onclick="borrarFavComentario(${f.id},${i})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button>
-              </div>
-            </div>`).join('')
-          +'</div>'
-        : '<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios aún.</div>';
-
-      return '<div class="fav-card">'
-        +'<div class="fav-card-header">'
-          +'<span class="fav-star activo" onclick="toggleFav('+f.id+')" title="Quitar favorito" style="flex-shrink:0">⭐</span>'
-          +'<div style="flex:1">'
-            +'<div class="fav-card-title">'+esc(proc?proc.cliente:'#'+f.id)+'</div>'
-            +'<div class="fav-card-exp">'+esc(proc?proc.expediente:'')
-              +(proc&&proc.instancia?' · <span style="color:var(--blue)">'+esc(proc.instancia)+'</span>':'')+'</div>'
-          +'</div>'
-          +'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+f.id+'/" target="_blank" style="font-size:11px;flex-shrink:0">#'+f.id+'</a>'
-        +'</div>'
-        +gridHtml
-        +'<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em">💬 Comentarios</div>'
+  // ── TAREAS FAVORITAS ──
+  if(tarEnt.length){
+    html += '<div style="font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .6rem">⚡ Tareas favoritas</div>';
+    html += tarEnt.map(f=>{
+      const tarea = getAllTareasGestion().find(t=>t.id===f.id);
+      const hist  = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
+      const adj   = (tarea&&tarea.adjuntos)||[];
+      const histHtml = hist.length
+        ?'<div style="max-height:100px;overflow-y:auto;margin-bottom:.4rem;display:flex;flex-direction:column;gap:4px">'+hist.map((h,i)=>'<div style="padding:5px 9px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid var(--green);font-size:11.5px"><div>'+esc(h.texto)+'</div><div style="font-size:10px;color:var(--text4);display:flex;justify-content:space-between"><span>'+esc(h.fecha||'')+'</span><button data-tid="'+esc(f.id)+'" data-tidx="'+i+'" onclick="borrarFavTareaComentario(this.dataset.tid,+this.dataset.tidx)" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button></div></div>').join('')+'</div>'
+        :'<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios.</div>';
+      const adjHtml = adj.length?'<div style="margin-bottom:.4rem">'+adj.map(a=>'<div class="ag-adj-item"><span>'+(a.tipo.includes('image')?'🖼️':a.tipo.includes('pdf')?'📄':'📎')+'</span><a href="'+a.data+'" download="'+esc(a.nombre)+'">'+esc(a.nombre)+'</a></div>').join('')+'</div>':'';
+      return '<div class="fav-card" style="border-left-color:var(--green)">'
+        +'<div class="fav-card-header"><span class="tg-fav-star activo" data-fid="'+esc(f.id)+'" onclick="toggleFavTarea(this.dataset.fid)" style="font-size:14px;flex-shrink:0">⭐</span>'
+        +'<div style="flex:1"><div class="fav-card-title">'+esc(f.cliente||'Tarea #'+f.id)+'</div>'
+        +'<div style="font-size:11px;color:var(--green);font-weight:500">'+esc(f.tipo||'—')+'</div>'
+        +(tarea?'<div style="font-size:10.5px;color:var(--text3)">→ '+esc(tarea.asignado||'—')+' · '+esc(tarea.fecha||'—')+' · '+esc(tarea.estado||'')+'</div>':'')
+        +'</div></div>'
+        +(tarea&&tarea.obs?'<div style="padding:6px 9px;background:var(--gray-l);border-radius:var(--r);font-size:11.5px;margin-bottom:.4rem;color:var(--text3)">'+esc(tarea.obs)+'</div>':'')
+        +adjHtml
+        +'<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:.3rem">💬 Comentarios</div>'
         +histHtml
-        +'<div style="display:flex;gap:6px;margin-bottom:.75rem">'
-          +'<textarea id="fav-new-obs-'+f.id+'" placeholder="Escribe un comentario o observación... puedes usar @nombre para mencionar" '
-            +'style="flex:1;min-height:50px;padding:7px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;color:var(--text);box-sizing:border-box"></textarea>'
-        +'</div>'
-        +'<div class="fav-card-actions">'
-          +'<button class="btn btn-dark" onclick="guardarFavComentario('+f.id+')" style="font-size:11px">💾 Guardar comentario</button>'
-          +'<button class="btn-sm" onclick="abrirModalAgendar('+f.id+')" style="font-size:11px">+ Agendar tarea</button>'
-          +'<button class="btn-sm" onclick="abrirObsProc('+f.id+')" style="font-size:11px">📋 Panel CID</button>'
-        +'</div>'
+        +'<div style="display:flex;gap:6px;margin-bottom:.6rem"><textarea id="fav-new-obs-tarea-'+f.id+'" placeholder="Comentario sobre esta tarea..." style="flex:1;min-height:40px;padding:7px 10px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none;resize:vertical;box-sizing:border-box"></textarea></div>'
+        +'<button class="btn btn-dark" data-fid="'+esc(f.id)+'" onclick="guardarFavTareaComentario(this.dataset.fid)" style="font-size:11px">💾 Guardar</button>'
         +'</div>';
     }).join('');
+  }
 
-    return '<div style="margin-bottom:1.5rem">'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem;padding:.4rem .6rem;background:var(--white);border-radius:var(--r);border:1px solid var(--gray-b)">'
-        +'<span style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;display:inline-block"></span>'
-        +'<span style="font-weight:600;font-size:12.5px">'+esc(usr)+'</span>'
-        +'<span style="font-size:11px;color:var(--text4)">'+items.length+' favorito'+(items.length!==1?'s':'')+'</span>'
-      +'</div>'
-      +cards
-    +'</div>';
-  }).join('');
+  container.innerHTML = html;
 }
 
 function saveFavObs(id, texto){
@@ -5163,7 +5539,9 @@ function confirmarAgendarTarea(){
     estado: estadoInicial,
     obs, origen,
     tags: [...agTagsActivos],
-    adjuntos: [...agAdjuntos]
+    adjuntos: [...agAdjuntos],
+    fechaEncargo: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    comentarios: []
   });
 
   const arr = loadTareasGestion();
