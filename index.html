@@ -1992,7 +1992,7 @@ function eliminarTareaGestion(id){
       expediente: tarea.expediente||'—',
       supervisor: tarea.supervisor||'—',
       texto:   '🗑 Tarea eliminada: '+(tarea.tipo||'').replace('Gestión - ','')+(tarea.asignado?' · Asignada a: '+tarea.asignado:''),
-      autor:   '—',
+      autor:   'Equipo Gestión',
       tareaId: id
     });
   }
@@ -4179,7 +4179,7 @@ function onPlannerDrop(e, fecha, miembro){
           expediente: arr[idx].expediente||'—',
           supervisor: arr[idx].supervisor||'—',
           texto:   '↔ Reasignada (Planner): '+(anterior||'—')+' → '+miembro,
-          autor:   '—',
+          autor:   'Equipo Gestión',
           tareaId: tId,
           extra:   {asignado:miembro}
         });
@@ -4982,7 +4982,7 @@ function guardarComentarioTarea(){
       expediente: tarea.expediente||'—',
       supervisor: tarea.supervisor||'',
       texto:   texto,
-      autor:   '—',
+      autor:   'Equipo Gestión',
       destinatario: esDestReal?tarea.agendadoPor:'',
       tareaId: comentarioTareaId,
       estado:  'comentario'
@@ -5935,7 +5935,7 @@ function guardarGestionTarea(){
       expediente: tareaFinal?tareaFinal.expediente:'—',
       supervisor: proc?proc.supervisor:(tareaFinal?tareaFinal.supervisor:'—'),
       texto:      cambios.join(' · '),
-      autor:      '—',
+      autor:      'Equipo Gestión',
       extra:      {asignado,fecha,estado,comentario}
     });
   }
@@ -6030,31 +6030,43 @@ function renderParalegal(){
       const acc      = accionPP(e);
       const tBadge   = '<span class="pp-card-tipo '+acc.cls+'" title="Tipo de acción">'+acc.label+'</span>';
       const accionTxt = e.atendida ? null : queHacer(e);
-      let extra = '';
-      if(e.extra){
-        if(e.extra.asignado)   extra += ' · → '+esc(e.extra.asignado);
-        if(e.extra.estado)     extra += ' · Estado: '+esc(e.extra.estado);
-        if(e.extra.fecha)      extra += ' · Fecha: '+esc(e.extra.fecha);
-        if(e.extra.tipoAud)    extra += ' · '+esc(e.extra.tipoAud);
-      }
+
+      // Texto del movimiento: si trae varios cambios separados por " · ", se listan uno por línea
+      const parts = (e.texto||'—').split(' · ').map(p=>p.trim()).filter(Boolean);
+      const bodyHtml = parts.length>1
+        ? '<ul style="margin:2px 0 0 18px;padding:0;font-size:12.5px;color:var(--text)">'+parts.map(p=>'<li style="margin-bottom:2px">'+esc(p)+'</li>').join('')+'</ul>'
+        : '<div class="pp-card-body'+(e.tipo==='dili'?' obs-cid':'')+'" style="margin:2px 0 0">'+esc(e.texto||'—')+'</div>';
+      const extraHtml = e.extra&&e.extra.tipoAud ? '<div style="font-size:10.5px;color:var(--text4);margin-top:3px">Tipo: '+esc(e.extra.tipoAud)+'</div>' : '';
+
+      const tieneCliente = e.cliente && e.cliente!=='—';
+
       return '<div class="pp-card'+(e.atendida?' atendida':'')+'">'
-        +'<div class="pp-card-head">'
+        // Fila 1: qué tipo de acción es + de qué sección + hora, a la derecha
+        +'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
           +tBadge+oBadge
-          +(e.destinatario?'<span style="font-size:10px;padding:1px 8px;border-radius:10px;background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber);font-weight:700">📨 Para: '+esc(e.destinatario)+'</span>':'')
-          +'<div class="pp-card-proc" style="margin-top:6px">'
-            +'<span class="pp-card-cliente">'+esc((e.cliente||'—').slice(0,40))+'</span>'
-            +'<span class="pp-card-exp">'+esc(e.expediente||'—')+'</span>'
-            +(e.supervisor&&e.supervisor!=='—'?'<span class="badge b-d" style="font-size:10px">Sup: '+esc(e.supervisor)+'</span>':'')
+          +'<span style="margin-left:auto;font-size:10.5px;color:var(--text4);white-space:nowrap">🕐 '+esc(e.ts||'—')+'</span>'
+        +'</div>'
+        // Fila 2: el proceso — cliente, expediente, supervisor y el link directo a MyBiG
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--gray-b)">'
+          +'<div>'
+            +'<div style="font-weight:700;font-size:13px;color:var(--text)">'+(tieneCliente?esc(e.cliente.slice(0,45)):'<span style="color:var(--text4);font-weight:500">Sin proceso vinculado</span>')+'</div>'
+            +(e.expediente&&e.expediente!=='—'?'<div style="font-size:11px;color:var(--text3);margin-top:1px">'+esc(e.expediente)+'</div>':'')
+            +(e.supervisor&&e.supervisor!=='—'?'<div style="font-size:10.5px;color:var(--text4);margin-top:1px">Supervisor: '+esc(e.supervisor)+'</div>':'')
           +'</div>'
-          +'<div style="margin-left:auto;display:flex;gap:6px;align-items:flex-start">'
-            +(e.nrotarea?'<a class="id-link" href="'+tareaUrl+'" target="_blank" style="font-size:11px">#'+e.nrotarea+'</a>':'')
-            +(e.nroId?'<a class="id-link" href="'+procUrl+'" target="_blank" style="font-size:11px;color:var(--text3)">#'+e.nroId+'</a>':'')
+          +'<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0">'
+            +(e.nroId?'<a class="id-link" href="'+procUrl+'" target="_blank" style="font-size:11px;white-space:nowrap">🔗 Ver proceso en MyBiG</a>':'')
+            +(e.nrotarea?'<a class="id-link" href="'+tareaUrl+'" target="_blank" style="font-size:11px;white-space:nowrap;color:var(--text3)">📋 Ver tarea #'+e.nrotarea+'</a>':'')
           +'</div>'
         +'</div>'
-        +'<div class="pp-card-body'+(e.tipo==='dili'?' obs-cid':'')+'">'+esc(e.texto||'—').replace(/\n/g,'<br>')+'</div>'
-        +(accionTxt?'<div style="margin:6px 0;padding:6px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);font-size:11.5px;font-weight:600;color:#1d4ed8">'+accionTxt+'</div>':'')
-        +'<div class="pp-card-meta">🕐 '+esc(e.ts||'—')+(e.autor&&e.autor!=='—'?' · 👤 '+esc(e.autor):'')+extra+'</div>'
-        +'<div class="pp-card-actions">'
+        // Fila 3: qué pasó
+        +bodyHtml+extraHtml
+        // Fila 4: quién lo hizo y para quién es (siempre visibles, no solo como metadata suelta)
+        +'<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text3);margin:8px 0 0">'
+          +'<span>👤 Hecho por: <strong style="color:var(--text)">'+esc(e.autor&&e.autor!=='—'?e.autor:'Sistema')+'</strong></span>'
+          +(e.destinatario?'<span>📨 Para: <strong style="color:var(--amber)">'+esc(e.destinatario)+'</strong></span>':'')
+        +'</div>'
+        +(accionTxt?'<div style="margin:8px 0 0;padding:6px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);font-size:11.5px;font-weight:600;color:#1d4ed8">'+accionTxt+'</div>':'')
+        +'<div class="pp-card-actions" style="margin-top:10px">'
           +(e.tipo==='aprobacion' && e.estado!=='aprobada' && e.estado!=='rechazada'
             ?'<button class="pp-btn pp-btn-apro" onclick="aprobarTarea(\''+e.id+'\',\''+esc(e.tareaId||'')+'\')">✓ Aprobar</button>'
              +'<button class="pp-btn pp-btn-rech" onclick="rechazarTarea(\''+e.id+'\',\''+esc(e.tareaId||'')+'\')">✗ Rechazar</button>'
