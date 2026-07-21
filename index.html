@@ -1532,24 +1532,6 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
         <div style="text-align:right;font-size:10.5px;color:var(--text4);margin-top:2px" id="ag-obs-cnt">0/250</div>
       </div>
     </div>
-    <!-- TAGs -->
-    <div class="ag-form-row full">
-      <div class="ag-field">
-        <label>TAG / Etiqueta</label>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px" id="ag-tags-predef">
-          <span class="tag-chip" data-tag="Urgente"       onclick="toggleTag(this)" style="--tc:#dc2626">🔴 Urgente</span>
-          <span class="tag-chip" data-tag="En espera"     onclick="toggleTag(this)" style="--tc:#d97706">🟡 En espera</span>
-          <span class="tag-chip" data-tag="Revisión CID"  onclick="toggleTag(this)" style="--tc:#2563eb">🔵 Revisión CID</span>
-          <span class="tag-chip" data-tag="Cliente pend." onclick="toggleTag(this)" style="--tc:#7c3aed">🟣 Cliente pend.</span>
-          <span class="tag-chip" data-tag="Completado"    onclick="toggleTag(this)" style="--tc:#16a34a">🟢 Completado</span>
-        </div>
-        <div style="display:flex;gap:6px">
-          <input type="text" id="ag-tag-custom" placeholder="Tag personalizado..." style="flex:1;padding:5px 9px;border:1px solid var(--gray-b);border-radius:var(--r);font-size:12px;font-family:var(--font);outline:none">
-          <button class="btn-sm" onclick="addCustomTag()">+ Agregar</button>
-        </div>
-        <div id="ag-tags-selected" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px"></div>
-      </div>
-    </div>
     <!-- Adjuntos -->
     <div class="ag-form-row full">
       <div class="ag-field">
@@ -1796,7 +1778,8 @@ body.has-bulk-bar .pagination{margin-bottom:4.5rem}
 <!-- MODAL FAVORITO USUARIO -->
 <div class="overlay" id="modalFavUser" onclick="if(event.target===this)this.classList.remove('show')">
   <div style="background:var(--white);border-radius:12px;padding:1.5rem;width:380px;max-width:95vw;box-shadow:0 16px 48px rgba(0,0,0,.2)">
-    <div style="font-size:15px;font-weight:700;margin-bottom:.4rem">¿Quién está marcando este favorito?</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:.4rem">¿A quién se asigna este favorito?</div>
+    <div style="font-size:11px;color:var(--text4);margin-bottom:.5rem">Puedes elegir a más de una persona.</div>
     <div style="font-size:12px;color:var(--text3);margin-bottom:1rem" id="fav-modal-proc"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.2rem" id="fav-modal-users">
       <button class="fav-user-btn" data-user="Roberto Matallana" onclick="selFavUser(this)">
@@ -2948,6 +2931,8 @@ function getAllTareasGestion(){
       fecha:      ov.fecha     || t.fecha,
       obs:        ov.obs       || t.obs,
       estado:     ov.estado    || t.estado,
+      comentarios: ov.comentarios || t.comentarios || [],
+      adjuntos:    ov.adjuntos    || t.adjuntos    || [],
     };
   });
   const manuales = loadTareasGestion();
@@ -3029,6 +3014,7 @@ function buildTareaFila(t, clase){
   const esFavTar = !!favTarMap[t.id];
   return '<tr class="'+clase+'">'
     +'<td style="width:24px;text-align:center;padding:0 2px" onclick="event.stopPropagation()"><span class="tg-fav-star'+(esFavTar?' activo':'')+'" data-tid="'+esc(t.id)+'" onclick="toggleFavTarea(this.dataset.tid)" title="'+(esFavTar?'Quitar de favoritos':'Marcar como favorito')+'">⭐</span></td>'
+    +'<td>'+(t.nroId?'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+t.nroId+'/" target="_blank">#'+t.nroId+'</a>':'<span style="color:var(--text4)">—</span>')+'</td>'
     +'<td class="td-p" title="'+esc(t.cliente||'—')+'">'+esc((t.cliente||'—').slice(0,22)+(t.cliente&&t.cliente.length>22?'…':''))+'</td>'
     +'<td class="td-m" title="'+esc(t.expediente||'—')+'">'+esc(t.expediente||'—')+'</td>'
     +'<td class="td-d" style="font-size:11px">'+esc(supervisor)+'</td>'
@@ -3038,7 +3024,7 @@ function buildTareaFila(t, clase){
     +'<td class="td-d" style="font-size:11px">'+esc(t.agendadoPor||'—')+'</td>'
     +'<td style="font-size:11px;color:var(--text2)">'+esc(t.fecha||'—')+'</td>'
     +'<td style="font-size:10.5px;color:var(--text4);white-space:nowrap">'+esc(t.fechaEncargo||'—')+'</td>'
-    +'<td>'+estadoBadge+'</td>'
+    +'<td>'+estadoBadge+((t.adjuntos&&t.adjuntos.length)?' <span title="'+t.adjuntos.length+' adjunto'+(t.adjuntos.length!==1?'s':'')+'" style="font-size:10.5px;color:var(--text3)">📎'+t.adjuntos.length+'</span>':'')+'</td>'
     +'<td class="td-d" style="font-size:11px" title="'+esc(t.obs||'')+'">'+esc((t.obs||'').slice(0,30)+(t.obs&&t.obs.length>30?'…':''))+'</td>'
     +'<td>'+(cambios.length?'<span style="color:var(--amber);font-size:10.5px">⏳ '+cambios.join(' · ')+'</span>':'<span style="color:var(--text4)">—</span>')+'</td>'
     +'<td style="display:flex;gap:4px;flex-wrap:wrap">'
@@ -4758,12 +4744,12 @@ function toggleFavTarea(id, cliente, tipo){
     showToast('⭐ Tarea quitada de favoritos');
     return;
   }
-  // Nueva → preguntar a quién se le asigna este favorito (Roberto, Carlos, etc.)
+  // Nueva → preguntar a quién(es) se le asigna este favorito (Roberto, Carlos, etc.)
   favModalMode = 'tarea';
   favPendingId = id;
   favPendingTareaCliente = cliente||'';
   favPendingTareaTipo = tipo||'';
-  favSelectedUser = null;
+  favSelectedUsers = [];
   const sub = document.getElementById('fav-modal-proc');
   if(sub) sub.textContent = (tipo?tipo+' — ':'')+(cliente||'Tarea #'+id);
   document.querySelectorAll('.fav-user-btn').forEach(b=>b.classList.remove('sel'));
@@ -4798,7 +4784,18 @@ function getSentencias(nroId){
       sents.push({label: LABELS[i], fecha, sentencia:sent, resultado:result, monto, detalle});
     }
   }
-  return sents;
+  // Orden correlativo por fecha (cronológico). Las que no tienen fecha van al final,
+  // manteniendo entre sí el orden original de instancia.
+  return sents
+    .map((s,idx)=>({...s, _idx:idx, _t: s.fecha ? new Date(s.fecha).getTime() : NaN}))
+    .sort((a,b)=>{
+      const aOk = !isNaN(a._t), bOk = !isNaN(b._t);
+      if(!aOk && !bOk) return a._idx-b._idx;
+      if(!aOk) return 1;
+      if(!bOk) return -1;
+      return a._t-b._t;
+    })
+    .map(({_idx,_t,...s})=>s);
 }
 
 // ── HELPERS FORMATO FECHA / MONTO ────────────────────────────
@@ -4917,26 +4914,68 @@ function renderComentariosTarea(){
 function guardarComentarioTarea(){
   const texto = document.getElementById('com-nuevo').value.trim();
   if(!texto){ showToast('Escribe un comentario'); return; }
+
+  const tarea = getAllTareasGestion().find(x=>x.id===comentarioTareaId);
+  const nuevoComentario = {
+    texto,
+    autor: '—',
+    fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
+
+  // Tarea manual creada desde el portal → se guarda directo en su registro
   const arr = loadTareasGestion();
   const idx = arr.findIndex(t=>t.id===comentarioTareaId);
   if(idx>=0){
     if(!arr[idx].comentarios) arr[idx].comentarios=[];
-    arr[idx].comentarios.unshift({
-      texto,
-      autor: '—',
-      fecha: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
-    });
+    arr[idx].comentarios.unshift(nuevoComentario);
     saveTareasGestion(arr);
+  } else if(tarea){
+    // Tarea proveniente del Excel → se guarda vía override (no se puede tocar la fila origen)
+    const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
+    const actuales = overrides[comentarioTareaId]?.comentarios || tarea.comentarios || [];
+    overrides[comentarioTareaId] = {...(overrides[comentarioTareaId]||{}), comentarios:[nuevoComentario, ...actuales]};
+    localStorage.setItem('tgOverrides', JSON.stringify(overrides));
   }
+
+  // Notificar a quien agendó la tarea (si es una persona real, no el import de Excel)
+  if(tarea && tarea.agendadoPor && tarea.agendadoPor!=='—' && tarea.agendadoPor!=='Excel/MyBiG'){
+    registrarEnPanel({
+      tipo:    'comentario',
+      origen:  'gestion',
+      nroId:   tarea.nroId,
+      nrotarea:tarea.nrotarea,
+      cliente: tarea.cliente||'—',
+      expediente: tarea.expediente||'—',
+      supervisor: tarea.supervisor||'',
+      texto:   texto,
+      autor:   '—',
+      destinatario: tarea.agendadoPor,
+      tareaId: comentarioTareaId,
+      estado:  'comentario'
+    });
+  }
+
   document.getElementById('com-nuevo').value='';
   document.getElementById('com-cnt').textContent='0/250';
   renderComentariosTarea(); renderGestion();
-  showToast('✓ Comentario agregado');
+  showToast(tarea && tarea.agendadoPor && tarea.agendadoPor!=='—' && tarea.agendadoPor!=='Excel/MyBiG'
+    ? '✓ Comentario enviado a '+tarea.agendadoPor
+    : '✓ Comentario agregado');
 }
 function borrarComentarioTarea(idx){
   const arr = loadTareasGestion();
   const ti = arr.findIndex(t=>t.id===comentarioTareaId);
-  if(ti>=0&&arr[ti].comentarios){ arr[ti].comentarios.splice(idx,1); saveTareasGestion(arr); }
+  if(ti>=0 && arr[ti].comentarios){
+    arr[ti].comentarios.splice(idx,1);
+    saveTareasGestion(arr);
+  } else {
+    const overrides = JSON.parse(localStorage.getItem('tgOverrides')||'{}');
+    const tarea = getAllTareasGestion().find(x=>x.id===comentarioTareaId);
+    const actuales = (overrides[comentarioTareaId]?.comentarios || (tarea&&tarea.comentarios) || []).slice();
+    actuales.splice(idx,1);
+    overrides[comentarioTareaId] = {...(overrides[comentarioTareaId]||{}), comentarios:actuales};
+    localStorage.setItem('tgOverrides', JSON.stringify(overrides));
+  }
   renderComentariosTarea();
 }
 
@@ -4975,7 +5014,7 @@ function exportarFavoritosExcel(){
     const sents = getSentencias(f.id);
     const hist  = JSON.parse(localStorage.getItem('fav_hist_'+f.id)||'[]');
     return {
-      'Usuario':          f.usuario||'—',
+      'Usuario':          getFavUsuarios(f).join(', ')||'—',
       'ID Proceso':       f.id,
       'Cliente':          proc?proc.cliente:'—',
       'Expediente':       proc?proc.expediente:'—',
@@ -5008,7 +5047,7 @@ function exportarFavoritosExcel(){
     const hist  = JSON.parse(localStorage.getItem('fav_hist_tarea_'+f.id)||'[]');
     const adj   = (tarea&&tarea.adjuntos)||[];
     return {
-      'Usuario':      f.usuario||'—',
+      'Usuario':      getFavUsuarios(f).join(', ')||'—',
       'Tipo de tarea':f.tipo||(tarea?tarea.tipo:'—')||'—',
       'Cliente':      proc?proc.cliente:(f.cliente||'—'),
       'Expediente':   proc?proc.expediente:(tarea?tarea.expediente:'—'),
@@ -5064,7 +5103,7 @@ function exportarFavoritosPDF(){
       html += '<div class="card">'
         +'<div style="display:flex;justify-content:space-between;margin-bottom:6px">'
           +'<div><strong>'+(proc?proc.cliente:'#'+f.id)+'</strong><br><span style="font-size:10px;color:#6b7280">'+(proc?proc.expediente:'')+'</span></div>'
-          +'<div style="font-size:10px;color:#6b7280">Usuario: <strong>'+f.usuario+'</strong> · #'+f.id+'</div>'
+          +'<div style="font-size:10px;color:#6b7280">Usuario: <strong>'+esc(getFavUsuarios(f).join(', ')||'—')+'</strong> · #'+f.id+'</div>'
         +'</div>'
         +(proc?'<div class="grid">'
           +'<div class="field"><label>Supervisor</label><span>'+esc(proc.supervisor||'—')+'</span></div>'
@@ -5112,9 +5151,16 @@ function exportarFavoritosPDF(){
 // ── FAVORITOS ────────────────────────────────────────────────
 function getFavs(){ return JSON.parse(localStorage.getItem('fav_procs')||'{}'); }
 function saveFavs(o){ localStorage.setItem('fav_procs',JSON.stringify(o)); }
+// Devuelve siempre un array de usuarios asignados a un favorito, sea el formato viejo (usuario: string) o el nuevo (usuarios: array)
+function getFavUsuarios(f){
+  if(!f) return [];
+  if(Array.isArray(f.usuarios)) return f.usuarios;
+  if(f.usuario) return [f.usuario];
+  return [];
+}
 
 let favPendingId = null;
-let favSelectedUser = null;
+let favSelectedUsers = [];
 let favModalMode = 'proc'; // 'proc' | 'tarea'
 let favPendingTareaCliente = '';
 let favPendingTareaTipo = '';
@@ -5131,12 +5177,10 @@ function toggleFav(id){
     showToast('⭐ Quitado de favoritos');
     return;
   }
-  // Verificar si ya está ocupado por alguien
-  // (en este portal compartido, si está en favs ya tiene dueño → bloquear)
   // Como toggleFav se llama desde la estrella solo cuando NO está activo, aquí siempre es nuevo
   favModalMode = 'proc';
   favPendingId = id;
-  favSelectedUser = null;
+  favSelectedUsers = [];
   const proc = DATA.find(r=>r.id===id);
   const sub = document.getElementById('fav-modal-proc');
   if(sub) sub.textContent = proc ? '#'+id+' — '+(proc.cliente||'').slice(0,50) : '#'+id;
@@ -5147,15 +5191,24 @@ function toggleFav(id){
 }
 
 function selFavUser(el){
-  document.querySelectorAll('.fav-user-btn').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');
-  favSelectedUser = el.dataset.user;
+  // Multi-selección: cada botón se activa/desactiva de forma independiente
+  el.classList.toggle('sel');
+  const user = el.dataset.user;
+  if(el.classList.contains('sel')){
+    if(!favSelectedUsers.includes(user)) favSelectedUsers.push(user);
+  } else {
+    favSelectedUsers = favSelectedUsers.filter(u=>u!==user);
+  }
   const btn = document.getElementById('fav-modal-confirm');
-  if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+  if(btn){
+    btn.disabled = favSelectedUsers.length===0;
+    btn.style.opacity = favSelectedUsers.length===0 ? '.4' : '1';
+  }
 }
 
 function confirmarFav(){
-  if(!favPendingId || !favSelectedUser) return;
+  if(!favPendingId || !favSelectedUsers.length) return;
+  const usuariosTxt = favSelectedUsers.join(', ');
 
   if(favModalMode === 'tarea'){
     const favs = getFavTareas();
@@ -5163,21 +5216,21 @@ function confirmarFav(){
       id: favPendingId,
       cliente: favPendingTareaCliente,
       tipo: favPendingTareaTipo,
-      usuario: favSelectedUser,
+      usuarios: [...favSelectedUsers],
       ts: Date.now()
     };
     saveFavTareas(favs);
     document.getElementById('modalFavUser').classList.remove('show');
     favPendingId = null;
     updateFavBadge(); renderGestion(); renderFavoritos();
-    showToast('⭐ Tarea agregada a favoritos de '+favSelectedUser);
+    showToast('⭐ Tarea agregada a favoritos de '+usuariosTxt);
     return;
   }
 
   const favs = getFavs();
   favs[String(favPendingId)] = {
     id: favPendingId,
-    usuario: favSelectedUser,
+    usuarios: [...favSelectedUsers],
     ts: Date.now(),
     obs: ''
   };
@@ -5186,7 +5239,7 @@ function confirmarFav(){
   favPendingId = null;
   updateFavBadge();
   render(); renderAud();
-  showToast('⭐ Agregado a favoritos de '+favSelectedUser);
+  showToast('⭐ Agregado a favoritos de '+usuariosTxt);
 }
 
 
@@ -5194,11 +5247,10 @@ function getFavBadge(id){
   const favs = getFavs();
   const key = String(id);
   const activo = !!favs[key];
-  const usuario = activo ? favs[key].usuario : '';
-  // Si está marcado por otro usuario → candado bloqueado
+  const usuarios = activo ? getFavUsuarios(favs[key]).join(', ') : '';
   if(activo){
     return '<td style="width:28px;text-align:center;padding:0 4px;overflow:visible" onclick="event.stopPropagation()">'
-      +'<span class="fav-star activo" onclick="toggleFav('+id+')" title="Favorito de '+esc(usuario)+' — click para quitar">⭐</span>'
+      +'<span class="fav-star activo" onclick="toggleFav('+id+')" title="Favorito de '+esc(usuarios)+' — click para quitar">⭐</span>'
       +'</td>';
   }
   // Ver si ya está ocupado por alguien más (para bloquear)
@@ -5218,8 +5270,8 @@ function renderFavoritos(){
   const favs    = getFavs();
   const favTar  = getFavTareas();
   const userFil = (document.getElementById('fav-user')||{}).value||'';
-  const procEnt = Object.values(favs).filter(f=>!userFil||f.usuario===userFil);
-  const tarEnt  = Object.values(favTar).filter(f=>!userFil||f.usuario===userFil);
+  const procEnt = Object.values(favs).filter(f=>!userFil||getFavUsuarios(f).includes(userFil));
+  const tarEnt  = Object.values(favTar).filter(f=>!userFil||getFavUsuarios(f).includes(userFil));
   const total   = procEnt.length + tarEnt.length;
   const cntEl   = document.getElementById('fav-count');
   if(cntEl) cntEl.textContent = total+' favorito'+(total!==1?'s':'');
@@ -5237,7 +5289,7 @@ function renderFavoritos(){
   // ── PROCESOS FAVORITOS ──
   if(procEnt.length){
     const byUser = {};
-    procEnt.forEach(f=>{ if(!byUser[f.usuario]) byUser[f.usuario]=[]; byUser[f.usuario].push(f); });
+    procEnt.forEach(f=>{ getFavUsuarios(f).forEach(u=>{ if(!byUser[u]) byUser[u]=[]; byUser[u].push(f); }); });
     html += '<div style="font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.6rem">⭐ Procesos favoritos</div>';
     html += Object.entries(byUser).map(([usr,items])=>{
       const color = userColors[usr]||'#6b7280';
@@ -5256,10 +5308,13 @@ function renderFavoritos(){
         const histHtml = hist.length
           ?'<div style="max-height:100px;overflow-y:auto;margin-bottom:.4rem;display:flex;flex-direction:column;gap:4px">'+hist.map((h,i)=>'<div style="padding:5px 9px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid #f59e0b;font-size:11.5px"><div>'+esc(h.texto)+'</div><div style="font-size:10px;color:var(--text4);display:flex;justify-content:space-between"><span>'+esc(h.fecha||'')+'</span><button onclick="borrarFavComentario('+f.id+','+i+')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button></div></div>').join('')+'</div>'
           :'<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios.</div>';
+        const asignadosProc = getFavUsuarios(f);
+        const asignadosHtml = asignadosProc.length>1?'<div style="font-size:10.5px;color:var(--text3);margin-top:2px">👥 '+asignadosProc.map(u=>esc(u)).join(', ')+'</div>':'';
         return '<div class="fav-card">'
           +'<div class="fav-card-header"><span class="fav-star activo" onclick="toggleFav('+f.id+')" style="flex-shrink:0">⭐</span>'
           +'<div style="flex:1"><div class="fav-card-title">'+esc(proc?proc.cliente:'#'+f.id)+'</div>'
-          +'<div class="fav-card-exp">'+esc(proc?proc.expediente:'')+(proc&&proc.instancia?' · <span style="color:var(--blue)">'+esc(proc.instancia)+'</span>':'')+'</div></div>'
+          +'<div class="fav-card-exp">'+esc(proc?proc.expediente:'')+(proc&&proc.instancia?' · <span style="color:var(--blue)">'+esc(proc.instancia)+'</span>':'')+'</div>'
+          +asignadosHtml+'</div>'
           +'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+f.id+'/" target="_blank" style="font-size:11px">#'+f.id+'</a></div>'
           +gridHtml+sentHtml
           +'<div style="font-size:11px;font-weight:600;color:var(--text3);margin-bottom:.3rem">💬 Comentarios</div>'
@@ -5277,7 +5332,7 @@ function renderFavoritos(){
   // ── TAREAS FAVORITAS (agrupadas por usuario) ──
   if(tarEnt.length){
     const byUserTar = {};
-    tarEnt.forEach(f=>{ const u=f.usuario||'Sin asignar'; if(!byUserTar[u]) byUserTar[u]=[]; byUserTar[u].push(f); });
+    tarEnt.forEach(f=>{ const us=getFavUsuarios(f); (us.length?us:['Sin asignar']).forEach(u=>{ if(!byUserTar[u]) byUserTar[u]=[]; byUserTar[u].push(f); }); });
     html += '<div style="font-size:11px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .6rem">⚡ Tareas favoritas</div>';
     html += Object.entries(byUserTar).map(([usr,items])=>{
       const color = userColors[usr]||'#6b7280';
@@ -5306,12 +5361,15 @@ function renderFavoritos(){
         ?'<div style="max-height:100px;overflow-y:auto;margin-bottom:.4rem;display:flex;flex-direction:column;gap:4px">'+hist.map((h,i)=>'<div style="padding:5px 9px;background:var(--gray-l);border-radius:var(--r);border-left:3px solid var(--green);font-size:11.5px"><div>'+esc(h.texto)+'</div><div style="font-size:10px;color:var(--text4);display:flex;justify-content:space-between"><span>'+esc(h.fecha||'')+'</span><button data-tid="'+esc(f.id)+'" data-tidx="'+i+'" onclick="borrarFavTareaComentario(this.dataset.tid,+this.dataset.tidx)" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:10px;padding:0">✕</button></div></div>').join('')+'</div>'
         :'<div style="font-size:11px;color:var(--text4);margin-bottom:.4rem">Sin comentarios.</div>';
       const adjHtml = adj.length?'<div style="margin-bottom:.4rem"><div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem">📎 Adjuntos</div>'+adj.map(a=>'<div class="ag-adj-item"><span>'+(a.tipo.includes('image')?'🖼️':a.tipo.includes('pdf')?'📄':'📎')+'</span><a href="'+a.data+'" download="'+esc(a.nombre)+'">'+esc(a.nombre)+'</a></div>').join('')+'</div>':'';
+      const asignadosTar = getFavUsuarios(f);
+      const asignadosTarHtml = asignadosTar.length>1?'<div style="font-size:10.5px;color:var(--text3);margin-top:2px">👥 '+asignadosTar.map(u=>esc(u)).join(', ')+'</div>':'';
 
       return '<div class="fav-card" style="border-left-color:var(--green)">'
         +'<div class="fav-card-header"><span class="tg-fav-star activo" data-fid="'+esc(f.id)+'" onclick="toggleFavTarea(this.dataset.fid)" style="font-size:14px;flex-shrink:0">⭐</span>'
         +'<div style="flex:1"><div class="fav-card-title">'+esc(proc?proc.cliente:(f.cliente||'Tarea #'+f.id))+'</div>'
         +'<div class="fav-card-exp">'+esc(proc?proc.expediente:(tarea?tarea.expediente:''))+(proc&&proc.instancia?' · <span style="color:var(--blue)">'+esc(proc.instancia)+'</span>':'')+'</div>'
         +'<div style="margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+tareaBadge+'</div>'
+        +asignadosTarHtml
         +(tarea?'<div style="font-size:10.5px;color:var(--text3);margin-top:3px">→ '+esc(tarea.asignado||'—')+' · '+esc(tarea.fecha||'—')+' · '+esc(tarea.estado||'')+'</div>':'')
         +'</div>'
         +(proc?'<a class="id-link" href="https://vinatea.mybig.com.ar/trabajos/overview/'+proc.id+'/" target="_blank" style="font-size:11px">#'+proc.id+'</a>':'')
@@ -5362,38 +5420,7 @@ function borrarFavComentario(id, idx){
   renderFavoritos();
 }
 
-// ── TAGS ─────────────────────────────────────────────────────
-let agTagsActivos = [];
-function toggleTag(el){
-  const tag = el.dataset.tag;
-  el.classList.toggle('activo');
-  if(agTagsActivos.includes(tag)) agTagsActivos = agTagsActivos.filter(t=>t!==tag);
-  else agTagsActivos.push(tag);
-  renderTagsSelected();
-}
-function addCustomTag(){
-  const inp = document.getElementById('ag-tag-custom');
-  const tag = (inp.value||'').trim();
-  if(!tag||agTagsActivos.includes(tag)) return;
-  agTagsActivos.push(tag);
-  inp.value='';
-  renderTagsSelected();
-}
-function renderTagsSelected(){
-  const c = document.getElementById('ag-tags-selected');
-  if(!c) return;
-  c.innerHTML = agTagsActivos.map(t=>'<span style="padding:2px 8px;border-radius:10px;background:var(--gray-l);border:1px solid var(--gray-b);font-size:11px;display:inline-flex;align-items:center;gap:4px">'+esc(t)+'<button onclick="removeTag(\''+esc(t)+'\')" style="background:none;border:none;cursor:pointer;color:var(--text4);font-size:12px;padding:0;line-height:1">×</button></span>').join('');
-}
-function removeTag(tag){
-  agTagsActivos = agTagsActivos.filter(t=>t!==tag);
-  document.querySelectorAll('.tag-chip').forEach(el=>{ if(el.dataset.tag===tag) el.classList.remove('activo'); });
-  renderTagsSelected();
-}
-function resetTags(){
-  agTagsActivos=[];
-  document.querySelectorAll('.tag-chip').forEach(el=>el.classList.remove('activo'));
-  renderTagsSelected();
-}
+
 
 // ── ADJUNTOS EN AGENDAMIENTO ──────────────────────────────────
 let agAdjuntos = [];
@@ -5695,7 +5722,6 @@ function confirmarAgendarTarea(){
     hora: hora||'',
     estado: estadoInicial,
     obs, origen,
-    tags: [...agTagsActivos],
     adjuntos: [...agAdjuntos],
     fechaEncargo: new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
     comentarios: []
@@ -5726,7 +5752,7 @@ function confirmarAgendarTarea(){
 
   document.getElementById('modalAgendar').classList.remove('show');
   agendarProcesoId = null;
-  resetTags(); resetAgAdjuntos();
+  resetAgAdjuntos();
   renderGestion(); render(); renderAud();
   if(typeof gestionView!=='undefined' && gestionView==='planner') renderPlanner();
 }
@@ -5941,8 +5967,8 @@ function renderParalegal(){
       +'<div style="font-size:32px;margin-bottom:.5rem">📋</div>'
       +'<div>No hay entradas registradas.</div></div>';
   } else {
-    const tipoCls  = e=>e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':e.tipo==='aprobacion'?'pp-tipo-aprobacion':'pp-tipo-gestion';
-    const tipoLabel= e=>e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':e.tipo==='aprobacion'?'⏳ Solicitud aprobación':'Tarea gestión';
+    const tipoCls  = e=>e.tipo==='obs'?'pp-tipo-obs':e.tipo==='dili'?'pp-tipo-dili':e.tipo==='aprobacion'?'pp-tipo-aprobacion':e.tipo==='comentario'?'pp-tipo-gestion':'pp-tipo-gestion';
+    const tipoLabel= e=>e.tipo==='obs'?'Observación proceso':e.tipo==='dili'?'Nota diligencia':e.tipo==='aprobacion'?'⏳ Solicitud aprobación':e.tipo==='comentario'?'💬 Comentario de tarea':'Tarea gestión';
     container.innerHTML = slice.map(e=>{
       const procUrl  = 'https://vinatea.mybig.com.ar/trabajos/overview/'+(e.nroId||0)+'/';
       const tareaUrl = e.nrotarea?'https://vinatea.mybig.com.ar/tareas/'+e.nrotarea+'/edit/':procUrl;
@@ -5958,6 +5984,7 @@ function renderParalegal(){
       return '<div class="pp-card'+(e.atendida?' atendida':'')+'">'
         +'<div class="pp-card-head">'
           +tBadge+oBadge
+          +(e.destinatario?'<span style="font-size:10px;padding:1px 8px;border-radius:10px;background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber);font-weight:700">📨 Para: '+esc(e.destinatario)+'</span>':'')
           +'<div class="pp-card-proc" style="margin-top:6px">'
             +'<span class="pp-card-cliente">'+esc((e.cliente||'—').slice(0,40))+'</span>'
             +'<span class="pp-card-exp">'+esc(e.expediente||'—')+'</span>'
